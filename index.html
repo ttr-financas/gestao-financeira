@@ -343,8 +343,13 @@
   .loading-logo { position: relative; width: 104px; height: 104px; display: flex; align-items: center; justify-content: center; }
   .loading-logo::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 3px solid rgba(var(--w),.08); border-top-color: var(--primary); border-right-color: var(--primary2); animation: loadSpin 1s linear infinite; }
   @keyframes loadSpin { to { transform: rotate(360deg); } }
-  .loading-title { font-size: 17px; font-weight: 700; text-align: center; }
   .loading-sub { font-size: 13px; color: var(--muted); text-align: center; margin-top: 4px; }
+  .loading-brand { text-align: center; animation: brandIn .7s cubic-bezier(.2,.8,.2,1) both; }
+  .loading-title { font-size: 44px; font-weight: 800; letter-spacing: 10px; padding-left: 10px; line-height: 1; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 18px rgba(var(--pr),.35)); }
+  .loading-tag { margin-top: 10px; font-size: 13px; font-weight: 600; letter-spacing: 5px; padding-left: 5px; text-transform: uppercase; color: var(--text); opacity: .85; }
+  .loading-brand .loading-sub { margin-top: 14px; font-size: 12px; }
+  .loading-ver { position: absolute; left: 0; right: 0; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; color: var(--muted); opacity: .8; }
+  @keyframes brandIn { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
   .loading-bar { width: 150px; height: 4px; border-radius: 4px; background: rgba(var(--w),.08); overflow: hidden; }
   .loading-bar::after { content: ''; display: block; width: 40%; height: 100%; border-radius: 4px; background: var(--grad); animation: loadBar 1.2s ease-in-out infinite; }
   @keyframes loadBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
@@ -616,6 +621,16 @@
   .rec-item-acoes { display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
   .rec-item-acoes .btn-action { flex: 1 1 auto; text-align: center; }
   .rec-quitado { color: var(--success-text); font-weight: 700; font-size: 12px; }
+  .rec-prox { font-size: 13px; line-height: 1.5; margin: 0 0 10px; padding: 10px 12px; border-radius: 12px; background: rgba(var(--pr),.10); border: 1px solid rgba(var(--pr),.25); }
+  .rec-prox.atraso { background: rgba(239,68,68,.10); border-color: rgba(239,68,68,.35); }
+  .rec-prox b { font-weight: 800; }
+  .rec-parcs { margin: 10px 0 0; font-size: 12px; }
+  .rec-parcs summary { cursor: pointer; color: var(--accent-text); font-weight: 600; padding: 4px 0; }
+  .rec-parc { display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: center; padding: 7px 0; border-top: 1px solid var(--border); }
+  .rec-parc .st { font-size: 11px; color: var(--muted); }
+  .rec-parc.paga { opacity: .6; }
+  .rec-parc.atr .st { color: var(--danger-text); font-weight: 700; }
+  .rec-parc .vv { font-weight: 700; white-space: nowrap; }
   .rec-pessoa-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
   .rec-pessoa-acoes .btn { margin-top: 0; padding: 11px; font-size: 13px; }
 
@@ -655,11 +670,13 @@
 <body>
 <div class="loading-screen" id="loadingScreen" role="status" aria-live="polite">
   <div class="loading-logo"><div class="logo-icon"><img src="data:image/webp;base64,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" alt="Logo" draggable="false"></div></div>
-  <div>
-    <div class="loading-title">Gestão Financeira</div>
+  <div class="loading-brand">
+    <div class="loading-title">TTR</div>
+    <div class="loading-tag">Gestão Financeira</div>
     <div class="loading-sub" id="loadingTxt">Carregando...</div>
   </div>
   <div class="loading-bar"></div>
+  <div class="loading-ver">v1.0.0</div>
 </div>
 
 <div class="toast-box" id="toastBox"></div>
@@ -1556,6 +1573,28 @@ const devedoresDaCompra = id => state.devedores.filter(d => String(d.id_compra) 
 const compraAtivaId = id => state.compras.some(c => String(c.id_compra) === String(id) && isAtiva(c));
 const parcelaDevedor = (d, mes) => state.compras.filter(c => String(c.id_compra) === String(d.id_compra) && c.mes_referencia === mes && isAtiva(c)).reduce((s, c) => s + (Number(c.valor_parcela) || 0) * (Number(d.percentual) || 0) / 100, 0);
 
+/* parcelas da pessoa: cada parcela da compra x % dela; os recebimentos (valor solto) abatem da mais antiga p/ a mais nova */
+function devParcelas(d) {
+  const rows = state.compras.filter(c => String(c.id_compra) === String(d.id_compra) && isAtiva(c))
+    .sort((a, b) => String(a.data_parcela || a.mes_referencia).localeCompare(String(b.data_parcela || b.mes_referencia)));
+  if (!rows.length) return [];
+  const pct = Number(d.percentual) || 0;
+  const cent = rows.map(c => Math.round((Number(c.valor_parcela) || 0) * pct)); // centavos da parte dela
+  const alvo = Math.round((Number(d.valor_total) || 0) * 100);
+  const diff = alvo - cent.reduce((t, v) => t + v, 0);
+  if (Math.abs(diff) <= rows.length) cent[cent.length - 1] += diff; // acerta arredondamento na última
+  let sobra = Math.round(devRecebido(d) * 100);
+  const hoje = hojeISO();
+  return rows.map((c, i) => {
+    const valor = cent[i] / 100;
+    const pago = Math.min(valor, Math.max(0, sobra) / 100); sobra -= cent[i];
+    const falta = Math.max(0, Math.round((valor - pago) * 100) / 100);
+    const venc = c.data_parcela ? String(c.data_parcela).slice(0, 10) : '';
+    return { ref: c.parcela_referencia || `${i + 1}/${rows.length}`, num: i + 1, de: rows.length, venc, mes: c.mes_referencia, valor, pago, falta, quitada: falta < 0.005, atrasada: falta >= 0.005 && !!venc && venc < hoje };
+  });
+}
+const devProxima = d => devParcelas(d).find(p => !p.quitada) || null;
+
 async function carregarDevedores() {
   const { data, error } = await db.from('devedores').select('*').eq('grupo_id', grupoId()).order('id', { ascending: true });
   if (error) { state.devIndisponivel = true; state.devErro = error.message || ''; state.devedores = []; return; }
@@ -1606,13 +1645,20 @@ function renderReceber() {
   const itemHTML = d => {
     const total = Number(d.valor_total) || 0, rec = devRecebido(d), rest = devRestante(d);
     const pct = total > 0 ? Math.min(100, Math.round(rec / total * 100)) : 0;
-    const rows = state.compras.filter(c => String(c.id_compra) === String(d.id_compra) && isAtiva(c));
-    const ms = rows.map(c => c.mes_referencia).sort(), ultimo = ms[ms.length - 1];
-    const doMes = parcelaDevedor(d, mes), quit = rest <= 0.004;
+    const ps = devParcelas(d), quit = rest <= 0.004;
+    const abertas = ps.filter(p => !p.quitada), atrasadas = abertas.filter(p => p.atrasada), prox = abertas[0];
+    let destaque = '';
+    if (!quit && prox) {
+      const venc = prox.venc ? dataBR(prox.venc) : formatarMes(prox.mes);
+      destaque = `<div class="rec-prox ${prox.atrasada ? 'atraso' : ''} sensivel">${prox.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <b>parcela ${esc(prox.ref)}</b> · vence ${esc(venc)}<br>Valor da parcela: <b>${formatarMoeda(prox.falta)}</b>${prox.pago > 0.004 ? ` <span style="color:var(--muted);">(de ${formatarMoeda(prox.valor)}, já pago ${formatarMoeda(prox.pago)})</span>` : ''}${atrasadas.length > 1 ? `<br>${atrasadas.length} parcelas vencidas somando ${formatarMoeda(atrasadas.reduce((t, p) => t + p.falta, 0))}` : ''}</div>`;
+    }
+    const lista = ps.length > 1 ? `<details class="rec-parcs"><summary>Ver as ${ps.length} parcelas</summary>${ps.map(p => `<div class="rec-parc ${p.quitada ? 'paga' : p.atrasada ? 'atr' : ''}"><b>${esc(p.ref)}</b><div>${esc(p.venc ? dataBR(p.venc) : formatarMes(p.mes))}<div class="st">${p.quitada ? '✅ Paga' : p.atrasada ? 'Vencida' : p.pago > 0.004 ? 'Parcial · pago ' + formatarMoeda(p.pago) : 'A vencer'}</div></div><span class="vv sensivel">${formatarMoeda(p.quitada ? p.valor : p.falta)}</span></div>`).join('')}</details>` : '';
     return `<div class="rec-item">
       <div class="rec-item-top"><span>${esc(capIni(d.nome_compra))}</span><span class="v sensivel">${quit ? '' : formatarMoeda(rest)}</span></div>
-      <div class="rec-meta sensivel">${esc(fmtPct(d.percentual))}% da compra · total ${formatarMoeda(total)}${rows.length > 1 ? ` · ${rows.length}x, até ${esc(formatarMes(ultimo))}` : ''}<br>Recebido ${formatarMoeda(rec)}${doMes > 0.004 ? ` · Parcela de ${esc(formatarMes(mes))}: ${formatarMoeda(doMes)}` : ''}</div>
+      ${destaque}
+      <div class="rec-meta sensivel">Parte dela: ${esc(fmtPct(d.percentual))}% · total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}<br>Recebido ${formatarMoeda(rec)} · <b>Falta no total ${formatarMoeda(rest)}</b></div>
       <div class="rec-bar"><div style="width:${pct}%"></div></div>
+      ${lista}
       <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Quitado</span>' : ''}<button class="btn-action primary" data-act="rec-abrir" data-id="${esc(d.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button></div>
     </div>`;
   };
@@ -1630,9 +1676,27 @@ function textoCobranca(chave) {
   const itens = state.devedores.filter(d => normalizarNome(d.pessoa) === chave && devRestante(d) > 0.004 && compraAtivaId(d.id_compra));
   if (!itens.length) return '';
   const primeiro = capNome(itens[0].pessoa).split(' ')[0];
-  const linhas = itens.map(d => `• ${capIni(d.nome_compra)}: falta ${formatarMoeda(devRestante(d))}` + (devRecebido(d) > 0.004 ? ` (de ${formatarMoeda(d.valor_total)})` : ''));
-  const total = itens.reduce((s, d) => s + devRestante(d), 0);
-  return `Oi, ${primeiro}! Passando pra lembrar do que ficou pendente das compras que dividimos:\n\n${linhas.join('\n')}\n\nTotal: ${formatarMoeda(total)}\n\nQuando puder, me manda por Pix. Obrigado!`;
+  const blocos = itens.map(d => {
+    const ps = devParcelas(d), abertas = ps.filter(p => !p.quitada), rest = devRestante(d), rec = devRecebido(d);
+    const l = [`*${capIni(d.nome_compra)}*`];
+    const prox = abertas[0];
+    if (prox) {
+      l.push(`${prox.atrasada ? '⚠️ Parcela vencida' : '▶ Parcela'} ${prox.ref} · vence ${dataBR(prox.venc) || formatarMes(prox.mes)}`);
+      l.push(`Valor da parcela: ${formatarMoeda(prox.falta)}` + (prox.pago > 0.004 ? ` (de ${formatarMoeda(prox.valor)})` : ''));
+    }
+    if (abertas.length > 1) {
+      l.push('Parcelas em aberto:');
+      abertas.forEach(p => l.push(`   • ${p.ref} · ${dataBR(p.venc) || formatarMes(p.mes)} · ${formatarMoeda(p.falta)}${p.atrasada ? ' (vencida)' : ''}`));
+    }
+    l.push(`Total da sua parte: ${formatarMoeda(d.valor_total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}`);
+    if (rec > 0.004) l.push(`Já pago: ${formatarMoeda(rec)}`);
+    l.push(`Falta no total: ${formatarMoeda(rest)}`);
+    return l.join('\n');
+  });
+  const total = itens.reduce((t, d) => t + devRestante(d), 0);
+  const proxima = itens.map(devProxima).filter(Boolean);
+  const devidoAgora = proxima.reduce((t, p) => t + (p.atrasada ? p.falta : 0), 0);
+  return `Oi, ${primeiro}! Passando pra lembrar do que ficou pendente das compras que dividimos:\n\n${blocos.join('\n\n')}\n\n${itens.length > 1 ? `💰 Falta no total (tudo): ${formatarMoeda(total)}\n` : ''}${devidoAgora > 0.004 ? `⚠️ Vencido até hoje: ${formatarMoeda(devidoAgora)}\n` : ''}\nQuando puder, me manda por Pix. Obrigado!`;
 }
 async function copiarTexto(txt) {
   try { await navigator.clipboard.writeText(txt); return true; } catch (e) {}
@@ -1657,7 +1721,8 @@ function abrirReceber(id) {
 }
 function renderReceberModal() {
   const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (!d) return;
-  $('recInfo').innerHTML = `Valor devido: <strong>${formatarMoeda(d.valor_total)}</strong> (${esc(fmtPct(d.percentual))}% da compra)<br>Recebido: <strong>${formatarMoeda(devRecebido(d))}</strong> · Falta: <strong>${formatarMoeda(devRestante(d))}</strong>`;
+  const ps = devParcelas(d), pr = ps.find(p => !p.quitada);
+  $('recInfo').innerHTML = (pr ? `${pr.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <strong>parcela ${esc(pr.ref)}</strong> · vence ${esc(dataBR(pr.venc) || formatarMes(pr.mes))} · <strong>${formatarMoeda(pr.falta)}</strong><br>` : '') + `Total da parte dela: <strong>${formatarMoeda(d.valor_total)}</strong> (${esc(fmtPct(d.percentual))}% da compra${ps.length > 1 ? `, ${ps.length}x` : ''})<br>Recebido: <strong>${formatarMoeda(devRecebido(d))}</strong> · Falta no total: <strong>${formatarMoeda(devRestante(d))}</strong>`;
   const rs = devRecebimentos(d).map((r, i) => [r, i]).reverse();
   $('recLista').innerHTML = rs.length ? rs.map(([r, i]) => `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">💵 Recebido${r.obs ? ' · ' + esc(r.obs) : ''}</div><div class="meta" style="font-size:11px;"><div>${esc(dataBR(r.data))}${r.por ? ' · registrado por ' + esc(capNome(r.por)) : ''}</div></div></div><div class="valor" style="font-size:15px;color:var(--success-text);">+ ${formatarMoeda(r.valor)}</div><button class="icon-btn" data-act="rec-delmov" data-idx="${i}" title="Excluir">🗑️</button></div>`).join('')
     : '<p style="text-align:center;color:var(--muted);padding:16px;font-size:13px;">Nenhum recebimento ainda.</p>';

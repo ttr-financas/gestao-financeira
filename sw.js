@@ -9,8 +9,8 @@ self.addEventListener('push', e => {
   try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : '' }; }
   e.waitUntil(self.registration.showNotification(d.title || 'Gestão Financeira', {
     body: d.body || '',
-    icon: 'icon-192.png',
-    badge: 'badge-96.png',
+    icon: d.icon || 'icon-192.png',
+    badge: d.badge || 'badge-96.png',
     tag: d.tag || 'vencimentos',
     renotify: true,
     timestamp: Date.now(),
