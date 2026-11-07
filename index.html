@@ -641,6 +641,15 @@
   .venc-item.venc { border-left: 4px solid var(--danger); } .venc-item.hoje { border-left: 4px solid var(--warn); }
   .venc-item small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
   .venc-item strong { white-space: nowrap; align-self: center; }
+
+  .btn-olho { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; background: var(--card2); border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: background .15s, color .15s, border-color .15s; }
+  .btn-olho:hover { border-color: var(--border-strong); }
+  .btn-olho svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .btn-olho .ic-oculto { display: none; }
+  body.privado .btn-olho { color: #fff; background: var(--grad); border-color: transparent; }
+  body.privado .btn-olho .ic-ver { display: none; }
+  body.privado .btn-olho .ic-oculto { display: block; }
+  @media (max-width: 400px) { .month-selector { gap: 6px; } .multi-month-btn { min-width: 0; padding: 10px 14px; gap: 6px; } .btn-olho { left: 6px; } }
 </style>
 </head>
 <body>
@@ -697,6 +706,10 @@
 </header>
 
 <div class="month-selector" id="monthSelector" style="display:none">
+  <button class="btn-olho" id="btnOlho" type="button" aria-label="Ocultar ou mostrar valores" aria-pressed="false" title="Ocultar/mostrar valores">
+    <svg class="ic-ver" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+    <svg class="ic-oculto" viewBox="0 0 24 24"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a19.8 19.8 0 0 1 5.06-5.94M9.9 5.24A10.4 10.4 0 0 1 12 5c7 0 11 7 11 7a19.9 19.9 0 0 1-3.17 4.19M14.12 14.12A3 3 0 1 1 9.88 9.88"/><path d="M1 1l22 22"/></svg>
+  </button>
   <button id="btnMesAnt" aria-label="Mês anterior">‹</button>
   <div class="multi-month-box">
     <button class="multi-month-btn" id="btnMultiMes"><span id="labelMes">Mês</span><span style="font-size:10px;opacity:.7;">▼</span></button>
@@ -1081,9 +1094,6 @@
     <div class="cfg-titulo">Aparência</div>
     <div class="tema-grid" id="temaGrid"></div>
     <p class="hint">O tema fica salvo neste aparelho. "Automático" acompanha o modo claro/escuro do celular.</p>
-    <div class="cfg-titulo">Privacidade</div>
-    <label class="check-row"><input type="checkbox" id="cfgOcultarValores"><span>Ocultar valores na tela (borrar os números)</span></label>
-    <p class="hint">Útil para abrir o app perto de outras pessoas. Vale só neste aparelho e fica salvo.</p>
     <div class="cfg-titulo" id="cfgTituloAdmin" style="display:none;">Administração</div>
     <button class="cfg-item" id="btnGerenciarUsuarios" type="button" style="display:none;"><span class="cfg-ic">👥</span><span class="cfg-tx"><strong>Gerenciar usuários</strong><small>Acessos e permissões do grupo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Conta</div>
@@ -1963,12 +1973,12 @@ async function statusPush() {
 }
 function aplicarPrivacidade(on) {
   document.body.classList.toggle('privado', !!on);
+  const bo = $('btnOlho'); if (bo) { bo.setAttribute('aria-pressed', on ? 'true' : 'false'); bo.title = on ? 'Mostrar valores' : 'Ocultar valores'; }
   try { localStorage.setItem('ttr_ocultar_valores', on ? '1' : '0'); } catch (e) {}
 }
 function lerPrivacidade() { try { return localStorage.getItem('ttr_ocultar_valores') === '1'; } catch (e) { return false; } }
 function abrirConfiguracoes(e) {
   if (e) e.preventDefault();
-  $('cfgOcultarValores').checked = lerPrivacidade();
   renderTemas();
   const adm = !!(currentUser && currentUser.is_admin);
   $('btnGerenciarUsuarios').style.display = adm ? 'flex' : 'none';
@@ -2054,8 +2064,8 @@ function mostrarAlertaVencimentos(forcar) {
   const soma = l => l.reduce((s, p) => s + faltaParcela(p), 0);
   const item = (p, cls, sub) => `<div class="venc-item ${cls}"><div><div style="font-weight:600;">${esc(capIni(p.nome_compra))}${p.parcela_referencia && p.parcela_referencia !== '1/1' ? ' · ' + esc(p.parcela_referencia) : ''}</div><small>${esc(sub)} · ${esc(rotuloPagto(p))}</small></div><strong class="sensivel">${fm(faltaParcela(p))}</strong></div>`;
   let h = '';
-  if (venc.length) h += `<div class="venc-sec venc">🔴 Vencidas (${venc.length}) · <span class="sensivel">${fm(soma(venc))}</span></div>` + venc.map(p => item(p, 'venc', rotuloAtraso(diasAtraso(p)) + ' (' + dataBR(p.data_parcela) + ')')).join('');
-  if (hoje.length) h += `<div class="venc-sec hoje">🟡 Vencem hoje (${hoje.length}) · <span class="sensivel">${fm(soma(hoje))}</span></div>` + hoje.map(p => item(p, 'hoje', 'Vence hoje')).join('');
+  if (venc.length) h += `<div class="venc-sec venc">⚠️ Vencidas (${venc.length}) · <span class="sensivel">${fm(soma(venc))}</span></div>` + venc.map(p => item(p, 'venc', rotuloAtraso(diasAtraso(p)) + ' (' + dataBR(p.data_parcela) + ')')).join('');
+  if (hoje.length) h += `<div class="venc-sec hoje">⏰ Vencem hoje (${hoje.length}) · <span class="sensivel">${fm(soma(hoje))}</span></div>` + hoje.map(p => item(p, 'hoje', 'Vence hoje')).join('');
   $('listaVencimentos').innerHTML = h;
   $('tituloVencimentos').textContent = venc.length ? 'Parcelas vencidas' : 'Vencem hoje';
   abrirModal('modalVencimentos');
@@ -2113,7 +2123,7 @@ function cardParcela(p, modo) {
         <div>💳 ${esc(rotuloPagto(p))}</div>
         ${extra}
       </div>
-      <div class="ger-footer"><span class="ger-status" style="color:${statusCor};">${venc2 ? '🔴 ' : hoje2 ? '🟡 ' : ''}${statusTxt}</span>${tagVenc}${acoes ? `<div class="gerenciar-acoes">${acoes}</div>` : ''}</div>
+      <div class="ger-footer"><span class="ger-status" style="color:${statusCor};">${venc2 ? '⚠️ ' : hoje2 ? '⏰ ' : ''}${statusTxt}</span>${tagVenc}${acoes ? `<div class="gerenciar-acoes">${acoes}</div>` : ''}</div>
     </div>`;
 }
 
@@ -3077,7 +3087,7 @@ function renderInclusao() {
 
   const vl = listaVencimentos();
   $('alertaVencContainer').innerHTML = (vl.venc.length || vl.hoje.length)
-    ? `<div class="alerta-venc${vl.venc.length ? '' : ' so-hoje'}" data-act="ver-venc"><span>${vl.venc.length ? `🔴 <strong>${vl.venc.length}</strong> parcela(s) vencida(s)` : ''}${vl.venc.length && vl.hoje.length ? ' · ' : ''}${vl.hoje.length ? `🟡 <strong>${vl.hoje.length}</strong> vence(m) hoje` : ''}</span><span style="white-space:nowrap;font-weight:700;">Ver →</span></div>` : '';
+    ? `<div class="alerta-venc${vl.venc.length ? '' : ' so-hoje'}" data-act="ver-venc"><span>${vl.venc.length ? `⚠️ <strong>${vl.venc.length}</strong> parcela(s) vencida(s)` : ''}${vl.venc.length && vl.hoje.length ? ' · ' : ''}${vl.hoje.length ? `⏰ <strong>${vl.hoje.length}</strong> vence(m) hoje` : ''}</span><span style="white-space:nowrap;font-weight:700;">Ver →</span></div>` : '';
   renderPagamentos(doMes);
   $('badgeParcelas').textContent = doMes.length;
   renderLista();
@@ -3179,7 +3189,7 @@ function renderPagamentos(lista) {
     const verbo = d.cartao ? 'Adiantou' : 'Pago';
     const sub = pago ? `<div class="payment-sub">Quitado · ${fm(d.total)}</div>`
       : (d.pago > 0.004 ? `<div class="payment-sub ad">${verbo} ${fm(d.pago)} de ${fm(d.total)}</div>` : '');
-    const subV = (!pago && d.venc) ? `<div class="payment-sub venc">🔴 ${d.venc} parcela(s) vencida(s)</div>` : (!pago && d.hoje ? `<div class="payment-sub hoje">🟡 ${d.hoje} parcela(s) vence(m) hoje</div>` : '');
+    const subV = (!pago && d.venc) ? `<div class="payment-sub venc">⚠️ ${d.venc} parcela(s) vencida(s)</div>` : (!pago && d.hoje ? `<div class="payment-sub hoje">⏰ ${d.hoje} parcela(s) vence(m) hoje</div>` : '');
     html += `<div class="payment-group clickable${state.filtroPagto === tipo ? ' selecionado' : ''}" data-act="fpagto" data-id="${esc(tipo)}"><div><div class="payment-title">${esc(tipo)}</div><div class="payment-val">${formatarMoeda(falta)}</div>${sub}${subV}</div><div class="payment-btns">${adBtn}${btn}</div></div>`;
   });
   $('listaPagamentos').innerHTML = html || '<p style="color:var(--muted);font-size:13px;">Nenhum pagamento neste mês.</p>';
@@ -4129,7 +4139,7 @@ function ligarEventos() {
   $('btnConfiguracoes').addEventListener('click', abrirConfiguracoes);
   impLigarEventos();
   $('btnCfgNotif').addEventListener('click', () => { fecharModal('modalConfiguracoes'); abrirModalNotificacoes(); });
-  $('cfgOcultarValores').addEventListener('change', e => aplicarPrivacidade(e.target.checked));
+  $('btnOlho').addEventListener('click', () => aplicarPrivacidade(!document.body.classList.contains('privado')));
   $('btnAtivarPush').addEventListener('click', ativarPush);
   $('btnSalvarNotif').addEventListener('click', salvarNotif);
   $('btnTesteNotif').addEventListener('click', testeNotif);
