@@ -459,6 +459,21 @@
   .cfg-seta { color: var(--muted); font-size: 20px; }
   /* ===== importar fatura ===== */
   .imp-sec { font-size: 13px; font-weight: 700; margin: 16px 2px 8px; display: flex; align-items: center; gap: 8px; }
+  /* acesso por biometria / Face ID, bloqueio e primeiro acesso */
+  .cfg-item.sel { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary) inset; }
+  .cfg-item .cfg-ok { display: none; color: var(--primary); font-weight: 800; font-size: 18px; }
+  .cfg-item.sel .cfg-ok { display: block; }
+  .lock-screen { position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; padding: 24px; background: radial-gradient(700px 420px at 50% 0%, rgba(var(--pr),.22), transparent 60%), var(--bg); }
+  .lock-screen.open { display: flex; }
+  .lock-card { width: 100%; max-width: 360px; text-align: center; }
+  .lock-ic, .onb-ic { font-size: 54px; line-height: 1; margin-bottom: 14px; }
+  .lock-card h2, .onb-corpo h3 { font-size: 20px; margin-bottom: 8px; color: var(--text); }
+  .lock-card p, .onb-corpo p { font-size: 14px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+  .onb-corpo { text-align: center; padding: 6px 2px 2px; }
+  .onb-passos { font-size: 11px; color: var(--muted); letter-spacing: .6px; text-transform: uppercase; margin-bottom: 10px; }
+  .imp-card .check-row.imp-flag { margin: 10px 0 0; padding: 10px 12px; font-size: 13px; }
+  .imp-div { margin-top: 8px; padding: 4px 12px 12px; border: 1px solid var(--border); border-radius: 12px; background: rgba(var(--w),.03); }
+  .imp-div .btn-action { width: 100%; justify-content: center; }
   .imp-card { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 10px; }
   .imp-top { display: flex; align-items: center; gap: 10px; cursor: pointer; }
   .imp-top input { flex: none; width: 18px; height: 18px; }
@@ -1033,6 +1048,7 @@
     <input type="hidden" id="porqId">
     <div class="input-group"><label>Nome</label><input type="text" id="porqNome" maxlength="40" placeholder="Ex: Viagem, Reserva de emergência..."></div>
     <div class="input-group"><label>Quem Pode Ver</label><input type="text" id="porqVisib"></div>
+    <label class="check-row" id="porqCompartRow" style="display:none;margin-bottom:14px;"><input type="checkbox" id="porqCompart"><span>Deixar o outro ver este porquinho (ele só poderá guardar dinheiro nele, nada mais)</span></label>
     <div class="input-group"><label>Ícone</label><div class="emoji-picker" id="porqEmojis"></div><input type="hidden" id="porqEmoji" value="🐷"></div>
     <div class="input-group"><label>Meta total (opcional)</label><input type="text" class="money" id="porqMeta" inputmode="numeric" autocomplete="off" placeholder="Ex: R$ 3.000,00"></div>
     <div class="input-group"><label>Objetivo mensal (opcional)</label><input type="text" class="money" id="porqObjetivo" inputmode="numeric" autocomplete="off" placeholder="Ex: R$ 300,00"></div>
@@ -1111,6 +1127,12 @@
     <div class="cfg-titulo">Aparência</div>
     <div class="tema-grid" id="temaGrid"></div>
     <p class="hint">O tema fica salvo neste aparelho. "Automático" acompanha o modo claro/escuro do celular.</p>
+    <div class="cfg-titulo">Acesso ao app</div>
+    <div id="cfgAcesso">
+      <button class="cfg-item" type="button" data-acesso="bio"><span class="cfg-ic">🔐</span><span class="cfg-tx"><strong id="cfgBioTitulo">Biometria</strong><small>Pede ao abrir o app e quando voltar depois de 5 min minimizado</small></span><span class="cfg-ok">✓</span></button>
+      <button class="cfg-item" type="button" data-acesso="conectado"><span class="cfg-ic">✅</span><span class="cfg-tx"><strong>Permanecer conectado</strong><small>Abre direto, sem pedir nada</small></span><span class="cfg-ok">✓</span></button>
+    </div>
+    <p class="hint" id="cfgAcessoHint"></p>
     <div class="cfg-titulo" id="cfgTituloAdmin" style="display:none;">Administração</div>
     <button class="cfg-item" id="btnGerenciarUsuarios" type="button" style="display:none;"><span class="cfg-ic">👥</span><span class="cfg-tx"><strong>Gerenciar usuários</strong><small>Acessos e permissões do grupo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Conta</div>
@@ -1123,16 +1145,33 @@
   <div class="modal">
     <div class="modal-header"><h3>Notificações de Vencimento</h3><button class="close-btn" data-close="modalNotificacoes">×</button></div>
     <div class="info-box" id="notifStatus"></div>
-    <label class="check-row"><input type="checkbox" id="notifAtivo"><span>Receber lembretes de parcelas vencendo</span></label>
+    <input type="checkbox" id="notifAtivo" hidden>
+    <button class="btn" id="btnAtivarPush" type="button" style="margin-top:0;margin-bottom:14px;">🔔 Ativar notificações</button>
     <div class="form-grid">
       <div class="input-group"><label>Horário do Aviso</label><input type="text" id="notifHora"></div>
       <div class="input-group"><label>Avisar</label><input type="text" id="notifAntes"></div>
     </div>
     <label class="check-row" style="margin-top:12px;"><input type="checkbox" id="notifAtrasadas"><span>Incluir parcelas atrasadas no aviso</span></label>
-    <p class="hint">O aviso resume quantas parcelas vencem, o valor total e o tipo de pagamento. No iPhone, adicione o app à Tela de Início e abra por lá para receber.</p>
-    <button class="btn secondary" id="btnAtivarPush" style="margin-top:0;">📱 Ativar Neste Celular</button>
+    <p class="hint">O aviso resume quantas parcelas vencem, o valor total e o tipo de pagamento. Você também recebe um aviso 1 dia antes de vencer uma parcela que alguém te deve (A Receber). No iPhone, adicione o app à Tela de Início e abra por lá para receber.</p>
     <button class="btn" id="btnSalvarNotif">Salvar Configurações</button>
-    <button class="btn ghost" id="btnTesteNotif">Enviar Notificação de Teste</button>
+  </div>
+</div>
+
+<!-- PRIMEIRO ACESSO: biometria / Face ID e notificações -->
+<div class="modal-overlay modal-nivel-2" id="modalOnboarding">
+  <div class="modal">
+    <div class="onb-corpo" id="onbCorpo"></div>
+  </div>
+</div>
+
+<!-- BLOQUEIO POR BIOMETRIA / FACE ID -->
+<div class="lock-screen" id="lockScreen" role="dialog" aria-modal="true" aria-label="App bloqueado">
+  <div class="lock-card">
+    <div class="lock-ic">🔐</div>
+    <h2>TTR Gestão Financeira</h2>
+    <p id="lockMsg">Confirme que é você para abrir o app.</p>
+    <button class="btn" id="btnDesbloquear" type="button">Desbloquear</button>
+    <button class="btn ghost" id="btnLockSenha" type="button">Entrar com senha</button>
   </div>
 </div>
 
@@ -1347,6 +1386,8 @@ function notificar(msg, tipo = 'info', ms) {
   box.appendChild(el);
   while (box.children.length > 4) box.firstChild.remove();
   setTimeout(sumir, ms || (texto.length > 120 ? 10000 : tipo === 'erro' ? 6500 : 4000));
+  el.fechar = sumir;
+  return el;
 }
 function _tipoMsg(m) {
   if (/sucesso/i.test(m)) return 'sucesso';
@@ -1459,9 +1500,10 @@ function divIniciar(c, externos) {
   divRender();
 }
 // quem foi digitado à mão fica fixo; o restante é dividido igualmente entre os demais
-function divRecalcular() {
-  divParts.forEach(p => { if (!p.incluir) { p.pct = 0; p.manual = false; } });
-  const ativos = divParts.filter(p => p.incluir);
+function divRecalcular() { divRecalcularLista(divParts); }
+function divRecalcularLista(lista) {
+  lista.forEach(p => { if (!p.incluir) { p.pct = 0; p.manual = false; } });
+  const ativos = lista.filter(p => p.incluir);
   const man = ativos.filter(p => p.manual), aut = ativos.filter(p => !p.manual);
   const resto = Math.max(0, 100 - man.reduce((s, p) => s + p.pct, 0));
   if (aut.length) {
@@ -1544,8 +1586,12 @@ function divLigar() {
 function lerDivisaoForm() {
   const resp = $('cResponsavel').value;
   if (resp !== DIV_LABEL) return { responsavel: resp, divisao: null, externos: [], erro: '' };
-  const mem = divParts.filter(p => p.tipo === 'membro' && p.incluir && p.pct > 0);
-  const ext = divParts.filter(p => p.tipo === 'externo');
+  return divValidar(divParts);
+}
+// confere a divisão (formulário da compra ou cartão da importação) e devolve responsável, divisão da casa e pessoas de fora
+function divValidar(lista) {
+  const mem = lista.filter(p => p.tipo === 'membro' && p.incluir && p.pct > 0);
+  const ext = lista.filter(p => p.tipo === 'externo');
   const f = erro => ({ responsavel: '', divisao: null, externos: [], erro });
   if (!mem.length) return f('Inclua pelo menos uma pessoa da casa na divisão.');
   for (const e of ext) {
@@ -1555,7 +1601,7 @@ function lerDivisaoForm() {
   const nomes = ext.map(e => normalizarNome(e.nome));
   if (new Set(nomes).size !== nomes.length) return f('Há duas pessoas de fora com o mesmo nome.');
   if (nomes.some(n => membrosGrupo.some(m => normalizarNome(m.nome) === n))) return f('Uma pessoa de fora tem o mesmo nome de alguém da casa. Use a lista da casa para ela.');
-  const soma = divParts.filter(p => p.incluir).reduce((s, p) => s + p.pct, 0);
+  const soma = lista.filter(p => p.incluir).reduce((s, p) => s + p.pct, 0);
   if (Math.abs(soma - 100) > 0.011) return f(`A divisão soma ${fmtPct(soma)}%. Ajuste para fechar 100%.`);
   const externos = ext.map(e => ({ nome: capNome(e.nome.replace(/\s+/g, ' ').trim()), pct: e.pct }));
   if (mem.length === 1 && !externos.length) return { responsavel: mem[0].nome, divisao: null, externos: [], erro: '' };
@@ -1696,7 +1742,13 @@ function textoCobranca(chave) {
   const total = itens.reduce((t, d) => t + devRestante(d), 0);
   const proxima = itens.map(devProxima).filter(Boolean);
   const devidoAgora = proxima.reduce((t, p) => t + (p.atrasada ? p.falta : 0), 0);
-  return `Oi, ${primeiro}! Passando pra lembrar do que ficou pendente das compras que dividimos:\n\n${blocos.join('\n\n')}\n\n${itens.length > 1 ? `💰 Falta no total (tudo): ${formatarMoeda(total)}\n` : ''}${devidoAgora > 0.004 ? `⚠️ Vencido até hoje: ${formatarMoeda(devidoAgora)}\n` : ''}\nQuando puder, me manda por Pix. Obrigado!`;
+  return `${saudacaoHora()}, ${primeiro}! Tudo bem? Espero que esteja tudo certo por aí 😊\n\nPassando pra lembrar do que ficou pendente das compras que dividimos:\n\n${blocos.join('\n\n')}\n\n${itens.length > 1 ? `💰 Falta no total (tudo): ${formatarMoeda(total)}\n` : ''}${devidoAgora > 0.004 ? `⚠️ Vencido até hoje: ${formatarMoeda(devidoAgora)}\n` : ''}\nQuando puder, me manda por Pix. Obrigado!\n\n_Mensagem automática via app ${NOME_APP}_`;
+}
+// "Bom dia" até 11:59, "Boa tarde" até 17:59 e "Boa noite" depois (hora do aparelho)
+const NOME_APP = 'TTR Gestão Financeira';
+function saudacaoHora(d = new Date()) {
+  const h = d.getHours();
+  return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
 }
 async function copiarTexto(txt) {
   try { await navigator.clipboard.writeText(txt); return true; } catch (e) {}
@@ -2005,7 +2057,151 @@ function atualizarLblNomePagto() {
 /* ---- porquinho: visibilidade ---- */
 const VIS_GERAL = 'Geral (Todos do Grupo)', VIS_INDIV = 'Só Eu';
 const porqDono = p => !p.criado_por || mesmoNome(p.criado_por, currentUser.nome);
-const porqVisivel = p => (p.visibilidade || 'geral') !== 'individual' || porqDono(p);
+// "Só Eu" = separado: só o dono vê, a menos que ele marque "deixar o outro ver" (compartilhado)
+const porqVisivel = p => (p.visibilidade || 'geral') !== 'individual' || porqDono(p) || p.compartilhado === true;
+// porquinho separado do outro que foi compartilhado comigo: eu só posso guardar dinheiro (nada de retirar, editar ou excluir)
+const porqSoDeposito = p => p.visibilidade === 'individual' && !porqDono(p);
+
+/* ---- acesso: biometria / Face ID ou permanecer conectado ----
+   A biometria funciona como um BLOQUEIO do app neste aparelho (WebAuthn com autenticador do próprio celular).
+   A sessão continua guardada; o app só pede a biometria/Face ID ao abrir e depois de 5 min minimizado. */
+const BIO_MIN_BLOQUEIO = 5;
+const bioNome = () => ehIOS() ? 'Face ID' : 'biometria';
+const chBio = uid => 'ttr_bio_cred_' + uid, chModo = uid => 'ttr_modo_acesso_' + uid, chPrimeiro = uid => 'ttr_primeiro_acesso_' + uid;
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} };
+const bufParaB64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const modoAcesso = uid => (lsGet(chModo(uid)) === 'bio' && lsGet(chBio(uid))) ? 'bio' : 'conectado';
+let _bloqueado = false, _ocultoEm = 0;
+
+async function bioDisponivel() {
+  try { return !!(window.isSecureContext && window.PublicKeyCredential && navigator.credentials && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); }
+  catch (e) { return false; }
+}
+function bioErroTexto(e) {
+  if (e && (e.name === 'NotAllowedError' || e.name === 'AbortError')) return 'Cadastro cancelado ou não confirmado.';
+  if (e && e.name === 'InvalidStateError') return 'Este aparelho já tem um cadastro para este usuário.';
+  return (e && e.message) || String(e);
+}
+// cria a credencial do aparelho (abre a janela de biometria/Face ID do sistema). Precisa ser chamada a partir de um toque.
+async function bioCadastrar(usuario) {
+  const cred = await navigator.credentials.create({ publicKey: {
+    challenge: crypto.getRandomValues(new Uint8Array(32)),
+    rp: { name: NOME_APP, id: location.hostname },
+    user: { id: new TextEncoder().encode(String(usuario.id)), name: usuario.email || String(usuario.nome), displayName: capNome(usuario.nome || 'Usuário') },
+    pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+    authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' },
+    timeout: 60000, attestation: 'none'
+  } });
+  if (!cred) throw new Error('não foi possível criar o cadastro');
+  lsSet(chBio(usuario.id), bufParaB64u(cred.rawId));
+  lsSet(chModo(usuario.id), 'bio');
+}
+async function bioVerificar(uid) {
+  const id = lsGet(chBio(uid)); if (!id) throw new Error('sem cadastro');
+  const r = await navigator.credentials.get({ publicKey: {
+    challenge: crypto.getRandomValues(new Uint8Array(32)), rpId: location.hostname,
+    allowCredentials: [{ type: 'public-key', id: b64ToUint8(id), transports: ['internal'] }],
+    userVerification: 'required', timeout: 60000
+  } });
+  if (!r) throw new Error('não confirmado');
+  return true;
+}
+// mostra a tela de bloqueio e só devolve quando a pessoa confirmar (ou escolher entrar com senha, que sai da conta)
+function bloquearApp(uid) {
+  return new Promise(resolve => {
+    _bloqueado = true;
+    const tela = $('lockScreen'), btn = $('btnDesbloquear'), msg = $('lockMsg');
+    msg.textContent = `Confirme com ${bioNome()} para abrir o app.`;
+    tela.classList.add('open');
+    let tentando = false;
+    const tentar = async () => {
+      if (tentando) return; tentando = true; btn.disabled = true;
+      try { await bioVerificar(uid); _bloqueado = false; tela.classList.remove('open'); resolve(true); }
+      catch (e) { msg.textContent = 'Não foi possível confirmar. Toque em Desbloquear para tentar de novo.'; }
+      finally { tentando = false; btn.disabled = false; }
+    };
+    btn.onclick = tentar;
+    $('btnLockSenha').onclick = async () => { await db.auth.signOut(); location.reload(); };
+    tentar(); // tenta já ao abrir; se o aparelho exigir um toque, o botão resolve
+  });
+}
+function renderAcesso() {
+  if (!currentUser) return;
+  const uid = currentUser.id, modo = modoAcesso(uid);
+  $('cfgBioTitulo').textContent = ehIOS() ? 'Face ID' : 'Biometria do celular';
+  document.querySelectorAll('#cfgAcesso [data-acesso]').forEach(b => b.classList.toggle('sel', b.dataset.acesso === modo));
+  $('cfgAcessoHint').textContent = modo === 'bio'
+    ? `O app pede ${bioNome()} sempre que for aberto e quando você voltar a ele depois de mais de ${BIO_MIN_BLOQUEIO} minutos minimizado.`
+    : 'O app abre direto e continua conectado neste aparelho.';
+}
+async function escolherAcesso(modo) {
+  const u = currentUser; if (!u) return;
+  if (modo === 'conectado') { lsSet(chModo(u.id), 'conectado'); notificar('Você vai permanecer conectado neste aparelho.', 'sucesso'); return renderAcesso(); }
+  if (!(await bioDisponivel())) return alert(`Este aparelho não tem ${bioNome()} disponível, ou o app não está em um endereço seguro (https).`);
+  if (!lsGet(chBio(u.id))) {
+    try { await bioCadastrar(u); } catch (e) { renderAcesso(); return alert('Não foi possível cadastrar: ' + bioErroTexto(e)); }
+  }
+  lsSet(chModo(u.id), 'bio');
+  notificar(`${ehIOS() ? 'Face ID' : 'Biometria'} ativado: o app vai pedir ao abrir.`, 'sucesso');
+  renderAcesso();
+}
+function ligarAcesso() {
+  $('cfgAcesso').addEventListener('click', e => { const b = e.target.closest('[data-acesso]'); if (b) escolherAcesso(b.dataset.acesso); });
+  // depois de minimizado por mais de 5 minutos, pede a biometria/Face ID de novo
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') { if (!_bloqueado) _ocultoEm = Date.now(); return; }
+    if (!currentUser || _bloqueado || !_ocultoEm) return;
+    const min = (Date.now() - _ocultoEm) / 60000; _ocultoEm = 0;
+    if (min >= BIO_MIN_BLOQUEIO && modoAcesso(currentUser.id) === 'bio') bloquearApp(currentUser.id);
+  });
+  // toque numa notificação com o app aberto: vai direto para a aba do aviso (ex.: A Receber)
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.tipo === 'abrir-aba' && currentUser && document.getElementById('page' + e.data.aba.charAt(0).toUpperCase() + e.data.aba.slice(1))) mudarAba(e.data.aba);
+  });
+}
+// notificação tocada com o app fechado abre o endereço "./?aba=receber"
+function abrirAbaDoLink() {
+  let aba = null; try { aba = new URLSearchParams(location.search).get('aba'); } catch (e) {}
+  if (aba && document.getElementById('page' + aba.charAt(0).toUpperCase() + aba.slice(1))) { mudarAba(aba); try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+}
+
+/* ---- primeiro acesso: cadastro de biometria/Face ID e ativação de notificações ---- */
+async function iniciarPrimeiroAcesso() {
+  const u = currentUser; if (!u || lsGet(chPrimeiro(u.id))) return;
+  lsSet(chPrimeiro(u.id), '1'); // aparece uma única vez por aparelho; depois dá para mudar em Configurações
+  const passos = [];
+  if (await bioDisponivel() && !lsGet(chBio(u.id))) passos.push('bio');
+  const sub = pushSuportado() ? await subAtualPush() : null;
+  if (!(pushSuportado() && Notification.permission === 'granted' && sub)) passos.push('notif');
+  if (passos.length) onbPasso(passos, 0);
+}
+function onbPasso(passos, i) {
+  const tipo = passos[i], corpo = $('onbCorpo');
+  const prox = () => { if (i + 1 < passos.length) onbPasso(passos, i + 1); else fecharModal('modalOnboarding'); };
+  const cab = `<div class="onb-passos">Passo ${i + 1} de ${passos.length}</div>`;
+  if (tipo === 'bio') {
+    corpo.innerHTML = `${cab}<div class="onb-ic">🔐</div><h3>Entrar com ${esc(bioNome())}</h3><p>Cadastre agora e, nas próximas vezes, o app pede ${esc(bioNome())} ao abrir (e quando você voltar depois de ${BIO_MIN_BLOQUEIO} minutos minimizado). Você pode mudar isso depois em Configurações.</p><button class="btn" id="onbOk" type="button">Cadastrar ${esc(bioNome())}</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`;
+    $('onbOk').onclick = async () => {
+      const b = $('onbOk'); b.disabled = true;
+      try { await bioCadastrar(currentUser); notificar(`${ehIOS() ? 'Face ID' : 'Biometria'} cadastrado! O app vai pedir ao abrir.`, 'sucesso'); prox(); }
+      catch (e) { alert('Não foi possível cadastrar: ' + bioErroTexto(e)); b.disabled = false; }
+    };
+  } else {
+    const ok = pushSuportado();
+    corpo.innerHTML = ok
+      ? `${cab}<div class="onb-ic">🔔</div><h3>Ativar notificações</h3><p>Receba lembretes de parcelas vencendo e de quem te deve. Ao tocar em ativar, enviamos um aviso agora para confirmar que funcionou.</p><button class="btn" id="onbOk" type="button">Ativar notificações</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`
+      : `${cab}<div class="onb-ic">🔔</div><h3>Notificações</h3><p>Este navegador não recebe notificações. No iPhone, adicione o app à Tela de Início e abra por lá; então a opção de ativar aparece aqui.</p><button class="btn" id="onbNao" type="button">Entendi</button>`;
+    if (ok) $('onbOk').onclick = async () => {
+      const b = $('onbOk'); b.disabled = true;
+      const feito = await ativarPush();
+      b.disabled = false;
+      if (feito) prox();
+    };
+  }
+  $('onbNao').onclick = prox;
+  abrirModal('modalOnboarding');
+}
 
 /* ---- notificações (push) ---- */
 const VAPID_PUBLIC_KEY = 'BAdZo00yUC_sqqLcuOgPiNokrCagcnax8x2Gg2_1_Pnijf7hBB8nEWUksMUfczShZSGgd9FfKQC3e0EnNqqq20U'; // cole aqui a chave pública VAPID (ver instruções)
@@ -2022,19 +2218,26 @@ async function registrarSW() {
   if (!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try { return await navigator.serviceWorker.register('sw.js'); } catch (e) { console.warn('Service worker:', e); return null; }
 }
+async function subAtualPush() {
+  try { const reg = await navigator.serviceWorker.getRegistration(); return reg ? await reg.pushManager.getSubscription() : null; } catch (e) { return null; }
+}
 async function statusPush() {
   const l = [];
+  let ativo = false;
   if (!window.isSecureContext) l.push('⚠️ O app precisa estar em um endereço seguro (https) para receber notificações.');
   if (!pushSuportado()) l.push('⚠️ Este navegador não suporta notificações push. No iPhone, adicione o app à Tela de Início e abra por lá.');
   else {
     const perm = Notification.permission;
     l.push(perm === 'granted' ? '✅ Permissão concedida neste aparelho.' : perm === 'denied' ? '🚫 Permissão bloqueada: libere nas configurações do navegador.' : '🔔 A permissão ainda não foi concedida.');
-    let sub = null;
-    try { const reg = await navigator.serviceWorker.getRegistration(); sub = reg ? await reg.pushManager.getSubscription() : null; } catch (e) {}
-    l.push(sub ? '📱 Este aparelho está ativado para receber avisos.' : '📱 Este aparelho ainda não está ativado.');
+    const sub = await subAtualPush();
+    ativo = !!sub && perm === 'granted' && $('notifAtivo').checked;
+    l.push(ativo ? '📱 Notificações ativadas neste aparelho.' : '📱 Notificações desativadas neste aparelho.');
   }
   if (!VAPID_PUBLIC_KEY) l.push('⚙️ Falta colar a chave pública (VAPID) no app.');
   $('notifStatus').innerHTML = l.map(esc).join('<br>');
+  const b = $('btnAtivarPush');
+  b.textContent = ativo ? '🔕 Desativar notificações' : '🔔 Ativar notificações';
+  b.classList.toggle('secondary', ativo); b.dataset.ativo = ativo ? '1' : '0';
 }
 function aplicarPrivacidade(on) {
   document.body.classList.toggle('privado', !!on);
@@ -2049,13 +2252,12 @@ function abrirConfiguracoes(e) {
   $('btnGerenciarUsuarios').style.display = adm ? 'flex' : 'none';
   $('cfgTituloAdmin').style.display = adm ? 'block' : 'none';
   $('cfgConta').innerHTML = `Conectado como <strong>${esc(capNome(currentUser.nome || ''))}</strong>${currentUser.email ? '<br>' + esc(currentUser.email) : ''}`;
+  renderAcesso();
   abrirModal('modalConfiguracoes');
 }
-async function abrirModalNotificacoes(e) {
-  if (e) e.preventDefault();
+// carrega as preferências salvas (horário, antecedência...) para os campos; sem registro, usa os padrões
+async function carregarConfigNotif() {
   $('notifAtivo').checked = false; $('notifHora').value = '10:00'; $('notifAntes').value = rotuloAntes(0); $('notifAtrasadas').checked = false;
-  abrirModal('modalNotificacoes');
-  statusPush();
   const { data } = await db.from('notificacoes_config').select('*').eq('user_id', currentUser.id).maybeSingle();
   if (data) {
     $('notifAtivo').checked = !!data.ativo;
@@ -2064,13 +2266,22 @@ async function abrirModalNotificacoes(e) {
     $('notifAtrasadas').checked = !!data.incluir_atrasadas;
   }
 }
+async function abrirModalNotificacoes(e) {
+  if (e) e.preventDefault();
+  abrirModal('modalNotificacoes');
+  await carregarConfigNotif();
+  statusPush();
+}
+// Botão único das configurações: liga ou desliga as notificações neste aparelho
+function alternarPush() { return $('btnAtivarPush').dataset.ativo === '1' ? desativarPush() : ativarPush(); }
+// Liga as notificações: pede permissão, registra o aparelho e dispara um aviso de teste para confirmar que funcionou. Devolve true/false.
 async function ativarPush() {
-  if (!VAPID_PUBLIC_KEY) return alert('Não foi possível ativar: falta colar a chave pública (VAPID) no app.');
-  if (!pushSuportado()) return alert('Este navegador não suporta notificações push. No iPhone, adicione o app à Tela de Início e abra por lá.');
+  if (!VAPID_PUBLIC_KEY) { alert('Não foi possível ativar: falta colar a chave pública (VAPID) no app.'); return false; }
+  if (!pushSuportado()) { alert('Este navegador não suporta notificações push. No iPhone, adicione o app à Tela de Início e abra por lá.'); return false; }
   const btn = $('btnAtivarPush'); btn.disabled = true;
   try {
     const perm = await Notification.requestPermission();
-    if (perm !== 'granted') { alert('Não foi possível ativar: a permissão de notificação foi negada.'); return; }
+    if (perm !== 'granted') { alert('Não foi possível ativar: a permissão de notificação foi negada.'); return false; }
     const reg = await registrarSW();
     if (!reg) throw new Error('o arquivo sw.js precisa estar na mesma pasta do app, em um endereço https.');
     await navigator.serviceWorker.ready;
@@ -2079,11 +2290,32 @@ async function ativarPush() {
     const j = sub.toJSON();
     const { error } = await db.from('push_subscriptions').upsert({ user_id: currentUser.id, endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, user_agent: navigator.userAgent.slice(0, 200) }, { onConflict: 'endpoint' });
     if (error) throw error;
-    notificar('Aparelho ativado para receber avisos!', 'sucesso');
-  } catch (e) { alert('Erro ao ativar notificações: ' + (e.message || e)); }
+    await carregarConfigNotif();            // mantém horário/antecedência que a pessoa já tinha
+    $('notifAtivo').checked = true;         // liga os lembretes
+    await salvarNotif(true);
+    // aviso de confirmação: só diz que deu certo se a notificação realmente foi enviada
+    const { data, error: eTeste } = await db.functions.invoke('enviar-notificacoes', { body: { teste: true } });
+    if (eTeste) throw eTeste;
+    if (data && data.enviados) notificar('Notificações ativadas! Enviei um aviso para confirmar.', 'sucesso');
+    else notificar('Notificações ativadas, mas o aviso de confirmação não chegou. Confira as permissões do app.', 'aviso');
+    return true;
+  } catch (e) { alert('Erro ao ativar notificações: ' + (e.message || e)); return false; }
   finally { btn.disabled = false; statusPush(); }
 }
-async function salvarNotif() {
+async function desativarPush() {
+  const btn = $('btnAtivarPush'); btn.disabled = true;
+  try {
+    const sub = await subAtualPush();
+    if (sub) { const ep = sub.endpoint; try { await sub.unsubscribe(); } catch (e) {} await db.from('push_subscriptions').delete().eq('endpoint', ep); }
+    // só desliga os lembretes se não sobrou nenhum outro aparelho ativado desta pessoa
+    const { data: resto } = await db.from('push_subscriptions').select('endpoint').eq('user_id', currentUser.id);
+    $('notifAtivo').checked = !!(resto && resto.length);
+    await salvarNotif(true);
+    notificar('Notificações desativadas neste aparelho.', 'sucesso');
+  } catch (e) { alert('Erro ao desativar notificações: ' + (e.message || e)); }
+  finally { btn.disabled = false; statusPush(); }
+}
+async function salvarNotif(silencioso) {
   const btn = $('btnSalvarNotif'); btn.disabled = true;
   const { error } = await db.from('notificacoes_config').upsert({
     user_id: currentUser.id, ativo: $('notifAtivo').checked, hora: $('notifHora').value || '10:00',
@@ -2091,17 +2323,8 @@ async function salvarNotif() {
     fuso: 'America/Sao_Paulo', ultimo_envio: null
   }, { onConflict: 'user_id' });
   btn.disabled = false;
-  if (error) return alert('Erro ao salvar: ' + error.message);
-  notificar('Configurações de notificação salvas!', 'sucesso');
-}
-async function testeNotif() {
-  const btn = $('btnTesteNotif'); btn.disabled = true;
-  try {
-    const { data, error } = await db.functions.invoke('enviar-notificacoes', { body: { teste: true } });
-    if (error) throw error;
-    notificar(data && data.enviados ? 'Notificação de teste enviada! Veja o seu celular.' : 'Nenhum aparelho ativado para receber. Toque em "Ativar neste celular" primeiro.', data && data.enviados ? 'sucesso' : 'aviso');
-  } catch (e) { alert('Erro ao enviar o teste: ' + (e.message || e)); }
-  finally { btn.disabled = false; }
+  if (error) { if (silencioso === true) throw error; return alert('Erro ao salvar: ' + error.message); }
+  if (silencioso !== true) notificar('Configurações de notificação salvas!', 'sucesso');
 }
 
 
@@ -2305,6 +2528,8 @@ async function carregarPerfil(userId) {
 
   await carregarDados();
   mostrarAlertaVencimentos();
+  abrirAbaDoLink();
+  iniciarPrimeiroAcesso();
 }
 
 function renderFiltroPessoa() {
@@ -3574,7 +3799,8 @@ async function impAnalisar() {
     }
     itens.push({ desc: b.desc, nomeBase, valor, cur, total, dataCompra, status, motivo, achou: achou ? { nome: achou.nome_compra, valor: achou.valor_parcela } : null,
       incluir: status === 'nova', lembrado: !!ap, nome: ap ? ap.nome : bonitoNome(nomeBase), resp: ap && ap.resp ? ap.resp : respPadrao, respAuto: !(ap && ap.resp),
-      cat: ap && ap.cat ? ap.cat : '', motivoC: ap && ap.motivo ? ap.motivo : '', tipoC: ap && ap.tipo ? ap.tipo : '' });
+      cat: ap && ap.cat ? ap.cat : '', motivoC: ap && ap.motivo ? ap.motivo : '', tipoC: ap && ap.tipo ? ap.tipo : '',
+      dividir: false, partes: null }); // "dividir com outras pessoas" começa sempre desmarcado
   });
   imp.itens = itens;
   impRender();
@@ -3582,6 +3808,74 @@ async function impAnalisar() {
 
 function impOptsSelect(lista, atual, vazio) {
   return (vazio ? `<option value=""${!atual ? ' selected' : ''}>${esc(vazio)}</option>` : '') + lista.map(o => `<option value="${esc(o)}"${o === atual ? ' selected' : ''}>${esc(capNome(o))}</option>`).join('');
+}
+/* ---- divisão da compra dentro do cartão da importação ---- */
+// padrão: as pessoas do grupo, já divididas igualmente (equivale a "Ambos"); a pessoa pode desmarcar alguém ou incluir gente de fora
+function impPartesPadrao() {
+  const lista = membrosGrupo.map(m => ({ tipo: 'membro', nome: m.nome, incluir: true, pct: 0, manual: false }));
+  divRecalcularLista(lista);
+  return lista;
+}
+function impDivisaoHTML(x) {
+  const linhas = x.partes.map((p, k) => {
+    const val = p.incluir ? fmtPct(p.pct) : '', cls = p.manual ? '' : 'auto';
+    const vl = p.incluir ? `≈ ${fm(x.valor * p.pct / 100)} por parcela` : 'Fora desta compra';
+    if (p.tipo === 'membro') return `<div class="div-row" data-k="${k}"><label class="div-quem"><input type="checkbox" data-d="inc"${p.incluir ? ' checked' : ''}><span class="cx"><span class="nm">${esc(capNome(p.nome))}</span><span class="vl" data-vl>${vl}</span></span></label><div class="div-pct"><input type="text" inputmode="decimal" data-d="pct" class="${cls}" value="${esc(val)}"${p.incluir ? '' : ' disabled'} placeholder="0" autocomplete="off"></div></div>`;
+    return `<div class="div-row ext" data-k="${k}"><div class="div-quem" style="cursor:default;"><span class="cx"><input type="text" class="div-nome" data-d="nome" value="${esc(p.nome)}" placeholder="Nome de quem vai pagar" maxlength="40" autocomplete="off"><span class="vl" data-vl>${vl}</span></span></div><div class="div-pct"><input type="text" inputmode="decimal" data-d="pct" class="${cls}" value="${esc(val)}" placeholder="0" autocomplete="off"></div><button type="button" class="icon-btn" data-d="rm" title="Remover">✕</button></div>`;
+  }).join('');
+  return `<div class="imp-div">${linhas}<div class="div-total" data-dtotal></div>
+    <div class="imp-row"><button type="button" class="btn-action" data-d="igual">Dividir igualmente</button><button type="button" class="btn-action" data-d="ext">+ Pessoa de fora</button></div>
+    <p class="hint" style="margin:8px 0 0;">A parte de quem é "de fora" não entra nos seus gastos e fica em A Receber até a pessoa te pagar.</p></div>`;
+}
+// atualiza porcentagens, valores e o total sem refazer o cartão (para não perder o foco ao digitar)
+function impDivAtualizar(card, x, exceto) {
+  let soma = 0, fora = 0;
+  card.querySelectorAll('.imp-div .div-row').forEach(row => {
+    const p = x.partes[+row.dataset.k]; if (!p) return;
+    const inp = row.querySelector('[data-d="pct"]');
+    if (inp && inp !== exceto) { inp.value = p.incluir ? fmtPct(p.pct) : ''; inp.classList.toggle('auto', !p.manual); }
+    if (p.incluir) { soma += p.pct; if (p.tipo === 'externo') fora += p.pct; }
+    const vl = row.querySelector('[data-vl]'); if (vl) vl.textContent = p.incluir ? `≈ ${fm(x.valor * p.pct / 100)} por parcela` : 'Fora desta compra';
+  });
+  const ok = Math.abs(soma - 100) < 0.011, tot = card.querySelector('[data-dtotal]');
+  if (tot) { tot.className = 'div-total ' + (ok ? 'ok' : 'bad'); tot.innerHTML = `<span>Total: ${fmtPct(soma)}%${ok ? ' ✓' : ' — precisa fechar 100%'}</span>` + (fora > 0 ? `<span>De fora: ${fmtPct(fora)}%</span>` : ''); }
+}
+function impRedesenharCartao(card, x) {
+  if (!card.isConnected) return; // checkbox dispara "input" e "change": o 2º evento chega com o cartão antigo já substituído
+  const i = +card.dataset.i, aberto = card.querySelector('.imp-mais') && card.querySelector('.imp-mais').open;
+  card.outerHTML = impCard(x, i);
+  const novo = $('impLista').querySelector(`.imp-card[data-i="${i}"]`);
+  if (novo) { if (aberto && novo.querySelector('.imp-mais')) novo.querySelector('.imp-mais').open = true; impDivAtualizar(novo, x); }
+}
+function impLigarDivisao() {
+  const lista = $('impLista');
+  const ctx = e => { const card = e.target.closest('.imp-card'); const x = card && imp.itens[+card.dataset.i]; return x && x.partes ? { card, x, row: e.target.closest('.div-row'), d: e.target.dataset.d } : null; };
+  lista.addEventListener('input', e => {
+    const c = ctx(e); if (!c || !c.d || !c.row) return;
+    const p = c.x.partes[+c.row.dataset.k]; if (!p) return;
+    if (c.d === 'nome') { p.nome = e.target.value; return; }
+    if (c.d === 'pct') {
+      const v = parseFloat(String(e.target.value).replace(',', '.'));
+      p.pct = isFinite(v) ? Math.max(0, Math.min(100, v)) : 0; p.manual = true; e.target.classList.remove('auto');
+      divRecalcularLista(c.x.partes); impDivAtualizar(c.card, c.x, e.target);
+    }
+  });
+  lista.addEventListener('change', e => {
+    const c = ctx(e); if (!c || c.d !== 'inc' || !c.row) return;
+    const p = c.x.partes[+c.row.dataset.k]; if (!p) return;
+    p.incluir = e.target.checked; p.manual = false;
+    divRecalcularLista(c.x.partes); impRedesenharCartao(c.card, c.x);
+  });
+  lista.addEventListener('click', e => {
+    const b = e.target.closest('button[data-d]'); if (!b) return;
+    const card = b.closest('.imp-card'), x = card && imp.itens[+card.dataset.i]; if (!x || !x.partes) return;
+    if (b.dataset.d === 'igual') { x.partes.forEach(p => { p.manual = false; }); }
+    else if (b.dataset.d === 'ext') { x.partes.push({ tipo: 'externo', nome: '', incluir: true, pct: 0, manual: false }); }
+    else if (b.dataset.d === 'rm') { x.partes.splice(+b.closest('.div-row').dataset.k, 1); }
+    else return;
+    divRecalcularLista(x.partes); impRedesenharCartao(card, x);
+    if (b.dataset.d === 'ext') { const ins = $('impLista').querySelectorAll(`.imp-card[data-i="${card.dataset.i}"] .div-nome`); if (ins.length) ins[ins.length - 1].focus(); }
+  });
 }
 function impCard(x, i) {
   const meta = x.total > 1 ? `Parcela ${x.cur}/${x.total} · lança ${x.total - x.cur + 1} parcela(s) até ${formatarMes(addMes(imp.mes, x.total - x.cur))}` : 'À vista (1 parcela)';
@@ -3591,10 +3885,12 @@ function impCard(x, i) {
     <div class="imp-meta">${esc(meta)}${data}${x.lembrado ? ' · ✨ nome lembrado' : ''}</div>
     ${x.motivo ? `<div class="imp-alerta">⚠️ ${esc(x.motivo)}${x.achou ? ` (no app: ${esc(capIni(x.achou.nome))} · ${fm(x.achou.valor)})` : ''}</div>` : ''}
     <input class="imp-in" type="text" data-f="nome" value="${esc(x.nome)}" placeholder="Nome da compra" autocomplete="off">
-    <div class="imp-row">
-      <select data-f="resp">${impOptsSelect(opcoesResp, x.resp)}</select>
+    <div class="imp-row"${x.dividir ? ' style="grid-template-columns:1fr;"' : ''}>
+      ${x.dividir ? '' : `<select data-f="resp" title="Responsável por esta compra">${impOptsSelect(opcoesResp, x.resp)}</select>`}
       <select data-f="cat">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Sem categoria')}</select>
     </div>
+    <label class="check-row imp-flag"><input type="checkbox" data-f="dividir"${x.dividir ? ' checked' : ''}><span>Dividir esta compra com outras pessoas</span></label>
+    ${x.dividir ? impDivisaoHTML(x) : ''}
     <details class="imp-mais"><summary>Mais campos</summary>
       <div class="imp-row"><input class="imp-in" type="text" data-f="motivoC" list="dlImpMotivo" value="${esc(x.motivoC)}" placeholder="Motivo"><input class="imp-in" type="text" data-f="tipoC" list="dlImpTipo" value="${esc(x.tipoC)}" placeholder="Tipo"></div>
     </details>
@@ -3611,6 +3907,7 @@ function impRender() {
   if (ja.length) h += `<details class="imp-det"><summary>✅ Já estão no app (${ja.length})</summary>${ja.map(([x]) => `<div class="imp-ja"><span>${esc(x.achou ? capIni(x.achou.nome) : x.nomeBase)}${x.total > 1 ? ' · ' + x.cur + '/' + x.total : ''}</span><strong>${fm(x.valor)}</strong></div>`).join('')}</details>`;
   if (imp.ignoradas.length) h += `<details class="imp-det"><summary>🚫 Linhas ignoradas (${imp.ignoradas.length})</summary>${imp.ignoradas.map(x => `<div class="imp-ja"><span>${esc(x.desc)}<small>${esc(x.motivo)}</small></span><strong>${fm(Math.abs(x.v))}</strong></div>`).join('')}</details>`;
   $('impLista').innerHTML = h;
+  it.forEach((x, i) => { if (x.dividir && x.partes) { const c = $('impLista').querySelector(`.imp-card[data-i="${i}"]`); if (c) impDivAtualizar(c, x); } });
   const motivos = uniqNorm(state.compras.map(c => capIni(c.motivo || '')).filter(Boolean)), tipos = uniqNorm(state.compras.map(c => capIni(c.tipo || '')).filter(Boolean));
   $('dlImpMotivo').innerHTML = motivos.map(v => `<option value="${esc(v)}">`).join('');
   $('dlImpTipo').innerHTML = tipos.map(v => `<option value="${esc(v)}">`).join('');
@@ -3661,23 +3958,34 @@ async function impSalvar() {
   if (!(dia >= 1 && dia <= 31)) return alert('Dia de vencimento inválido.');
   if (!sel.length) return;
   const semNome = sel.find(x => !x.nome.trim()); if (semNome) return alert(`Informe o nome da compra "${semNome.desc}".`);
-  const semResp = sel.find(x => !x.resp); if (semResp) return alert(`Selecione o responsável de "${semResp.desc}".`);
+  const semResp = sel.find(x => !x.dividir && !x.resp); if (semResp) return alert(`Selecione o responsável de "${semResp.desc}".`);
+  // compras marcadas para dividir: confere se a divisão fecha 100% e quem é de fora
+  for (const x of sel) {
+    x._div = null;
+    if (!x.dividir) continue;
+    const r = divValidar(x.partes || impPartesPadrao());
+    if (r.erro) return alert(`"${x.nome || x.desc}": ${r.erro}`);
+    x._div = r;
+  }
+  if (sel.some(x => x._div && x._div.externos.length) && state.devIndisponivel) return alert('Para cobrar pessoas de fora, falta criar a tabela devedores no banco. Execute o SQL enviado e recarregue a página.');
+  const usarDiv = sel.some(x => x._div && x._div.divisao) || state.compras.some(c => 'divisao' in c);
   const tipoPag = (state.compras.find(c => ehCartaoCredito(c.tipo_pagamento)) || {}).tipo_pagamento || 'Cartão de Crédito';
   const btn = $('btnImpSalvar'); btn.disabled = true; btn.textContent = 'Importando...';
   const rows = [], hist = [];
   sel.forEach(x => {
-    const id = novoIdCompra();
+    const id = novoIdCompra(); x._id = id;
     for (let k = x.cur; k <= x.total; k++) {
       const ym = addMes(imp.mes, k - x.cur); const [y, mo] = ym.split('-').map(Number);
       rows.push({
-        id_compra: id, nome_compra: capIni(x.nome.trim()), valor_parcela: x.valor, responsavel: x.resp,
+        id_compra: id, nome_compra: capIni(x.nome.trim()), valor_parcela: x.valor, responsavel: x._div ? x._div.responsavel : x.resp,
+        ...(usarDiv ? { divisao: x._div ? x._div.divisao : null } : {}),
         motivo: capIni(x.motivoC.trim()) || null, tipo: capIni(x.tipoC.trim()) || null, categoria_orcamento: x.cat || null,
         tipo_pagamento: tipoPag, nome_pagamento: capNome(cartao), nome_original: x.nomeBase,
         data_compra: x.dataCompra || null, mes_referencia: ym, data_parcela: `${ym}-${pad2(Math.min(dia, new Date(y, mo, 0).getDate()))}`,
         parcela_referencia: `${k}/${x.total}`, status: 'Ativo', pagamento: false, data_pagamento: null, criado_por: currentUser.email
       });
     }
-    hist.push({ grupo_id: grupoId(), id_compra: id, nome_compra: x.nome.trim(), acao: 'Importada', detalhes: `${x.total - x.cur + 1} parcela(s) · ${formatarMoeda(x.valor)} (fatura CSV)`, alterado_por: currentUser.nome });
+    hist.push({ grupo_id: grupoId(), id_compra: id, nome_compra: x.nome.trim(), acao: 'Importada', detalhes: `${x.total - x.cur + 1} parcela(s) · ${formatarMoeda(x.valor)} (fatura CSV)${x._div ? ' · dividida' + (x._div.externos.length ? ' com ' + x._div.externos.map(e => e.nome).join(', ') : '') : ''}`, alterado_por: currentUser.nome });
   });
   let feitos = 0, semOriginal = false;
   try {
@@ -3692,9 +4000,11 @@ async function impSalvar() {
       feitos += lote.length;
     }
     await db.from('historico_compras').insert(hist);
+    // pessoas de fora: cada uma vira uma cobrança em "A Receber" (o total considera só as parcelas lançadas agora)
+    for (const x of sel) if (x._div && x._div.externos.length) await sincronizarDevedores(x._id, capIni(x.nome.trim()), Math.round(x.valor * (x.total - x.cur + 1) * 100) / 100, x._div.externos);
   } catch (e) {
     btn.disabled = false; impAtualizarResumo();
-    alert(/nome_pagamento/.test(e.message || '') ? 'Não foi possível importar: falta criar a coluna nome_pagamento no banco.' : `Erro ao importar${feitos ? ` (${feitos} de ${rows.length} parcelas já foram gravadas; confira em Gerenciar antes de tentar de novo)` : ''}: ${e.message || e}`);
+    alert(/nome_pagamento/.test(e.message || '') ? 'Não foi possível importar: falta criar a coluna nome_pagamento no banco.' : /divisao/.test(e.message || '') ? 'Não foi possível importar: falta criar a coluna divisao no banco. Execute o SQL enviado e recarregue a página.' : `Erro ao importar${feitos ? ` (${feitos} de ${rows.length} parcelas já foram gravadas; confira em Gerenciar antes de tentar de novo)` : ''}: ${e.message || e}`);
     await carregarDados(); return;
   }
   fecharModal('modalImportar');
@@ -3703,6 +4013,7 @@ async function impSalvar() {
   await carregarDados();
 }
 function impLigarEventos() {
+  impLigarDivisao();
   $('btnImportarFatura').addEventListener('click', abrirImportacao);
   $('btnImpArquivo').addEventListener('click', () => $('impArquivo').click());
   $('impArquivo').addEventListener('change', async e => { const f = e.target.files[0]; try { await impLerArquivo(f); } finally { e.target.value = ''; } });
@@ -3721,6 +4032,11 @@ function impLigarEventos() {
     const card = e.target.closest('.imp-card'); if (!card) return;
     const x = imp.itens[+card.dataset.i]; if (!x) return;
     if (f === 'incluir') x.incluir = e.target.checked;
+    else if (f === 'dividir') {
+      x.dividir = e.target.checked;
+      if (x.dividir && !x.partes) x.partes = impPartesPadrao();
+      impRedesenharCartao(card, x);
+    }
     else { x[f] = e.target.value; if (f === 'resp') x.respAuto = false; }
     impAtualizarResumo();
   };
@@ -3753,7 +4069,7 @@ function exportarPDF() {
 
   $('printArea').innerHTML = `
     <div class="rp-head">
-      <div class="rp-brand"><div class="rp-logo"><img src="data:image/webp;base64,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" alt="Logo" draggable="false"></div><div><div class="rp-title">Gestão Financeira</div><div class="rp-sub">Relatório de despesas</div></div></div>
+      <div class="rp-brand"><div class="rp-logo"><img src="data:image/webp;base64,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" alt="Logo" draggable="false"></div><div><div class="rp-title">${NOME_APP}</div><div class="rp-sub">Relatório de despesas</div></div></div>
       <div class="rp-meta"><div class="rp-period">${esc(periodo)}</div><div>Gerado em ${esc(agora)}</div><div>por ${esc(currentUser.nome)}</div></div>
     </div>
     ${filtros.length ? `<div class="rp-filtros"><strong>Filtros aplicados:</strong> ${filtros.map(esc).join(' · ')}</div>` : ''}
@@ -3772,13 +4088,65 @@ function exportarPDF() {
     <table class="rp-table"><thead><tr><th>Compra</th><th>Resp.</th><th>Motivo</th><th>Pagamento</th><th>Parc.</th><th>Venc.</th><th>Situação</th><th class="num">Valor</th></tr></thead><tbody>` +
     l.map(p => `<tr><td>${esc(capIni(p.nome_compra))}</td><td>${esc(rotuloResp(p))}</td><td>${esc(capIni(p.motivo || ''))}</td><td>${esc(p.tipo_pagamento || p.nome_pagamento ? rotuloPagto(p) : '')}</td><td>${esc(p.parcela_referencia || '')}</td><td>${p.data_parcela ? p.data_parcela.split('-').reverse().join('/') : ''}</td><td><span class="rp-pill ${p.pagamento ? 'pago' : 'pend'}">${p.pagamento ? 'Pago' : parcelaVencida(p) ? 'Vencida' : parcialParcela(p) ? 'Parcial' : 'Pendente'}</span></td><td class="num">${formatarMoeda(p.valor_parcela)}</td></tr>`).join('') +
     `<tr class="rp-total"><td colspan="7">Total (${l.length} parcelas)</td><td class="num">${formatarMoeda(total)}</td></tr></tbody></table>
-    <div class="rp-foot">Gestão Financeira · Documento gerado automaticamente</div>`;
+    <div class="rp-foot">${NOME_APP} · Documento gerado automaticamente</div>`;
 
-  // nome sugerido do arquivo ao "Salvar como PDF"
+  const nomeArquivo = 'TTR-Gestao-Financeira-' + state.mesesSelecionados.join('_');
+  // iPhone/iPad: o app instalado na Tela de Início ignora window.print(); gera o PDF de verdade e abre o compartilhar/salvar
+  if (ehIOS()) return gerarPdfIOS(nomeArquivo);
+  // Android e computador: nome sugerido do arquivo ao "Salvar como PDF"
   const tituloOriginal = document.title;
-  document.title = 'Gestao-Financeira-' + state.mesesSelecionados.join('_');
+  document.title = nomeArquivo;
   window.addEventListener('afterprint', () => { document.title = tituloOriginal; }, { once: true });
   setTimeout(() => window.print(), 80);
+}
+
+const ehIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function carregarScriptExterno(src) {
+  return new Promise((ok, erro) => {
+    if (document.querySelector(`script[src="${src}"]`) && window.html2pdf) return ok();
+    const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error('sem conexão para carregar o gerador de PDF'));
+    document.head.appendChild(s);
+  });
+}
+// As regras de estilo do relatório só existem em @media print; aqui elas são copiadas para valer na tela durante a geração
+function estiloRelatorioTela() {
+  let css = '';
+  for (const folha of document.styleSheets) {
+    let regras; try { regras = folha.cssRules; } catch (e) { continue; }
+    for (const r of regras) {
+      if (!(r instanceof CSSMediaRule) || !/print/.test(r.conditionText || r.media.mediaText)) continue;
+      for (const x of r.cssRules) if (x.selectorText && /\.rp-|#printArea/.test(x.selectorText)) css += x.cssText + '\n';
+    }
+  }
+  const st = document.createElement('style'); st.id = 'estiloRelatorioTela'; st.textContent = css; document.head.appendChild(st);
+  return st;
+}
+async function gerarPdfIOS(nomeArquivo) {
+  const area = $('printArea');
+  const aviso = notificar('Gerando o PDF…', 'aviso', 60000);
+  let st = null;
+  try {
+    await carregarScriptExterno('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+    st = estiloRelatorioTela();
+    area.style.cssText = 'display:block;position:fixed;left:-10000px;top:0;width:794px;background:#fff;padding:24px;';
+    const blob = await window.html2pdf().set({
+      margin: [10, 8, 12, 8], filename: nomeArquivo + '.pdf', image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#fff', windowWidth: 794 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.rp-box', '.rp-kpi'] }
+    }).from(area).outputPdf('blob');
+    const arquivo = new File([blob], nomeArquivo + '.pdf', { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+      try { await navigator.share({ files: [arquivo], title: NOME_APP }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = nomeArquivo + '.pdf'; a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) {
+    alert('Não foi possível gerar o PDF neste aparelho: ' + (e.message || e));
+  } finally {
+    area.style.cssText = ''; area.innerHTML = ''; if (st) st.remove();
+    if (aviso && aviso.fechar) aviso.fechar();
+  }
 }
 
 /* =========================================
@@ -3800,7 +4168,8 @@ async function carregarPorquinhos() {
     return;
   }
   state.porqColVis = (rP.data || []).some(x => 'visibilidade' in x);
-  // porquinho individual só aparece para quem criou
+  state.porqColCompart = (rP.data || []).some(x => 'compartilhado' in x);
+  // porquinho separado só aparece para quem criou (ou para o outro, se o dono compartilhou)
   const visiveis = (rP.data || []).filter(porqVisivel);
   let movs = [];
   if (visiveis.length) {
@@ -3908,7 +4277,7 @@ function renderPorquinhos() {
     return `<div class="porq-card">
       <div class="porq-top">
         <div class="porq-emoji">${esc(p.emoji || '🐷')}</div>
-        <div class="porq-info"><div class="porq-nome">${esc(capIni(p.nome))}</div><div class="porq-badge">${p.visibilidade === 'individual' ? '👤 Só Eu' : '👥 Geral' + (p.criado_por ? ' · Criado por ' + esc(capNome(p.criado_por)) : '')}</div><div class="porq-saldo">${formatarMoeda(saldo)}</div></div>
+        <div class="porq-info"><div class="porq-nome">${esc(capIni(p.nome))}</div><div class="porq-badge">${p.visibilidade === 'individual' ? (porqSoDeposito(p) ? '🔒 Separado de ' + esc(capNome(p.criado_por || '')) + ' · você só pode guardar' : (p.compartilhado ? '👤 Só Eu · 👁️ o outro vê e só guarda' : '👤 Só Eu')) : '👥 Geral' + (p.criado_por ? ' · Criado por ' + esc(capNome(p.criado_por)) : '')}</div><div class="porq-saldo">${formatarMoeda(saldo)}</div></div>
         <div class="porq-tools">
           <button class="icon-btn" data-act="porq-ext" data-id="${esc(p.id)}" title="Extrato">📜</button>
           ${porqDono(p) ? `<button class="icon-btn" data-act="porq-edit" data-id="${esc(p.id)}" title="Editar">✏️</button><button class="icon-btn" data-act="porq-del" data-id="${esc(p.id)}" title="Excluir">🗑️</button>` : ''}
@@ -3917,7 +4286,7 @@ function renderPorquinhos() {
       ${barra}
       ${objetivoPorqHTML(p, mes)}
       <div class="action-row">
-        <button class="btn secondary" data-act="porq-ret" data-id="${esc(p.id)}">↩️ Retirar</button>
+        ${porqSoDeposito(p) ? '' : `<button class="btn secondary" data-act="porq-ret" data-id="${esc(p.id)}">↩️ Retirar</button>`}
         <button class="btn" data-act="porq-dep" data-id="${esc(p.id)}">+ Guardar</button>
       </div>
     </div>`;
@@ -3936,8 +4305,16 @@ function abrirModalPorquinho(id) {
   setMoeda($('porqMeta'), p && p.meta ? p.meta : null);
   setMoeda($('porqObjetivo'), p && p.objetivo_mensal ? p.objetivo_mensal : null);
   $('porqVisib').value = p && p.visibilidade === 'individual' ? VIS_INDIV : VIS_GERAL;
+  $('porqCompart').checked = !!(p && p.compartilhado);
+  porqAtualizarCompart();
   selecionarEmojiPorq(p ? p.emoji : '🐷');
   abrirModal('modalPorquinho');
+}
+// a opção de compartilhar só aparece quando o porquinho é separado ("Só Eu") e há outra pessoa no grupo
+function porqAtualizarCompart() {
+  const sep = $('porqVisib').value === VIS_INDIV && membrosGrupo.length > 1;
+  $('porqCompartRow').style.display = sep ? 'flex' : 'none';
+  if (!sep) $('porqCompart').checked = false;
 }
 async function salvarPorquinho() {
   const id = $('porqId').value;
@@ -3956,11 +4333,13 @@ async function salvarPorquinho() {
   if (state.porquinhos.some(x => 'objetivo_mensal' in x) || objetivo) dados.objetivo_mensal = objetivo || null;
   const visib = $('porqVisib').value === VIS_INDIV ? 'individual' : 'geral';
   if (state.porqColVis || visib === 'individual') dados.visibilidade = visib;
+  const compart = visib === 'individual' && $('porqCompart').checked;
+  if (state.porqColCompart || compart) dados.compartilhado = compart;
   const { error } = id
     ? await db.from('porquinhos').update(dados).eq('id', id).eq('grupo_id', grupoId())
     : await db.from('porquinhos').insert([{ ...dados, grupo_id: grupoId(), criado_por: currentUser.nome }]);
   btn.disabled = false;
-  if (error && /objetivo_mensal|visibilidade/.test(error.message || '')) return alert('Não foi possível salvar: faltam colunas novas no banco (objetivo_mensal ou visibilidade). Execute o SQL enviado e recarregue a página.');
+  if (error && /objetivo_mensal|visibilidade|compartilhado/.test(error.message || '')) return alert('Não foi possível salvar: faltam colunas novas no banco (objetivo_mensal, visibilidade ou compartilhado). Execute o SQL enviado (20261108_ttr_atualizacoes.sql) e recarregue a página.');
   if (error) return alert(error.code === '23505' ? 'Já existe um porquinho com esse nome.' : 'Erro ao salvar porquinho: ' + error.message);
   fecharModal('modalPorquinho');
   notificar(id ? 'Porquinho atualizado!' : 'Porquinho criado!', 'sucesso');
@@ -3982,13 +4361,15 @@ async function excluirPorquinho(id) {
 
 function abrirModalMov(id, tipo) {
   const p = state.porquinhos.find(x => x.id == id); if (!p) return;
+  if (tipo === 'retirada' && porqSoDeposito(p)) return notificar('Este porquinho é separado: você só pode guardar dinheiro nele.', 'aviso');
   $('movPorqId').value = p.id; $('movTipo').value = tipo;
   $('tituloModalMov').textContent = (tipo === 'retirada' ? 'Retirar de ' : 'Guardar em ') + p.nome;
   $('btnSalvarMov').textContent = tipo === 'retirada' ? 'Retirar' : 'Guardar';
   $('movSaldoInfo').textContent = 'Saldo atual: ' + formatarMoeda(saldoPorquinho(p.id));
   $('movValor').value = ''; $('movDesc').value = '';
   $('movMes').value = state.mesesSelecionados[0];
-  $('movResponsavel').innerHTML = (p.visibilidade === 'individual' ? membrosGrupo.filter(m => mesmoNome(m.nome, p.criado_por || currentUser.nome)) : membrosGrupo).map(m => `<option value="${esc(m.nome)}">${esc(capNome(m.nome))}</option>`).join('');
+  // no porquinho separado de outra pessoa, quem guarda sou eu; no meu, só eu mesmo
+  $('movResponsavel').innerHTML = (p.visibilidade === 'individual' ? membrosGrupo.filter(m => mesmoNome(m.nome, porqSoDeposito(p) ? currentUser.nome : (p.criado_por || currentUser.nome))) : membrosGrupo).map(m => `<option value="${esc(m.nome)}">${esc(capNome(m.nome))}</option>`).join('');
   if (membrosGrupo.some(m => m.nome === currentUser.nome)) $('movResponsavel').value = currentUser.nome;
   abrirModal('modalMovPorquinho');
 }
@@ -4000,6 +4381,8 @@ async function salvarMov() {
   if (!(valor > 0)) return alert('Informe um valor maior que zero.');
   if (!/^\d{4}-\d{2}$/.test(mes)) return alert('Informe o mês de referência.');
   if (!resp) return alert('Selecione quem está guardando.');
+  const pq = state.porquinhos.find(x => x.id == id);
+  if (tipo === 'retirada' && pq && porqSoDeposito(pq)) return notificar('Este porquinho é separado: você só pode guardar dinheiro nele.', 'aviso');
   if (tipo === 'retirada' && valor > saldoPorquinho(id) + 0.001) return notificar('Saldo insuficiente neste porquinho.', 'aviso');
   const btn = $('btnSalvarMov'); btn.disabled = true;
   const { error } = await db.from('porquinho_movimentos').insert([{ grupo_id: grupoId(), porquinho_id: id, mes_referencia: mes, valor: tipo === 'retirada' ? -valor : valor, responsavel: resp, descricao: capIni($('movDesc').value.trim()) || null, criado_por: currentUser.nome }]);
@@ -4025,7 +4408,7 @@ function renderExtratoPorquinho() {
   $('listaExtrato').innerHTML = movs.length ? movs.map(m => {
     const v = Number(m.valor);
     const data = m.criado_em ? new Date(m.criado_em).toLocaleDateString('pt-BR') : '';
-    return `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">${v < 0 ? '↩️ Retirada' : '🐷 Depósito'}${m.descricao ? ' · ' + esc(m.descricao) : ''}</div><div class="meta" style="font-size:11px;"><div><strong>${esc(capNome(m.responsavel))}</strong> · Ref. ${esc(formatarMes(m.mes_referencia))} · ${data}</div></div></div><div class="valor" style="font-size:15px;color:${v < 0 ? 'var(--danger)' : 'var(--success)'};">${v < 0 ? '−' : '+'} ${formatarMoeda(Math.abs(v))}</div><button class="icon-btn" data-act="porq-delmov" data-id="${esc(m.id)}" title="Excluir movimentação">🗑️</button></div>`;
+    return `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">${v < 0 ? '↩️ Retirada' : '🐷 Depósito'}${m.descricao ? ' · ' + esc(m.descricao) : ''}</div><div class="meta" style="font-size:11px;"><div><strong>${esc(capNome(m.responsavel))}</strong> · Ref. ${esc(formatarMes(m.mes_referencia))} · ${data}</div></div></div><div class="valor" style="font-size:15px;color:${v < 0 ? 'var(--danger)' : 'var(--success)'};">${v < 0 ? '−' : '+'} ${formatarMoeda(Math.abs(v))}</div>${porqSoDeposito(state.porquinhos.find(x => x.id == id) || {}) ? '' : `<button class="icon-btn" data-act="porq-delmov" data-id="${esc(m.id)}" title="Excluir movimentação">🗑️</button>`}</div>`;
   }).join('') : '<p style="text-align:center;color:var(--muted);padding:20px;">Nenhuma movimentação ainda.</p>';
 }
 async function excluirMovimento(id) {
@@ -4093,9 +4476,11 @@ async function excluirUsuario(id) {
   const u = todosUsuariosAdmin.find(x => x.id === id);
   if (!u) return;
   if (!await confirmar({ titulo: 'Excluir usuário', mensagem: `Tem certeza que deseja excluir o usuário "${u.nome}"?\n\nEsta ação não pode ser desfeita.`, confirmarTexto: 'Excluir', tipo: 'perigo' })) return;
-  const { error } = await db.from('profiles').delete().eq('id', id);
+  // exclui o perfil E o login juntos; assim o login não fica "sobrando" e atrapalhando um novo cadastro
+  let { error } = await db.rpc('excluir_usuario_completo', { p_id: id });
+  if (error && /excluir_usuario_completo|function|schema cache/i.test(error.message || '')) ({ error } = await db.from('profiles').delete().eq('id', id)); // SQL ainda não rodado: exclui só o perfil
   if (error) return alert('Erro ao excluir: ' + error.message);
-  alert('Perfil excluído com sucesso!');
+  alert('Usuário excluído com sucesso!');
   abrirModalGerenciarUsuarios();
 }
 function abrirModalNovoUsuario(e) {
@@ -4127,6 +4512,10 @@ async function cadastrarUsuario() {
 
     const emailReal = emailIn || `${cpf.replace(/\D/g, '')}@gestao.local`;
     btn.textContent = 'Criando...';
+    // remove um login antigo desse e-mail que ficou sem perfil (era a causa do erro profiles_id_fkey)
+    const { error: eOrfao } = await db.rpc('remover_auth_orfao', { p_email: emailReal });
+    const semSql = !!eOrfao && /remover_auth_orfao|function|schema cache/i.test(eOrfao.message || '');
+    if (eOrfao && !semSql) { alert('Erro ao preparar o cadastro: ' + eOrfao.message); return reset(); }
     const tmp = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'sb-temp-signup' } });
     const { data, error } = await tmp.auth.signUp({ email: emailReal, password: senha });
     if (error) {
@@ -4136,8 +4525,19 @@ async function cadastrarUsuario() {
       return reset();
     }
     if (!data.user) { alert('Não foi possível criar o usuário.'); return reset(); }
+    // o Supabase devolve um usuário "de mentira" (sem identidades) quando o e-mail já tem login
+    if (data.user.identities && data.user.identities.length === 0) {
+      alert(semSql
+        ? 'Não foi possível criar o usuário: esse e-mail já tem um login antigo. Execute o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase e tente de novo.'
+        : 'Não foi possível criar o usuário: esse e-mail já está em uso por outro usuário.');
+      return reset();
+    }
     const { error: eProf } = await db.from('profiles').insert([{ id: data.user.id, email: emailReal, nome, cpf, telefone: tel || null, grupo_id: grupo, is_admin: false }]);
-    if (eProf) { alert('Usuário criado na autenticação, mas houve erro ao criar o perfil: ' + eProf.message); return reset(); }
+    if (eProf) {
+      if (eProf.code === '23503') { await db.rpc('remover_auth_orfao', { p_email: emailReal }); alert('Não foi possível criar o usuário: o login não pôde ser vinculado ao perfil. Tente criar de novo' + (semSql ? ' depois de executar o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase.' : '.')); }
+      else alert('Usuário criado na autenticação, mas houve erro ao criar o perfil: ' + eProf.message);
+      return reset();
+    }
     alert('Usuário criado com sucesso!');
     ['cadGrupo', 'cadNome', 'cadCpf', 'cadTelefone', 'cadEmail', 'cadSenha'].forEach(i => $(i).value = '');
     fecharModal('modalNovoUsuario');
@@ -4155,6 +4555,7 @@ function ligarEventos() {
   if (window.matchMedia) { const mq = matchMedia('(prefers-color-scheme: light)'); const on = () => { if (temaPref === 'auto') aplicarTema('auto', true); }; if (mq.addEventListener) mq.addEventListener('change', on); }
   window.addEventListener('scroll', ocultarTip, { passive: true });
   divLigar();
+  ligarAcesso();
   $('btnSalvarRec').addEventListener('click', salvarRecebimento);
   $('btnRecQuitar').addEventListener('click', () => { const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (d) setMoeda($('recValor'), devRestante(d)); });
   $('btnRecRemover').addEventListener('click', removerDevedor);
@@ -4205,9 +4606,8 @@ function ligarEventos() {
   impLigarEventos();
   $('btnCfgNotif').addEventListener('click', () => { fecharModal('modalConfiguracoes'); abrirModalNotificacoes(); });
   $('btnOlho').addEventListener('click', () => aplicarPrivacidade(!document.body.classList.contains('privado')));
-  $('btnAtivarPush').addEventListener('click', ativarPush);
-  $('btnSalvarNotif').addEventListener('click', salvarNotif);
-  $('btnTesteNotif').addEventListener('click', testeNotif);
+  $('btnAtivarPush').addEventListener('click', alternarPush);
+  $('btnSalvarNotif').addEventListener('click', () => salvarNotif());
   $('rendaResponsavel').addEventListener('change', preencherRendaAtual);
   // máscara de R$ em todo campo de valor
   document.addEventListener('input', e => { const t = e.target; if (t && t.classList && t.classList.contains('money')) maskMoeda(t); if (t && t.id === 'adValor') atualizarAdiantamento(); if (t && t.id === 'cValor') divAtualizarValores(); });
@@ -4225,6 +4625,7 @@ function ligarEventos() {
   $('btnVerVencimentos').addEventListener('click', verVencimentos);
   $('btnNovoPorquinho').addEventListener('click', () => abrirModalPorquinho());
   $('btnSalvarPorquinho').addEventListener('click', salvarPorquinho);
+  $('porqVisib').addEventListener('change', porqAtualizarCompart);
   $('btnSalvarMov').addEventListener('click', salvarMov);
   $('porqEmojis').addEventListener('click', e => { const b = e.target.closest('[data-emoji]'); if (b) selecionarEmojiPorq(b.dataset.emoji); });
   $('buscaCompra').addEventListener('input', debounce(renderLista, 150));
@@ -4301,7 +4702,11 @@ async function initAuth() {
   mostrarLoading('Carregando seus dados...');
   try {
     const { data: { session } } = await db.auth.getSession();
-    if (session) await carregarPerfil(session.user.id);
+    if (session) {
+      // quem escolheu entrar com biometria/Face ID precisa confirmar antes de ver qualquer dado
+      if (modoAcesso(session.user.id) === 'bio') { esconderLoading(); await bloquearApp(session.user.id); mostrarLoading('Carregando seus dados...'); }
+      await carregarPerfil(session.user.id);
+    }
     else $('authScreen').style.display = 'flex';
   } catch (e) {
     console.error(e);
