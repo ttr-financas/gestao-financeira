@@ -711,7 +711,7 @@
   @media (max-width: 400px) { .month-selector { gap: 6px; } .multi-month-btn { min-width: 0; padding: 10px 14px; gap: 6px; } .btn-olho { left: 6px; } }
 
   /* ===== barra de navegação: colunas proporcionais, largura total e conteúdo centralizado ===== */
-  .bottom-nav { width: calc(100% - 16px); max-width: 680px; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); gap: 2px; padding: 5px; align-items: stretch; }
+  .bottom-nav { width: calc(100% - 16px); max-width: 680px; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1.35fr) repeat(var(--nav-extra, 0), minmax(0,1fr)); gap: 2px; padding: 5px; align-items: stretch; }
   .bottom-nav button { justify-content: center; align-items: center; min-height: 58px; padding: 7px 2px; gap: 4px; font-size: 10px; line-height: 1.15; text-align: center; text-wrap: balance; overflow-wrap: normal; word-break: normal; hyphens: none; }
   .bottom-nav button svg { flex: none; }
   @media (min-width: 560px) { .bottom-nav button { font-size: 12px; flex-direction: row; gap: 8px; min-height: 52px; } .bottom-nav button svg { width: 20px; height: 20px; } }
@@ -807,6 +807,51 @@
   .gxo-barra { height: 100%; border-radius: 99px; transition: width .3s; }
   .gxo-barra.orc { background: rgba(129,140,248,.8); }
   .gxo-chart { position: relative; height: 96px; margin-top: 8px; }
+
+  /* ===== módulos opcionais ===== */
+  body:not(.mod-porquinhos) .so-porquinhos, body:not(.mod-receber) .so-receber, body:not(.mod-vendas) .so-vendas { display: none !important; }
+  .mod-row { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); margin-bottom: 10px; cursor: pointer; }
+  .mod-row .mod-ic { font-size: 24px; }
+  .mod-row .mod-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .mod-row .mod-tx strong { font-size: 14.5px; }
+  .mod-row .mod-tx small { font-size: 12px; color: var(--muted); line-height: 1.35; }
+  .mod-row input { position: absolute; opacity: 0; pointer-events: none; }
+  .mod-sw-ui { width: 46px; height: 27px; border-radius: 99px; background: rgba(127,127,127,.35); position: relative; flex: none; transition: background .2s; }
+  .mod-sw-ui::after { content: ''; position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+  .mod-row input:checked ~ .mod-sw-ui { background: var(--success, #22c55e); }
+  .mod-row input:checked ~ .mod-sw-ui::after { transform: translateX(19px); }
+  .mod-row.on { border-color: var(--success, #22c55e); }
+
+  /* ===== painel de caixa (vendas/serviços) ===== */
+  .vd-abas { margin: 4px 0 12px; }
+  .vd-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .vd-kpi { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 12px; min-width: 0; }
+  .vd-kpi.wide { grid-column: 1 / -1; background: linear-gradient(160deg, rgba(var(--pr),.18), rgba(var(--pr),.04)); border-color: rgba(var(--pr),.35); }
+  .vd-kpi .lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 600; }
+  .vd-kpi .val { font-size: 19px; font-weight: 800; margin-top: 4px; word-break: break-word; }
+  .vd-kpi.wide .val { font-size: 24px; }
+  .vd-kpi .sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .vd-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+  .vd-card h4 { margin: 0 0 10px; font-size: 13.5px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .vd-card h4 small { font-weight: 500; color: var(--muted); font-size: 11.5px; }
+  .vd-chart { position: relative; height: 170px; }
+  .vd-linha { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1.4fr) auto; gap: 8px; align-items: center; font-size: 12.5px; padding: 5px 0; }
+  .vd-linha .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .vd-linha b { text-align: right; font-size: 12.5px; white-space: nowrap; }
+  .vd-trilho { height: 8px; border-radius: 99px; background: rgba(127,127,127,.18); overflow: hidden; }
+  .vd-trilho > div { height: 100%; border-radius: 99px; }
+  .vd-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .vd-extrato { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .vd-extrato th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); padding: 4px 4px 6px; font-weight: 600; }
+  .vd-extrato td { padding: 7px 4px; border-top: 1px solid var(--border); vertical-align: top; }
+  .vd-extrato td.v, .vd-extrato th.v { text-align: right; white-space: nowrap; }
+  .vd-extrato .cli { font-weight: 600; }
+  .vd-extrato .det { color: var(--muted); font-size: 11px; }
+  .vd-extrato tfoot td { font-weight: 800; border-top: 2px solid var(--border-strong); }
+  .vd-pos { color: var(--success-text, #4ade80); } .vd-neg { color: var(--danger-text, #f87171); }
+  .vd-forma-tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; background: rgba(var(--pr),.14); color: var(--accent-text); margin-top: 4px; }
+  .cat-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; }
+  .cat-item .info { flex: 1; min-width: 0; } .cat-item .info small { display: block; color: var(--muted); font-size: 11.5px; }
 </style>
 </head>
 <body>
@@ -921,9 +966,9 @@
         <div class="stat s-extra clickable" data-act="renda-extra"><span class="lbl">Renda variável/extra</span><span class="val" style="color:var(--teal);" id="pizzaExtra">R$ 0,00</span></div>
         <div class="stat s-orc"><span class="lbl">Orçado</span><span class="val" style="color:var(--accent-text);" id="pizzaOrcado">R$ 0,00</span></div>
         <div class="stat s-gasto clickable" data-go="inclusao"><span class="lbl">Gasto no mês</span><span class="val" style="color:var(--orange);" id="pizzaGasto">R$ 0,00</span><span class="stat-sub" id="pizzaGastoSub"></span></div>
-        <div class="stat s-porq clickable" data-go="porquinhos"><span class="lbl">Porquinho</span><span class="val" style="color:var(--warn);" id="pizzaPorq">R$ 0,00</span></div>
+        <div class="stat s-porq clickable so-porquinhos" data-go="porquinhos"><span class="lbl">Porquinho</span><span class="val" style="color:var(--warn);" id="pizzaPorq">R$ 0,00</span></div>
         <div class="stat s-sobra"><span class="lbl" title="Renda líquida − gasto − porquinho">Sobra do Mês</span><span class="val" style="color:var(--success);" id="pizzaSobra">R$ 0,00</span></div>
-        <div class="stat s-terc clickable" data-go="receber" id="statTerceiros" style="display:none;"><span class="lbl">Terceiros</span><span class="val" style="color:var(--accent-text);" id="pizzaTerc">R$ 0,00</span><span class="stat-sub">Parte de pessoas de fora nas compras do mês (Compras Divididas). Não entra no seu gasto.</span></div>
+        <div class="stat s-terc clickable so-receber" data-go="receber" id="statTerceiros" style="display:none;"><span class="lbl">Terceiros</span><span class="val" style="color:var(--accent-text);" id="pizzaTerc">R$ 0,00</span><span class="stat-sub">Parte de pessoas de fora nas compras do mês (Compras Divididas). Não entra no seu gasto.</span></div>
       </div>
     </section>
 
@@ -998,15 +1043,22 @@
     <div id="listaReceber"></div>
   </div>
   <div class="page" id="pageVendas">
-    <div class="section-head"><h3>Vendas e Serviços</h3><div style="display:flex;gap:8px;"><button class="chip-btn" id="btnVdHistorico" type="button">📜 Histórico</button><button class="chip-btn" id="btnVdNovo" type="button">+ Nova</button></div></div>
-    <p class="hint">Cobrança de clientes que compraram algo seu ou contrataram um serviço. É um controle separado das compras divididas e não entra no seu planejamento de gastos.</p>
-    <div class="rec-resumo" id="vdResumo"></div>
-    <div class="filtro-pessoa" id="vdFiltro">
-      <button class="active" data-vdf="aberto">A receber</button>
-      <button data-vdf="quitado">Pagas</button>
-      <button data-vdf="todos">Todas</button>
+    <div class="section-head"><h3>Vendas/Serviços</h3><div style="display:flex;gap:8px;"><button class="chip-btn" id="btnVdCatalogo" type="button">📦 Catálogo</button><button class="chip-btn" id="btnVdHistorico" type="button">📜 Histórico</button></div></div>
+    <div class="filtro-pessoa vd-abas" id="vdAbas">
+      <button class="active" data-vdaba="painel">📊 Painel de caixa</button>
+      <button data-vdaba="lanc">🧾 Lançamentos</button>
     </div>
-    <div id="listaVendas"></div>
+    <div id="vdPainel"></div>
+    <div id="vdLanc">
+      <p class="hint">Cobrança de clientes que compraram algo seu ou contrataram um serviço. É um controle separado das compras divididas e não entra no seu planejamento de gastos.</p>
+      <div class="rec-resumo" id="vdResumo"></div>
+      <div class="filtro-pessoa" id="vdFiltro">
+        <button class="active" data-vdf="aberto">A receber</button>
+        <button data-vdf="quitado">Pagas</button>
+        <button data-vdf="todos">Todas</button>
+      </div>
+      <div id="listaVendas"></div>
+    </div>
   </div>
 </main>
 
@@ -1019,21 +1071,22 @@
     <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
     Inclusão e Gestão de Despesas
   </button>
-  <button data-aba="porquinhos">
+  <button data-aba="porquinhos" class="so-porquinhos">
     <svg viewBox="0 0 24 24"><path d="M19 11c0-3.3-3.1-6-7-6S5 7.7 5 11c0 1.7.8 3.2 2 4.3V19h3v-1.5h4V19h3v-3.7c1.2-1.1 2-2.6 2-4.3z"/><path d="M19 11h2M9 10h.01"/><path d="M11 5.2C11 4 12 3 13 3"/></svg>
     Porquinho
   </button>
-  <button data-aba="receber">
+  <button data-aba="receber" class="so-receber">
     <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
     Divididas
   </button>
-  <button data-aba="vendas">
+  <button data-aba="vendas" class="so-vendas">
     <svg viewBox="0 0 24 24"><path d="M3 7h18v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg>
     Vendas
   </button>
 </nav>
 
 <button class="fab" id="fabCompra" aria-label="Nova compra">+</button>
+<button class="fab" id="fabVenda" aria-label="Nova venda ou serviço" style="display:none;">+</button>
 
 <!-- MODAL COMPRA -->
 <div class="modal-overlay" id="modalCompra">
@@ -1050,7 +1103,7 @@
         <div class="div-box">
           <div id="divLinhas"></div>
           <div class="div-acoes">
-            <button type="button" class="btn-action primary" id="btnDivExterno">+ Pessoa de fora</button>
+            <button type="button" class="btn-action primary so-receber" id="btnDivExterno" data-so="receber">+ Pessoa de fora</button>
             <button type="button" class="btn-action" id="btnDivIgual">Dividir igualmente</button>
           </div>
           <div class="div-total" id="divTotal"></div>
@@ -1299,6 +1352,8 @@
     <p class="hint">O tema fica salvo neste aparelho. O padrão é o Escuro.</p>
     <div class="cfg-titulo">Acesso ao app</div>
     <button class="cfg-item" id="btnCfgAcesso" type="button"><span class="cfg-ic">🔐</span><span class="cfg-tx"><strong>Biometria, senha ou conectado</strong><small id="cfgAcessoResumo">Permanecer conectado</small></span><span class="cfg-seta">›</span></button>
+    <div class="cfg-titulo">Módulos</div>
+    <button class="cfg-item" id="btnCfgModulos" type="button"><span class="cfg-ic">🧩</span><span class="cfg-tx"><strong>Ativar ou desativar módulos</strong><small id="cfgModulosResumo">Porquinho, Compras Divididas e Vendas/Serviços</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Cadastros</div>
     <button class="cfg-item" id="btnCfgListas" type="button"><span class="cfg-ic">🏷️</span><span class="cfg-tx"><strong>Motivos e tipos</strong><small>Veja, inclua ou exclua as opções das suas compras</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnCfgSugestoes" type="button"><span class="cfg-ic">💡</span><span class="cfg-tx"><strong>Sugestões e problemas</strong><small>Envie um bug, melhoria ou dúvida</small></span><span class="cfg-seta">›</span></button>
@@ -1448,14 +1503,18 @@
     <input type="hidden" id="vdEditId">
     <div class="form-grid">
       <div class="input-group"><label>Tipo</label><select id="vdTipo"><option value="servico">🛠️ Serviço</option><option value="venda">🛍️ Venda de produto</option></select></div>
-      <div class="input-group"><label>Gênero do cliente</label><select id="vdGenero"></select></div>
-      <div class="input-group full"><label>Cliente</label><input type="text" id="vdCliente" maxlength="80" autocomplete="off" placeholder="Nome de quem vai pagar"></div>
-      <div class="input-group full"><label>O que foi vendido / serviço prestado</label><input type="text" id="vdDescricao" maxlength="120" autocomplete="off" placeholder="Ex: Instalação elétrica, notebook usado..."></div>
-      <div class="input-group"><label>Valor total</label><input type="text" class="money" id="vdValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
-      <div class="input-group"><label>Nº de parcelas</label><input type="number" id="vdParcelas" min="1" max="120" value="1" inputmode="numeric"></div>
-      <div class="input-group"><label>1º vencimento</label><input type="date" id="vdVenc"></div>
       <div class="input-group"><label>Data da venda</label><input type="date" id="vdData"></div>
-      <div class="input-group full"><label>Observação (opcional)</label><input type="text" id="vdObs" maxlength="160" autocomplete="off" placeholder="Ex: combinado por Pix"></div>
+      <div class="input-group full"><label>Cliente</label><input type="text" id="vdCliente" maxlength="80" placeholder="Selecione ou cadastre o cliente"></div>
+      <div class="input-group"><label>Gênero do cliente</label><select id="vdGenero"></select></div>
+      <div class="input-group"><label>Valor total</label><input type="text" class="money" id="vdValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
+      <div class="input-group full"><label id="vdLblDesc">Serviço prestado</label><input type="text" id="vdDescricao" maxlength="120" placeholder="Selecione ou cadastre o serviço"></div>
+      <div class="input-group full" id="vdStatusBox"><label>Situação do pagamento</label><select id="vdStatus"><option value="aberto">⏳ A receber</option><option value="pago">✅ Já foi pago</option><option value="entrada">💵 Recebi só uma entrada</option></select></div>
+      <div class="input-group" id="vdEntradaBox" style="display:none;"><label>Valor da entrada</label><input type="text" class="money" id="vdEntrada" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
+      <div class="input-group" id="vdPagoDataBox" style="display:none;"><label>Data do pagamento</label><input type="date" id="vdPagoData"></div>
+      <div class="input-group full"><label id="vdLblForma">Forma de pagamento</label><input type="text" id="vdForma" maxlength="60" placeholder="Pix, boleto, maquininha..."></div>
+      <div class="input-group" id="vdParcelasBox"><label>Parcelas</label><select id="vdParcelas"></select></div>
+      <div class="input-group" id="vdVencBox"><label id="vdLblVenc">1º vencimento</label><input type="date" id="vdVenc"></div>
+      <div class="input-group full"><label>Observação (opcional)</label><input type="text" id="vdObs" maxlength="160" autocomplete="off" placeholder="Ex: combinado por mensagem"></div>
     </div>
     <p class="hint" id="vdPrevia" style="margin:8px 0 0;"></p>
     <div class="action-row" style="margin-top:16px;">
@@ -1473,7 +1532,8 @@
     <div class="form-grid">
       <div class="input-group"><label>Valor recebido</label><input type="text" class="money" id="vdRecValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
       <div class="input-group"><label>Data</label><input type="date" id="vdRecData"></div>
-      <div class="input-group full"><label>Observação (opcional)</label><input type="text" id="vdRecObs" maxlength="80" placeholder="Ex: Pix, dinheiro"></div>
+      <div class="input-group full"><label>Forma de pagamento</label><input type="text" id="vdRecForma" maxlength="60" placeholder="Pix, boleto, maquininha..."></div>
+      <div class="input-group full"><label>Observação (opcional)</label><input type="text" id="vdRecObs" maxlength="80" placeholder="Ex: parcela 2"></div>
     </div>
     <div class="action-row" style="margin-top:16px;">
       <button class="btn secondary" id="btnVdRecParcela" type="button">Preencher parcela</button>
@@ -1497,6 +1557,30 @@
     <div class="modal-header"><h3>Histórico de vendas e serviços</h3><button class="close-btn" data-close="modalVdHistorico">×</button></div>
     <p class="hint" style="margin-top:0;">Tudo o que já foi cobrado de clientes, com as datas e os valores de cada pagamento.</p>
     <div id="vdHistoricoCorpo"></div>
+  </div>
+</div>
+
+<!-- MODAL MÓDULOS -->
+<div class="modal-overlay" id="modalModulos">
+  <div class="modal">
+    <div class="modal-header"><h3>Módulos do app</h3><button class="close-btn" data-close="modalModulos">×</button></div>
+    <p class="hint" style="margin-top:0;">Planejamento e Inclusão e Gestão de Despesas são a base do app e ficam sempre ativos. Ative abaixo só o que você vai usar: telas, cards e campos de cada módulo só aparecem quando ele está ligado. Desligar não apaga nada, os dados ficam guardados.</p>
+    <div id="modulosLista"></div>
+  </div>
+</div>
+
+<!-- MODAL CATÁLOGO DE SERVIÇOS E PRODUTOS -->
+<div class="modal-overlay" id="modalVdCatalogo">
+  <div class="modal">
+    <div class="modal-header"><h3>Catálogo de serviços e produtos</h3><button class="close-btn" data-close="modalVdCatalogo">×</button></div>
+    <p class="hint" style="margin-top:0;">Cadastre o que você vende ou presta. Na hora de lançar, é só selecionar e o valor padrão já vem preenchido.</p>
+    <div class="form-grid">
+      <div class="input-group"><label>Tipo</label><select id="vcTipo"><option value="servico">🛠️ Serviço</option><option value="venda">🛍️ Produto</option></select></div>
+      <div class="input-group"><label>Valor padrão</label><input type="text" class="money" id="vcValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
+      <div class="input-group full"><label>Nome</label><input type="text" id="vcNome" maxlength="120" autocomplete="off" placeholder="Ex: Instalação elétrica"></div>
+    </div>
+    <div class="action-row" style="margin-top:12px;"><button class="btn" id="btnVcAdd" type="button">+ Adicionar ao catálogo</button></div>
+    <div id="vcLista" style="margin-top:14px;max-height:34vh;overflow-y:auto;"></div>
   </div>
 </div>
 
@@ -1556,7 +1640,7 @@ let state = {
   extratoPorqId: null,
   extras: [], extraIndisponivel: false, porqColVis: false,
   devedores: [], devIndisponivel: false, devErro: '', filtroReceber: 'aberto', recDevId: null,
-  vendas: [], vdIndisponivel: false, vdErro: '', filtroVendas: 'aberto', vdId: null
+  vendas: [], vdCatalogo: [], vdAba: 'painel', vdIndisponivel: false, vdErro: '', filtroVendas: 'aberto', vdId: null
 };
 let chartMotivos = null, chartPizza = null, gaugeCharts = {}, gxoChart = null;
 const SEM_MOTIVO = 'Sem motivo';
@@ -1621,7 +1705,7 @@ function abrirModal(id) {
     else if (!aberto && _recemFechado && _recemFechado.id !== id && Date.now() - _recemFechado.t < 80) _paiModal[id] = _recemFechado.id;
     else delete _paiModal[id];
   }
-  el.classList.add('open'); if (id === 'modalCompra') $('fabCompra').style.display = 'none';
+  el.classList.add('open'); if (id === 'modalCompra') $('fabCompra').style.display = 'none'; if (id === 'modalVenda') $('fabVenda').style.display = 'none';
 }
 function fecharModal(id, voltar) {
   fecharPainel();
@@ -1631,6 +1715,7 @@ function fecharModal(id, voltar) {
   if (voltar) delete _paiModal[id];
   if (pai && $(pai) && !$(pai).classList.contains('open')) { $(pai).classList.add('open'); }
   if (state.abaAtual === 'inclusao' && !document.querySelector('.modal-overlay.open')) $('fabCompra').style.display = 'flex';
+  if (state.abaAtual === 'vendas' && !document.querySelector('.modal-overlay.open')) $('fabVenda').style.display = 'flex';
 }
 /* =========================================
    DIÁLOGOS, AVISOS (TOAST) E CARREGAMENTO
@@ -2225,17 +2310,12 @@ const vdParcMes = (v, mes) => vdParcelas(v).filter(p => p.mes === mes);
 const vdParcMesAberta = (v, mes) => vdParcMes(v, mes).find(p => !p.quitada) || null;
 const vdProxima = v => vdParcelas(v).find(p => !p.quitada) || null;
 const vdIcone = v => v.tipo === 'venda' ? '🛍️' : '🛠️';
-async function carregarVendas() {
-  const { data, error } = await db.from('vendas_servicos').select('*').eq('grupo_id', grupoId()).order('id', { ascending: true });
-  if (error) { state.vdIndisponivel = true; state.vdErro = error.message || ''; state.vendas = []; return; }
-  state.vdIndisponivel = false; state.vdErro = ''; state.vendas = data || [];
-}
-function renderVendas() {
+function renderVdLancamentos() {
   const box = $('listaVendas'), res = $('vdResumo'); if (!box) return;
   document.querySelectorAll('#vdFiltro button').forEach(b => b.classList.toggle('active', b.dataset.vdf === state.filtroVendas));
   if (state.vdIndisponivel) {
     res.innerHTML = '';
-    box.innerHTML = `<div class="empty-msg">O recurso "Vendas e Serviços" ainda não foi ativado no banco de dados. Execute o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase e recarregue a página.${state.vdErro ? `<br><small>${esc(state.vdErro)}</small>` : ''}</div>`;
+    box.innerHTML = `<div class="empty-msg">O recurso "Vendas/Serviços" ainda não foi ativado no banco de dados. Execute o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase e recarregue a página.${state.vdErro ? `<br><small>${esc(state.vdErro)}</small>` : ''}</div>`;
     return;
   }
   const mes = state.mesesSelecionados[0], nomeMes = formatarMes(mes), todas = vdAtivas();
@@ -2275,7 +2355,7 @@ function renderVendas() {
     return `<div class="rec-item">
       <div class="rec-item-top"><span>${vdIcone(v)} ${esc(capIni(v.descricao))}</span><span class="v sensivel">${pagoMes ? '✅ Paga' : formatarMoeda(faltaDoMes)}</span></div>
       ${destaque}
-      <div class="rec-meta sensivel"><span class="rec-total-mini">valor total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}</span> · recebido ${formatarMoeda(rec)}${v.observacao ? '<br>' + esc(v.observacao) : ''}</div>
+      <div class="rec-meta sensivel"><span class="rec-total-mini">valor total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}</span> · recebido ${formatarMoeda(rec)}${v.observacao ? '<br>' + esc(v.observacao) : ''}${v.forma_pagamento ? '<br>' + vdFormaTag(v.forma_pagamento) : ''}</div>
       <div class="rec-bar"><div style="width:${pct}%"></div></div>
       ${lst}
       <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Quitado</span>' : ''}<button class="btn-action primary" data-act="vd-abrir" data-id="${esc(v.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button></div>
@@ -2320,75 +2400,11 @@ async function vdCopiarCobranca(chave) { const t = vdTextoCobranca(chave, state.
 function vdWhatsCobranca(chave) { const t = vdTextoCobranca(chave, state.mesesSelecionados[0]); if (!t) return; semBloqueioPor(120000); window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank'); }
 
 /* ---- incluir / editar (tela própria, separada das demais inclusões) ---- */
-function vdPrevia() {
-  const v = lerMoeda($('vdValor')), n = parseInt($('vdParcelas').value) || 1;
-  $('vdPrevia').textContent = v > 0 && n > 0 ? (n > 1 ? `${n} parcelas de aproximadamente ${formatarMoeda(v / n)}, uma por mês.` : 'Pagamento à vista, em uma única parcela.') : '';
-}
-function abrirVenda(id) {
-  const v = id ? state.vendas.find(x => String(x.id) === String(id)) : null;
-  $('vdEditId').value = v ? v.id : '';
-  $('vdTituloModal').textContent = v ? 'Editar venda ou serviço' : 'Nova venda ou serviço';
-  $('vdTipo').value = v ? (v.tipo || 'servico') : 'servico';
-  $('vdGenero').innerHTML = optsGenero(v && v.genero, 'Selecione…');
-  $('vdCliente').value = v ? v.cliente : ''; $('vdDescricao').value = v ? v.descricao : '';
-  setMoeda($('vdValor'), v ? v.valor_total : null); $('vdParcelas').value = v ? v.parcelas : 1;
-  $('vdVenc').value = v ? String(v.primeiro_venc).slice(0, 10) : hojeISO();
-  $('vdData').value = v && v.data_venda ? String(v.data_venda).slice(0, 10) : hojeISO();
-  $('vdObs').value = v ? (v.observacao || '') : '';
-  vdPrevia(); abrirModal('modalVenda');
-}
-async function salvarVenda() {
-  const cliente = capNome($('vdCliente').value.trim()), desc = capIni($('vdDescricao').value.trim()), valor = lerMoeda($('vdValor')), n = parseInt($('vdParcelas').value), venc = $('vdVenc').value, gen = $('vdGenero').value;
-  if (!cliente) return notificar('Informe o nome do cliente.', 'erro');
-  if (!desc) return notificar('Informe o que foi vendido ou o serviço prestado.', 'erro');
-  if (!(valor > 0)) return notificar('Informe um valor maior que zero.', 'erro');
-  if (!(n >= 1 && n <= 120)) return notificar('O número de parcelas deve ficar entre 1 e 120.', 'erro');
-  if (!venc) return notificar('Informe a data do 1º vencimento.', 'erro');
-  if (!gen) return notificar('Selecione o gênero do cliente (usado nos textos de cobrança).', 'erro');
-  const id = $('vdEditId').value, atual = id ? state.vendas.find(x => String(x.id) === String(id)) : null;
-  const row = { cliente, genero: gen, tipo: $('vdTipo').value, descricao: desc, valor_total: Math.round(valor * 100) / 100, parcelas: n, primeiro_venc: venc, data_venda: $('vdData').value || null, observacao: $('vdObs').value.trim() || null };
-  const btn = $('btnVdSalvar'); btn.disabled = true;
-  let error;
-  if (atual) ({ error } = await db.from('vendas_servicos').update(row).eq('id', atual.id).eq('grupo_id', grupoId()));
-  else ({ error } = await db.from('vendas_servicos').insert({ ...row, grupo_id: grupoId(), criado_por: currentUser.nome, recebimentos: [] }));
-  btn.disabled = false;
-  if (error) return notificar('Erro ao salvar: ' + error.message, 'erro');
-  fecharModal('modalVenda'); notificar(atual ? 'Venda/serviço atualizado!' : 'Venda/serviço cadastrado!', 'sucesso');
-  if (!atual) { state.mesesSelecionados = [venc.slice(0, 7)]; atualizarLabelMes(); }
-  await carregarVendas(); renderVendas();
-}
 /* ---- receber ---- */
-function abrirVdReceber(id) {
-  const v = state.vendas.find(x => String(x.id) === String(id)); if (!v) return;
-  state.vdId = v.id;
-  $('vdRecTitulo').textContent = capNome(v.cliente) + ' · ' + capIni(v.descricao);
-  $('vdRecData').value = hojeISO(); setMoeda($('vdRecValor'), null); $('vdRecObs').value = '';
-  renderVdReceberModal(); abrirModal('modalVdReceber');
-}
-function renderVdReceberModal() {
-  const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
-  const pr = vdProxima(v);
-  $('vdRecInfo').innerHTML = (pr ? `${pr.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <strong>parcela ${esc(pr.ref)}</strong> · vence ${esc(dataBR(pr.venc))}<span class="rec-valor">🟡 ${formatarMoeda(pr.falta)}<small>valor da parcela</small></span><br>` : '✅ <strong>Tudo recebido.</strong><br>')
-    + `Total ${formatarMoeda(v.valor_total)} · recebido ${formatarMoeda(vdRecebido(v))} · falta <strong>${formatarMoeda(vdRestante(v))}</strong>`;
-  const rs = vdRecs(v).map((r, i) => [r, i]).reverse();
-  $('vdRecLista').innerHTML = rs.length ? rs.map(([r, i]) => `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">💵 Recebido${r.obs ? ' · ' + esc(r.obs) : ''}</div><div class="meta" style="font-size:12px;">${esc(dataBR(r.data))}</div></div><div class="valor sensivel" style="font-weight:700;">${formatarMoeda(r.valor)}</div><button class="btn-action danger" data-act="vd-delmov" data-idx="${i}" type="button">🗑️</button></div>`).join('')
-    : '<p style="text-align:center;color:var(--muted);padding:16px;font-size:13px;">Nenhum recebimento ainda.</p>';
-}
 async function vdGravarRecebimentos(v, novo) {
   const { error } = await db.from('vendas_servicos').update({ recebimentos: novo }).eq('id', v.id).eq('grupo_id', grupoId());
   if (error) { notificar('Erro ao salvar: ' + error.message, 'erro'); return false; }
   v.recebimentos = novo; return true;
-}
-async function salvarVdRecebimento() {
-  const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
-  const val = lerMoeda($('vdRecValor'));
-  if (!(val > 0)) return notificar('Informe um valor maior que zero.', 'erro');
-  if (val > vdRestante(v) + 0.004 && !await confirmar({ titulo: 'Valor acima do devido', mensagem: `O valor passa do que falta (${formatarMoeda(vdRestante(v))}). Registrar mesmo assim?`, confirmarTexto: 'Registrar', tipo: 'aviso' })) return;
-  const btn = $('btnVdSalvarRec'); btn.disabled = true;
-  const ok = await vdGravarRecebimentos(v, [...vdRecs(v), { valor: val, data: $('vdRecData').value || hojeISO(), obs: capIni($('vdRecObs').value.trim()), por: currentUser.nome }]);
-  btn.disabled = false; if (!ok) return;
-  notificar('Recebimento registrado!', 'sucesso'); setMoeda($('vdRecValor'), null); $('vdRecObs').value = '';
-  renderVdReceberModal(); renderVendas();
 }
 async function vdExcluirRecebimento(idx) {
   const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
@@ -2404,6 +2420,192 @@ async function removerVenda() {
   state.vendas = state.vendas.filter(x => x.id !== v.id);
   fecharModal('modalVdReceber'); renderVendas();
 }
+
+/* ---- formas de pagamento / recebimento ---- */
+const FORMAS_RECEB = ['Pix', 'Boleto bancário', 'Cartão de crédito (maquininha)', 'Cartão de débito (maquininha)', 'Dinheiro', 'Transferência bancária (TED/DOC)', 'Depósito em conta', 'Link de pagamento', 'Carteira digital (PicPay, Mercado Pago...)', 'Cheque', 'Permuta / troca', 'Outra forma'];
+const formaIcone = f => { const n = normalizarNome(f); return /pix/.test(n) ? '💠' : /boleto/.test(n) ? '🧾' : /credito/.test(n) ? '💳' : /debito/.test(n) ? '💳' : /dinheiro/.test(n) ? '💵' : /transfer|deposito/.test(n) ? '🏦' : /link/.test(n) ? '🔗' : /carteira|picpay|mercado/.test(n) ? '📱' : /cheque/.test(n) ? '📄' : /permuta|troca/.test(n) ? '🔄' : '➕'; };
+const vdFormaTag = f => f ? `<span class="vd-forma-tag">${formaIcone(f)} ${esc(f)}</span>` : '';
+const vdDataVenda = v => String(v.data_venda || v.primeiro_venc || '').slice(0, 10);
+
+/* ---- módulos opcionais (só Planejamento e Inclusão são nativos) ---- */
+const MODULOS = {
+  porquinhos: { nome: 'Porquinho', icone: '🐷', desc: 'Guarde dinheiro em metas, com objetivo mensal e extrato.' },
+  receber: { nome: 'Compras Divididas', icone: '🤝', desc: 'Compras divididas com amigos e pessoas de fora, com cobrança por mês e WhatsApp.' },
+  vendas: { nome: 'Vendas/Serviços', icone: '💼', desc: 'Cobrança de clientes, catálogo, formas de pagamento e painel de controle de caixa.' }
+};
+let modulosAtivos = { porquinhos: false, receber: false, vendas: false };
+const moduloAtivo = k => !!modulosAtivos[k];
+const chModulos = id => 'ttr_modulos_' + id;
+function carregarModulos() {
+  const u = currentUser; if (!u) return;
+  let m = null;
+  if (u.modulos && typeof u.modulos === 'object') m = u.modulos;
+  else { try { m = JSON.parse(lsGet(chModulos(u.id)) || 'null'); } catch (e) {} }
+  // quem já usava um módulo antes desta versão continua com ele ligado
+  if (!m) m = { porquinhos: state.porquinhos.length > 0, receber: state.devedores.length > 0, vendas: vdAtivas().length > 0 };
+  modulosAtivos = { porquinhos: !!m.porquinhos, receber: !!m.receber, vendas: !!m.vendas };
+}
+function aplicarModulos() {
+  const ks = Object.keys(MODULOS);
+  ks.forEach(k => {
+    document.body.classList.toggle('mod-' + k, moduloAtivo(k));
+    const b = document.querySelector(`.bottom-nav [data-aba="${k}"]`); if (b) b.style.display = moduloAtivo(k) ? '' : 'none';
+  });
+  const nav = document.querySelector('.bottom-nav'); if (nav) nav.style.setProperty('--nav-extra', ks.filter(moduloAtivo).length);
+  const n = ks.filter(moduloAtivo).length, r = $('cfgModulosResumo'); if (r) r.textContent = n ? `${n} de ${ks.length} módulos ativos` : 'Nenhum módulo extra ativo';
+  if (ks.includes(state.abaAtual) && !moduloAtivo(state.abaAtual)) mudarAba('orcamento');
+}
+function renderModulos() {
+  $('modulosLista').innerHTML = Object.entries(MODULOS).map(([k, m]) => `<label class="mod-row ${moduloAtivo(k) ? 'on' : ''}"><span class="mod-ic">${m.icone}</span><span class="mod-tx"><strong>${esc(m.nome)}</strong><small>${esc(m.desc)}</small></span><input type="checkbox" class="mod-sw" data-mod="${k}" ${moduloAtivo(k) ? 'checked' : ''}><i class="mod-sw-ui"></i></label>`).join('');
+}
+async function definirModulo(k, on) {
+  modulosAtivos[k] = on;
+  lsSet(chModulos(currentUser.id), JSON.stringify(modulosAtivos));
+  currentUser.modulos = { ...modulosAtivos };
+  aplicarModulos(); renderModulos(); refresh();
+  notificar(`${MODULOS[k].nome} ${on ? 'ativado' : 'desativado'}.`, on ? 'sucesso' : 'info');
+  const { error } = await db.from('profiles').update({ modulos: modulosAtivos }).eq('id', currentUser.id);
+  if (error && !/modulos/i.test(error.message || '')) notificar('Não foi possível salvar na conta: ' + error.message, 'aviso');
+}
+
+/* ---- vendas e serviços: carga, catálogo ---- */
+async function carregarVendas() {
+  const { data, error } = await db.from('vendas_servicos').select('*').eq('grupo_id', grupoId()).order('id', { ascending: true });
+  if (error) { state.vdIndisponivel = true; state.vdErro = error.message || ''; state.vendas = []; state.vdCatalogo = []; return; }
+  state.vdIndisponivel = false; state.vdErro = ''; state.vendas = data || [];
+  const rc = await db.from('vendas_catalogo').select('*').eq('grupo_id', grupoId()).order('nome', { ascending: true });
+  state.vdCatalogo = rc.error ? [] : (rc.data || []);
+}
+// catálogo = itens cadastrados + tudo o que já foi lançado antes (do tipo escolhido)
+function vdItensCatalogo(tipo) {
+  const mapa = new Map();
+  (state.vdCatalogo || []).forEach(c => { if (!tipo || c.tipo === tipo) mapa.set(normalizarNome(c.nome), { nome: c.nome, tipo: c.tipo, valor: Number(c.valor_padrao) || 0 }); });
+  vdAtivas().forEach(v => { if (tipo && v.tipo !== tipo) return; const k = normalizarNome(v.descricao); if (!mapa.has(k)) mapa.set(k, { nome: v.descricao, tipo: v.tipo, valor: 0 }); });
+  return [...mapa.values()].sort((a, b) => a.nome.localeCompare(b.nome));
+}
+const vdClientes = () => { const m = new Map(); vdAtivas().forEach(v => { const k = normalizarNome(v.cliente); if (!m.has(k)) m.set(k, capNome(v.cliente)); }); return [...m.values()].sort((a, b) => a.localeCompare(b)); };
+function renderVdCatalogo() {
+  const l = state.vdCatalogo || [];
+  $('vcLista').innerHTML = l.length ? l.map(c => `<div class="cat-item"><span>${c.tipo === 'venda' ? '🛍️' : '🛠️'}</span><div class="info"><strong>${esc(capIni(c.nome))}</strong><small>${Number(c.valor_padrao) > 0 ? 'Valor padrão ' + formatarMoeda(c.valor_padrao) : 'Sem valor padrão'}</small></div><button class="btn-action danger" type="button" data-act="vc-del" data-id="${esc(c.id)}">🗑️</button></div>`).join('')
+    : '<div class="empty-msg">Nada cadastrado ainda. Use os campos acima ou cadastre direto ao lançar uma venda.</div>';
+}
+async function vdSalvarNoCatalogo(nome, tipo, valor) {
+  if ((state.vdCatalogo || []).some(c => c.tipo === tipo && normalizarNome(c.nome) === normalizarNome(nome))) return true;
+  const { data, error } = await db.from('vendas_catalogo').insert([{ grupo_id: grupoId(), tipo, nome, valor_padrao: valor > 0 ? valor : null }]).select();
+  if (error) return false;
+  state.vdCatalogo = [...(state.vdCatalogo || []), ...((data && data.length) ? data : [{ id: 'l' + Date.now(), grupo_id: grupoId(), tipo, nome, valor_padrao: valor > 0 ? valor : null }])]; return true;
+}
+async function adicionarCatalogo() {
+  const nome = capIni($('vcNome').value.trim()), tipo = $('vcTipo').value, valor = lerMoeda($('vcValor'));
+  if (!nome) return notificar('Informe o nome do serviço ou produto.', 'erro');
+  if ((state.vdCatalogo || []).some(c => c.tipo === tipo && normalizarNome(c.nome) === normalizarNome(nome))) return notificar('Esse item já está no catálogo.', 'aviso');
+  if (!await vdSalvarNoCatalogo(nome, tipo, valor)) return notificar('Não foi possível salvar. Execute o SQL novo no Supabase.', 'erro');
+  $('vcNome').value = ''; setMoeda($('vcValor'), null); renderVdCatalogo(); notificar('Adicionado ao catálogo!', 'sucesso');
+}
+async function excluirCatalogo(id) {
+  if (!await confirmar({ titulo: 'Remover do catálogo', mensagem: 'Remover este item do catálogo? Os lançamentos já feitos não mudam.', confirmarTexto: 'Remover', tipo: 'perigo' })) return;
+  const { error } = await db.from('vendas_catalogo').delete().eq('id', id).eq('grupo_id', grupoId());
+  if (error) return notificar('Erro ao remover: ' + error.message, 'erro');
+  state.vdCatalogo = state.vdCatalogo.filter(c => String(c.id) !== String(id)); renderVdCatalogo();
+}
+
+/* ---- incluir / editar ---- */
+function vdAtualizarForm() {
+  const venda = $('vdTipo').value === 'venda', st = $('vdStatus').value, editando = !!$('vdEditId').value;
+  $('vdLblDesc').textContent = venda ? 'Produto vendido' : 'Serviço prestado';
+  $('vdDescricao').placeholder = venda ? 'Selecione ou cadastre o produto' : 'Selecione ou cadastre o serviço';
+  $('vdStatusBox').style.display = editando ? 'none' : '';
+  const s = editando ? 'aberto' : st;
+  $('vdEntradaBox').style.display = s === 'entrada' ? '' : 'none';
+  $('vdPagoDataBox').style.display = s === 'pago' || s === 'entrada' ? '' : 'none';
+  $('vdParcelasBox').style.display = s === 'pago' ? 'none' : '';
+  $('vdVencBox').style.display = s === 'pago' ? 'none' : '';
+  $('vdLblForma').textContent = s === 'aberto' ? 'Forma de pagamento combinada' : 'Forma de pagamento';
+  $('vdLblVenc').textContent = s === 'entrada' ? '1º vencimento do restante' : '1º vencimento';
+  vdPrevia();
+}
+function vdPrevia() {
+  const v = lerMoeda($('vdValor')), n = parseInt($('vdParcelas').value) || 1, st = $('vdEditId').value ? 'aberto' : $('vdStatus').value;
+  let base = v;
+  if (st === 'entrada') { const e = lerMoeda($('vdEntrada')); base = v > 0 && e > 0 ? Math.max(0, v - e) : v; }
+  $('vdPrevia').textContent = !(v > 0) ? '' : st === 'pago' ? 'Venda já paga: entra direto no caixa.' : (n > 1 ? `${n} parcelas de aproximadamente ${formatarMoeda(base / n)}, uma por mês.` : 'Pagamento à vista, em uma única parcela.');
+}
+function abrirVenda(id) {
+  const v = id ? state.vendas.find(x => String(x.id) === String(id)) : null;
+  $('vdEditId').value = v ? v.id : '';
+  $('vdTituloModal').textContent = v ? 'Editar venda ou serviço' : 'Nova venda ou serviço';
+  $('vdTipo').value = v ? (v.tipo || 'servico') : 'servico';
+  $('vdGenero').innerHTML = optsGenero(v && v.genero, 'Selecione…');
+  $('vdCliente').value = v ? v.cliente : ''; $('vdDescricao').value = v ? v.descricao : '';
+  setMoeda($('vdValor'), v ? v.valor_total : null); setMoeda($('vdEntrada'), null);
+  $('vdParcelas').value = v ? String(v.parcelas) : '1';
+  $('vdStatus').value = 'aberto'; $('vdForma').value = v ? (v.forma_pagamento || '') : '';
+  $('vdVenc').value = v ? String(v.primeiro_venc).slice(0, 10) : hojeISO();
+  $('vdData').value = v && v.data_venda ? String(v.data_venda).slice(0, 10) : hojeISO();
+  $('vdPagoData').value = hojeISO(); $('vdObs').value = v ? (v.observacao || '') : '';
+  vdAtualizarForm(); abrirModal('modalVenda');
+}
+async function salvarVenda() {
+  const cliente = capNome($('vdCliente').value.trim()), desc = capIni($('vdDescricao').value.trim()), valor = lerMoeda($('vdValor')), gen = $('vdGenero').value;
+  const id = $('vdEditId').value, atual = id ? state.vendas.find(x => String(x.id) === String(id)) : null;
+  const st = atual ? 'aberto' : $('vdStatus').value, forma = capIni($('vdForma').value.trim());
+  let n = parseInt($('vdParcelas').value) || 1, venc = $('vdVenc').value;
+  const pagoData = $('vdPagoData').value || hojeISO();
+  if (!cliente) return notificar('Informe o nome do cliente.', 'erro');
+  if (!desc) return notificar('Informe o ' + ($('vdTipo').value === 'venda' ? 'produto vendido.' : 'serviço prestado.'), 'erro');
+  if (!(valor > 0)) return notificar('Informe um valor maior que zero.', 'erro');
+  if (!gen) return notificar('Selecione o gênero do cliente (usado nos textos de cobrança).', 'erro');
+  if (!forma) return notificar('Selecione a forma de pagamento.', 'erro');
+  let recebimentos = atual ? vdRecs(atual) : [];
+  if (st === 'pago') { n = 1; venc = pagoData; recebimentos = [{ valor: Math.round(valor * 100) / 100, data: pagoData, obs: 'Pago na venda', forma, por: currentUser.nome }]; }
+  else if (st === 'entrada') {
+    const ent = lerMoeda($('vdEntrada'));
+    if (!(ent > 0) || ent >= valor) return notificar('A entrada deve ser maior que zero e menor que o valor total.', 'erro');
+    recebimentos = [{ valor: Math.round(ent * 100) / 100, data: pagoData, obs: 'Entrada', forma, por: currentUser.nome }];
+  }
+  if (!venc) return notificar('Informe a data do 1º vencimento.', 'erro');
+  const row = { cliente, genero: gen, tipo: $('vdTipo').value, descricao: desc, valor_total: Math.round(valor * 100) / 100, parcelas: n, primeiro_venc: venc, data_venda: $('vdData').value || null, observacao: $('vdObs').value.trim() || null, forma_pagamento: forma };
+  if (!atual) row.recebimentos = recebimentos;
+  const btn = $('btnVdSalvar'); btn.disabled = true;
+  const gravar = async r => atual ? await db.from('vendas_servicos').update(r).eq('id', atual.id).eq('grupo_id', grupoId()) : await db.from('vendas_servicos').insert({ ...r, grupo_id: grupoId(), criado_por: currentUser.nome });
+  let { error } = await gravar(row);
+  if (error && /forma_pagamento/i.test(error.message || '')) { const { forma_pagamento, ...sem } = row; ({ error } = await gravar(sem)); }
+  btn.disabled = false;
+  if (error) return notificar('Erro ao salvar: ' + error.message, 'erro');
+  vdSalvarNoCatalogo(desc, row.tipo, row.valor_total).catch(() => {});
+  fecharModal('modalVenda'); notificar(atual ? 'Venda/serviço atualizado!' : st === 'pago' ? 'Venda registrada e já lançada no caixa!' : 'Venda/serviço cadastrado!', 'sucesso');
+  if (!atual) { state.mesesSelecionados = [(st === 'pago' ? pagoData : venc).slice(0, 7)]; atualizarLabelMes(); }
+  await carregarVendas(); renderVendas();
+}
+/* ---- receber ---- */
+function abrirVdReceber(id) {
+  const v = state.vendas.find(x => String(x.id) === String(id)); if (!v) return;
+  state.vdId = v.id;
+  $('vdRecTitulo').textContent = capNome(v.cliente) + ' · ' + capIni(v.descricao);
+  $('vdRecData').value = hojeISO(); setMoeda($('vdRecValor'), null); $('vdRecObs').value = ''; $('vdRecForma').value = v.forma_pagamento || '';
+  renderVdReceberModal(); abrirModal('modalVdReceber');
+}
+function renderVdReceberModal() {
+  const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
+  const pr = vdProxima(v);
+  $('vdRecInfo').innerHTML = (pr ? `${pr.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <strong>parcela ${esc(pr.ref)}</strong> · vence ${esc(dataBR(pr.venc))}<span class="rec-valor">🟡 ${formatarMoeda(pr.falta)}<small>valor da parcela</small></span><br>` : '✅ <strong>Tudo recebido.</strong><br>')
+    + `Total ${formatarMoeda(v.valor_total)} · recebido ${formatarMoeda(vdRecebido(v))} · falta <strong>${formatarMoeda(vdRestante(v))}</strong>`;
+  const rs = vdRecs(v).map((r, i) => [r, i]).reverse();
+  $('vdRecLista').innerHTML = rs.length ? rs.map(([r, i]) => `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">💵 Recebido${r.obs ? ' · ' + esc(r.obs) : ''}</div><div class="meta" style="font-size:12px;">${esc(dataBR(r.data))}${r.forma ? ' · ' + formaIcone(r.forma) + ' ' + esc(r.forma) : ''}</div></div><div class="valor sensivel" style="font-weight:700;">${formatarMoeda(r.valor)}</div><button class="btn-action danger" data-act="vd-delmov" data-idx="${i}" type="button">🗑️</button></div>`).join('')
+    : '<p style="text-align:center;color:var(--muted);padding:16px;font-size:13px;">Nenhum recebimento ainda.</p>';
+}
+async function salvarVdRecebimento() {
+  const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
+  const val = lerMoeda($('vdRecValor')), forma = capIni($('vdRecForma').value.trim());
+  if (!(val > 0)) return notificar('Informe um valor maior que zero.', 'erro');
+  if (!forma) return notificar('Selecione a forma de pagamento.', 'erro');
+  if (val > vdRestante(v) + 0.004 && !await confirmar({ titulo: 'Valor acima do devido', mensagem: `O valor passa do que falta (${formatarMoeda(vdRestante(v))}). Registrar mesmo assim?`, confirmarTexto: 'Registrar', tipo: 'aviso' })) return;
+  const btn = $('btnVdSalvarRec'); btn.disabled = true;
+  const ok = await vdGravarRecebimentos(v, [...vdRecs(v), { valor: val, data: $('vdRecData').value || hojeISO(), obs: capIni($('vdRecObs').value.trim()), forma, por: currentUser.nome }]);
+  btn.disabled = false; if (!ok) return;
+  notificar('Recebimento registrado!', 'sucesso'); setMoeda($('vdRecValor'), null); $('vdRecObs').value = '';
+  renderVdReceberModal(); renderVendas();
+}
 function renderVdHistorico() {
   const box = $('vdHistoricoCorpo'), todos = vdAtivas();
   if (!todos.length) { box.innerHTML = '<div class="empty-msg">Nenhuma venda ou serviço cadastrado ainda.</div>'; return; }
@@ -2413,13 +2615,81 @@ function renderVdHistorico() {
   const resumo = `<div class="hist-kpis"><div><span>Total cobrado</span><strong class="sensivel">${formatarMoeda(tot)}</strong></div><div><span>Recebido</span><strong class="sensivel" style="color:var(--success-text);">${formatarMoeda(rec)}</strong></div><div><span>Em aberto</span><strong class="sensivel">${formatarMoeda(ab)}</strong></div></div>`;
   box.innerHTML = resumo + Object.values(grupos).sort((a, b) => a.nome.localeCompare(b.nome)).map(g => {
     const gTot = g.itens.reduce((s, v) => s + (Number(v.valor_total) || 0), 0), gRec = g.itens.reduce((s, v) => s + vdRecebido(v), 0), gAb = gTot - gRec;
-    const itens = g.itens.slice().sort((a, b) => String(b.data_venda || b.primeiro_venc).localeCompare(String(a.data_venda || a.primeiro_venc))).map(v => {
+    const itens = g.itens.slice().sort((a, b) => vdDataVenda(b).localeCompare(vdDataVenda(a))).map(v => {
       const rs = vdRecs(v).slice().sort((a, b) => String(a.data).localeCompare(String(b.data))), quit = vdRestante(v) <= 0.004;
-      return `<div class="hist-compra"><div class="hist-linha"><div><strong>${vdIcone(v)} ${esc(capIni(v.descricao))}</strong><small>${v.data_venda ? 'Em ' + esc(dataBR(String(v.data_venda).slice(0, 10))) + ' · ' : ''}${v.parcelas}x · 1º venc. ${esc(dataBR(String(v.primeiro_venc).slice(0, 10)))}</small></div><div class="hist-val sensivel">${formatarMoeda(v.valor_total)}<small>${quit ? '✅ quitado' : 'falta ' + formatarMoeda(vdRestante(v))}</small></div></div>
-        ${rs.length ? `<div class="hist-pgtos">${rs.map(r => `<div><span>💵 ${esc(dataBR(r.data))}${r.obs ? ' · ' + esc(r.obs) : ''}</span><b class="sensivel">${formatarMoeda(r.valor)}</b></div>`).join('')}</div>` : '<div class="hist-pgtos"><div><span>Nenhum pagamento ainda</span></div></div>'}</div>`;
+      return `<div class="hist-compra"><div class="hist-linha"><div><strong>${vdIcone(v)} ${esc(capIni(v.descricao))}</strong><small>${v.data_venda ? 'Em ' + esc(dataBR(vdDataVenda(v))) + ' · ' : ''}${v.parcelas}x · 1º venc. ${esc(dataBR(String(v.primeiro_venc).slice(0, 10)))}</small></div><div class="hist-val sensivel">${formatarMoeda(v.valor_total)}<small>${quit ? '✅ quitado' : 'falta ' + formatarMoeda(vdRestante(v))}</small></div></div>
+        ${rs.length ? `<div class="hist-pgtos">${rs.map(r => `<div><span>💵 ${esc(dataBR(r.data))}${r.forma ? ' · ' + esc(r.forma) : ''}${r.obs ? ' · ' + esc(r.obs) : ''}</span><b class="sensivel">${formatarMoeda(r.valor)}</b></div>`).join('')}</div>` : '<div class="hist-pgtos"><div><span>Nenhum pagamento ainda</span></div></div>'}</div>`;
     }).join('');
     return `<details class="hist-pessoa" open><summary><span class="hist-nome">${esc(capNome(g.nome))}</span><span class="hist-soma sensivel">${formatarMoeda(gTot)} <small>· recebido ${formatarMoeda(gRec)}${gAb > 0.004 ? ' · falta ' + formatarMoeda(gAb) : ''}</small></span></summary>${itens}</details>`;
   }).join('');
+}
+
+/* ---- tela: Painel de caixa x Lançamentos ---- */
+function renderVendas() {
+  document.querySelectorAll('#vdAbas button').forEach(b => b.classList.toggle('active', b.dataset.vdaba === state.vdAba));
+  const painel = state.vdAba === 'painel';
+  $('vdPainel').style.display = painel ? '' : 'none'; $('vdLanc').style.display = painel ? 'none' : '';
+  if (painel) renderVdPainel(); else renderVdLancamentos();
+}
+let vdCharts = [];
+function renderVdPainel() {
+  const box = $('vdPainel'); vdCharts.forEach(c => c.destroy()); vdCharts = [];
+  if (state.vdIndisponivel) { box.innerHTML = `<div class="empty-msg">O recurso "Vendas/Serviços" ainda não foi ativado no banco de dados. Execute o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase e recarregue a página.${state.vdErro ? `<br><small>${esc(state.vdErro)}</small>` : ''}</div>`; return; }
+  const todas = vdAtivas(), mes = state.mesesSelecionados[0], nomeMes = formatarMes(mes), hoje = hojeISO(), M = v => formatarMoeda(v);
+  if (!todas.length) { box.innerHTML = '<div class="empty-msg">Nenhuma venda ou serviço ainda.<br><small>Toque no botão + para lançar o primeiro. O painel de caixa se monta sozinho.</small></div>'; return; }
+  // entradas de caixa = recebimentos registrados
+  const fluxo = []; todas.forEach(v => vdRecs(v).forEach(r => fluxo.push({ v, r, data: String(r.data || '').slice(0, 10), valor: Number(r.valor) || 0, forma: r.forma || v.forma_pagamento || 'Não informada' })));
+  const entradas = fluxo.filter(e => e.data.slice(0, 7) === mes).sort((a, b) => a.data.localeCompare(b.data));
+  const recebidoMes = entradas.reduce((t, e) => t + e.valor, 0);
+  const vendasMes = todas.filter(v => vdDataVenda(v).slice(0, 7) === mes), faturadoMes = vendasMes.reduce((t, v) => t + (Number(v.valor_total) || 0), 0);
+  const parcs = []; todas.forEach(v => vdParcelas(v).forEach(p => parcs.push({ v, ...p })));
+  const doMes = parcs.filter(p => p.mes === mes), previsto = doMes.reduce((t, p) => t + p.valor, 0), pagoPrev = doMes.reduce((t, p) => t + p.pago, 0), faltaMes = doMes.reduce((t, p) => t + p.falta, 0);
+  const atrasadas = parcs.filter(p => p.atrasada), vencido = atrasadas.reduce((t, p) => t + p.falta, 0);
+  const abertoTotal = todas.reduce((t, v) => t + vdRestante(v), 0), ticket = vendasMes.length ? faturadoMes / vendasMes.length : 0;
+  const taxa = previsto > 0 ? Math.round(pagoPrev / previsto * 100) : null;
+  const diasAtraso = p => Math.floor((new Date(hoje) - new Date(p.venc)) / 86400000);
+  let h = `<div class="vd-kpis">
+    <div class="vd-kpi wide"><div class="lbl">💰 Entrou no caixa em ${esc(nomeMes)}</div><div class="val sensivel vd-pos">${M(recebidoMes)}</div><div class="sub">${entradas.length} recebimento(s) · faturado no mês ${M(faturadoMes)}</div></div>
+    <div class="vd-kpi"><div class="lbl">A receber no mês</div><div class="val sensivel">${M(faltaMes)}</div><div class="sub">${doMes.filter(p => !p.quitada).length} parcela(s) em aberto</div></div>
+    <div class="vd-kpi"><div class="lbl">Vencido</div><div class="val sensivel ${vencido > 0.004 ? 'vd-neg' : ''}">${M(vencido)}</div><div class="sub">${atrasadas.length} parcela(s) em atraso</div></div>
+    <div class="vd-kpi"><div class="lbl">Total em aberto</div><div class="val sensivel">${M(abertoTotal)}</div><div class="sub">de todos os meses</div></div>
+    <div class="vd-kpi"><div class="lbl">Ticket médio</div><div class="val sensivel">${M(ticket)}</div><div class="sub">${vendasMes.length} venda(s) no mês</div></div>
+  </div>`;
+  h += `<div class="vd-card"><h4>Meta de recebimento do mês <small>${taxa === null ? 'sem parcelas no mês' : taxa + '% recebido'}</small></h4>
+    <div class="vd-meta"><span>Recebido <b class="sensivel">${M(pagoPrev)}</b></span><span>Previsto <b class="sensivel">${M(previsto)}</b></span></div>
+    <div class="vd-trilho" style="height:12px;"><div style="width:${Math.min(100, taxa || 0)}%;background:${taxa >= 100 ? 'var(--success)' : taxa >= 50 ? 'var(--warn)' : 'var(--orange)'};"></div></div></div>`;
+  h += `<div class="vd-card"><h4>Faturado x Recebido <small>últimos 6 meses</small></h4><div class="vd-chart"><canvas id="vdChartMeses"></canvas></div></div>`;
+  // por forma de pagamento (entradas do mês)
+  const porForma = {}; entradas.forEach(e => { porForma[e.forma] = (porForma[e.forma] || 0) + e.valor; });
+  const formas = Object.entries(porForma).sort((a, b) => b[1] - a[1]);
+  h += `<div class="vd-card"><h4>Entradas por forma de pagamento <small>${esc(nomeMes)}</small></h4>${formas.length ? formas.map(([f, v]) => `<div class="vd-linha"><span class="n">${formaIcone(f)} ${esc(f.replace(/ \(.*\)/, ''))}</span><div class="vd-trilho"><div style="width:${recebidoMes ? v / recebidoMes * 100 : 0}%;background:var(--accent-text);"></div></div><b class="sensivel">${M(v)} <small style="color:var(--muted);font-weight:500;">${recebidoMes ? Math.round(v / recebidoMes * 100) : 0}%</small></b></div>`).join('') : '<div class="hint" style="margin:0;">Nenhum recebimento neste mês.</div>'}</div>`;
+  // vendas x serviços
+  const tp = { servico: { n: 0, v: 0 }, venda: { n: 0, v: 0 } }; vendasMes.forEach(v => { const k = v.tipo === 'venda' ? 'venda' : 'servico'; tp[k].n++; tp[k].v += Number(v.valor_total) || 0; });
+  h += `<div class="vd-card"><h4>Serviços x Produtos <small>faturado em ${esc(nomeMes)}</small></h4>${[['servico', '🛠️ Serviços'], ['venda', '🛍️ Produtos']].map(([k, n]) => `<div class="vd-linha"><span class="n">${n} (${tp[k].n})</span><div class="vd-trilho"><div style="width:${faturadoMes ? tp[k].v / faturadoMes * 100 : 0}%;background:${k === 'venda' ? 'var(--orange)' : 'var(--teal, #14b8a6)'};"></div></div><b class="sensivel">${M(tp[k].v)}</b></div>`).join('')}</div>`;
+  // previsão próximos 3 meses
+  const prev = [1, 2, 3].map(i => { const m = addMes(mes, i); return { m, v: parcs.filter(p => p.mes === m).reduce((t, p) => t + p.falta, 0) }; }), maxPrev = Math.max(...prev.map(x => x.v), 0.01);
+  h += `<div class="vd-card"><h4>Previsão de caixa <small>próximos 3 meses</small></h4>${prev.map(x => `<div class="vd-linha"><span class="n">${esc(formatarMes(x.m))}</span><div class="vd-trilho"><div style="width:${x.v / maxPrev * 100}%;background:var(--success);"></div></div><b class="sensivel">${M(x.v)}</b></div>`).join('')}</div>`;
+  // inadimplência por faixa de atraso
+  const faixas = [['1 a 30 dias', 1, 30], ['31 a 60 dias', 31, 60], ['61 a 90 dias', 61, 90], ['Mais de 90 dias', 91, 1e9]].map(([n, a, b]) => { const l = atrasadas.filter(p => { const d = diasAtraso(p); return d >= a && d <= b; }); return { n, c: l.length, v: l.reduce((t, p) => t + p.falta, 0) }; }), maxF = Math.max(...faixas.map(f => f.v), 0.01);
+  h += `<div class="vd-card"><h4>Inadimplência <small>${atrasadas.length ? M(vencido) + ' em atraso' : 'tudo em dia 🎉'}</small></h4>${faixas.map(f => `<div class="vd-linha"><span class="n">${f.n} (${f.c})</span><div class="vd-trilho"><div style="width:${f.v / maxF * 100}%;background:var(--danger);"></div></div><b class="sensivel">${M(f.v)}</b></div>`).join('')}</div>`;
+  // top clientes
+  const cl = {}; todas.forEach(v => { const k = normalizarNome(v.cliente), o = cl[k] = cl[k] || { nome: v.cliente, fat: 0, ab: 0, venc: 0 }; o.fat += Number(v.valor_total) || 0; o.ab += vdRestante(v); });
+  atrasadas.forEach(p => { cl[normalizarNome(p.v.cliente)].venc += p.falta; });
+  const top = Object.values(cl).sort((a, b) => b.ab - a.ab || b.fat - a.fat).slice(0, 5), maxC = Math.max(...top.map(c => c.fat), 0.01);
+  h += `<div class="vd-card"><h4>Clientes <small>maiores saldos em aberto</small></h4>${top.map(c => `<div class="vd-linha"><span class="n">${esc(capNome(c.nome))}${c.venc > 0.004 ? ' ⚠️' : ''}</span><div class="vd-trilho"><div style="width:${c.fat / maxC * 100}%;background:var(--accent-text);"></div></div><b class="sensivel">${c.ab > 0.004 ? M(c.ab) : '✅ em dia'}</b></div>`).join('')}</div>`;
+  // extrato de caixa
+  let saldo = 0;
+  h += `<div class="vd-card"><h4>Extrato de caixa <small>${esc(nomeMes)}</small></h4>${entradas.length ? `<table class="vd-extrato"><thead><tr><th>Dia</th><th>Cliente</th><th class="v">Entrada</th><th class="v">Saldo</th></tr></thead><tbody>${entradas.map(e => { saldo += e.valor; return `<tr><td>${esc(dataBR(e.data).slice(0, 5))}</td><td><div class="cli">${esc(capNome(e.v.cliente))}</div><div class="det">${esc(capIni(e.v.descricao))} · ${formaIcone(e.forma)} ${esc(e.forma.replace(/ \(.*\)/, ''))}</div></td><td class="v sensivel vd-pos">+${M(e.valor)}</td><td class="v sensivel">${M(saldo)}</td></tr>`; }).join('')}</tbody><tfoot><tr><td colspan="2">Total do mês</td><td class="v sensivel vd-pos">${M(recebidoMes)}</td><td></td></tr></tfoot></table>` : '<div class="hint" style="margin:0;">Nenhuma entrada de caixa neste mês.</div>'}</div>`;
+  box.innerHTML = h;
+  if (typeof Chart !== 'undefined') {
+    const ms = [-5, -4, -3, -2, -1, 0].map(i => addMes(mes, i));
+    vdCharts.push(new Chart($('vdChartMeses').getContext('2d'), { type: 'bar',
+      data: { labels: ms.map(m => formatarMes(m).split(' / ')[0]), datasets: [
+        { label: 'Faturado', data: ms.map(m => todas.filter(v => vdDataVenda(v).slice(0, 7) === m).reduce((t, v) => t + (Number(v.valor_total) || 0), 0)), backgroundColor: 'rgba(129,140,248,.7)', borderRadius: 4, maxBarThickness: 18 },
+        { label: 'Recebido', data: ms.map(m => fluxo.filter(e => e.data.slice(0, 7) === m).reduce((t, e) => t + e.valor, 0)), backgroundColor: '#22c55e', borderRadius: 4, maxBarThickness: 18 }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 }, color: corTema('--muted') } }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${formatarMoeda(c.parsed.y)}` } } },
+        scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, color: corTema('--muted') } }, y: { beginAtZero: true, ticks: { font: { size: 10 }, color: corTema('--muted'), callback: v => v >= 1000 ? (v / 1000) + 'k' : v }, grid: { color: 'rgba(127,127,127,.15)' } } } } }));
+  }
 }
 
 function normalizarNome(s) { return String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
@@ -2646,6 +2916,11 @@ function iniciarCampos() {
   criarCombo('impResp', { opcoes: () => opcoesResp, livre: false, cap: true });
   criarMesPicker('impMes');
   criarDataPicker('cDataCompra');
+  criarCombo('vdCliente', { opcoes: vdClientes, livre: true, cap: true, rotuloCriar: 'Novo cliente' });
+  criarCombo('vdDescricao', { opcoes: () => vdItensCatalogo($('vdTipo').value).map(i => i.nome), livre: true, rotuloCriar: 'Cadastrar' });
+  criarCombo('vdForma', { opcoes: () => FORMAS_RECEB, livre: true, rotuloCriar: 'Outra forma' });
+  criarCombo('vdRecForma', { opcoes: () => FORMAS_RECEB, livre: true, rotuloCriar: 'Outra forma' });
+  criarDataPicker('vdPagoData');
   criarDataPicker('recData'); criarDataPicker('vdVenc'); criarDataPicker('vdData'); criarDataPicker('vdRecData');
   iniciarSelects();
   iniciarTeclado();
@@ -3376,6 +3651,7 @@ async function carregarDados() {
   await carregarPorquinhos();
   await carregarDevedores();
   await carregarVendas();
+  carregarModulos(); aplicarModulos();
   preencherDatalists();
   atualizarLabelMes();
   // Só renderiza a aba ativa
@@ -3457,12 +3733,14 @@ function refresh() {
 }
 
 function mudarAba(aba) {
+  if (MODULOS[aba] && !moduloAtivo(aba)) aba = 'orcamento';
   state.abaAtual = aba;
   ocultarTip();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   $('page' + aba.charAt(0).toUpperCase() + aba.slice(1)).classList.add('active');
   document.querySelectorAll('.bottom-nav [data-aba]').forEach(d => d.classList.toggle('active', d.dataset.aba === aba));
   $('fabCompra').style.display = aba === 'inclusao' ? 'flex' : 'none';
+  $('fabVenda').style.display = aba === 'vendas' ? 'flex' : 'none';
   refresh();
 }
 
@@ -4318,7 +4596,7 @@ function renderInclusao() {
   if (total > 0) { const d = ((totalProx - total) / total) * 100; if (Math.abs(d) >= 0.5) tp = `<span class="trend ${d > 0 ? 'up' : 'down'}">${d > 0 ? '↑' : '↓'} ${Math.abs(d).toFixed(0)}%</span>`; }
   html += `<div class="kpi-card"><div class="label">Próximo Mês (${MESES_ABR[parseInt(prox.split('-')[1]) - 1]})</div><div class="value">${formatarMoeda(totalProx)}${tp}</div><div class="subtext">Já comprometido</div></div>`;
   const recAb = state.devedores.filter(d => compraAtivaId(d.id_compra) && devRestante(d) > 0.004);
-  if (recAb.length) html += `<div class="kpi-card clickable" data-go="receber"><div class="label">Divididas a receber</div><div class="value">${formatarMoeda(recAb.reduce((t, d) => t + devRestante(d), 0))}</div><div class="subtext">${new Set(recAb.map(d => normalizarNome(d.pessoa))).size} pessoa(s) devendo</div></div>`;
+  if (recAb.length && moduloAtivo('receber')) html += `<div class="kpi-card clickable" data-go="receber"><div class="label">Divididas a receber</div><div class="value">${formatarMoeda(recAb.reduce((t, d) => t + devRestante(d), 0))}</div><div class="subtext">${new Set(recAb.map(d => normalizarNome(d.pessoa))).size} pessoa(s) devendo</div></div>`;
   $('kpiGrid').innerHTML = html;
 
   const vl = listaVencimentos();
@@ -4780,7 +5058,7 @@ function impDivisaoHTML(x) {
     return `<div class="div-row ext" data-k="${k}"><div class="div-quem" style="cursor:default;"><span class="cx"><input type="text" class="div-nome" data-d="nome" value="${esc(p.nome)}" placeholder="Nome de quem vai pagar" maxlength="40" autocomplete="off"><select class="div-gen" data-d="gen" aria-label="Gênero">${optsGenero(p.genero || generoConhecido(p.nome), 'Gênero…')}</select><span class="vl" data-vl>${vl}</span></span></div><div class="div-pct"><input type="text" inputmode="decimal" data-d="pct" class="${cls}" value="${esc(val)}" placeholder="0" autocomplete="off"></div><button type="button" class="icon-btn" data-d="rm" title="Remover">✕</button></div>`;
   }).join('');
   return `<div class="imp-div">${linhas}<div class="div-total" data-dtotal></div>
-    <div class="imp-row"><button type="button" class="btn-action" data-d="igual">Dividir igualmente</button><button type="button" class="btn-action" data-d="ext">+ Pessoa de fora</button></div>
+    <div class="imp-row"><button type="button" class="btn-action" data-d="igual">Dividir igualmente</button><button type="button" class="btn-action so-receber" data-d="ext">+ Pessoa de fora</button></div>
     <p class="hint" style="margin:8px 0 0;">A parte de quem é "de fora" não entra nos seus gastos e fica em Compras Divididas até a pessoa te pagar.</p></div>`;
 }
 // atualiza porcentagens, valores e o total sem refazer o cartão (para não perder o foco ao digitar)
@@ -5130,6 +5408,7 @@ const EMOJIS_PORQ = ['🐷', '💰', '✈️', '🏖️', '🏠', '🚗', '🎓'
 const somaMov = arr => arr.reduce((s, m) => s + (Number(m.valor) || 0), 0);
 const saldoPorquinho = id => somaMov(state.movPorq.filter(m => m.porquinho_id == id));
 function guardadoMes(mes, pessoa) {
+  if (!moduloAtivo('porquinhos')) return 0;
   return somaMov(state.movPorq.filter(m => m.mes_referencia === mes && (pessoa === 'Geral' || mesmoNome(m.responsavel, pessoa))));
 }
 
@@ -5636,7 +5915,17 @@ function ligarEventos() {
   if (window.visualViewport) { window.visualViewport.addEventListener('resize', posicionarPainel); window.visualViewport.addEventListener('scroll', posicionarPainel); }
   $('btnPDF').addEventListener('click', exportarPDF);
   $('btnVdHistorico').addEventListener('click', () => { renderVdHistorico(); abrirModal('modalVdHistorico'); });
-  $('btnVdNovo').addEventListener('click', () => abrirVenda());
+  $('fabVenda').addEventListener('click', () => abrirVenda());
+  $('btnVdCatalogo').addEventListener('click', () => { renderVdCatalogo(); abrirModal('modalVdCatalogo'); });
+  $('btnVcAdd').addEventListener('click', adicionarCatalogo);
+  $('btnCfgModulos').addEventListener('click', () => { fecharModal('modalConfiguracoes'); renderModulos(); abrirModal('modalModulos'); });
+  $('vdTipo').addEventListener('change', vdAtualizarForm);
+  $('vdStatus').addEventListener('change', vdAtualizarForm);
+  $('vdParcelas').innerHTML = [...Array(12).keys()].map(i => i + 1).concat([18, 24, 36, 48]).map(n => `<option value="${n}">${n === 1 ? 'À vista (1x)' : n + 'x'}</option>`).join('');
+  $('vdParcelas').addEventListener('change', vdPrevia); $('vdEntrada').addEventListener('input', vdPrevia);
+  $('vdCliente').addEventListener('change', () => { const k = normalizarNome($('vdCliente').value), v = vdAtivas().slice().reverse().find(x => normalizarNome(x.cliente) === k && normGenero(x.genero)); if (v && !$('vdGenero').value) $('vdGenero').value = normGenero(v.genero); });
+  $('vdDescricao').addEventListener('change', () => { const k = normalizarNome($('vdDescricao').value), it = vdItensCatalogo().find(i => normalizarNome(i.nome) === k); if (it) { if (it.tipo && $('vdTipo').value !== it.tipo) { $('vdTipo').value = it.tipo; vdAtualizarForm(); } if (it.valor > 0 && !(lerMoeda($('vdValor')) > 0)) { setMoeda($('vdValor'), it.valor); vdPrevia(); } } });
+  document.addEventListener('change', e => { const t = e.target; if (t && t.classList && t.classList.contains('mod-sw')) definirModulo(t.dataset.mod, t.checked); });
   $('btnVdSalvar').addEventListener('click', salvarVenda);
   $('btnVdSalvarRec').addEventListener('click', salvarVdRecebimento);
   $('btnVdRemover').addEventListener('click', removerVenda);
@@ -5677,6 +5966,7 @@ function ligarEventos() {
     const cl = t.closest('[data-close]'); if (cl) return fecharModal(cl.dataset.close, true);
     if (t.classList.contains('modal-overlay') && t.id !== 'modalGenero') return fecharModal(t.id, true);
     const tm = t.closest('[data-tema]'); if (tm) return aplicarTema(tm.dataset.tema, true);
+    const va = t.closest('[data-vdaba]'); if (va) { state.vdAba = va.dataset.vdaba; return renderVendas(); }
     const vf = t.closest('[data-vdf]'); if (vf) { state.filtroVendas = vf.dataset.vdf; return renderVendas(); }
     const rf = t.closest('[data-recf]'); if (rf) { state.filtroReceber = rf.dataset.recf; return renderReceber(); }
     const gt = t.closest('[data-gtab]'); if (gt) return mudarAbaGerenciar(gt.dataset.gtab);
@@ -5719,6 +6009,7 @@ function ligarEventos() {
       case 'rec-wpp': whatsCobranca(id); break;
       case 'rec-delmov': excluirRecebimento(parseInt(a.dataset.idx)); break;
       case 'vd-abrir': abrirVdReceber(id); break;
+      case 'vc-del': excluirCatalogo(id); break;
       case 'vd-copiar': vdCopiarCobranca(id); break;
       case 'vd-wpp': vdWhatsCobranca(id); break;
       case 'vd-delmov': vdExcluirRecebimento(parseInt(a.dataset.idx)); break;
