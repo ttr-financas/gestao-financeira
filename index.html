@@ -759,6 +759,30 @@
   .hist-pgtos { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(var(--w),.04); font-size: 12px; }
   .hist-pgtos > div { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; }
   .hist-pgtos.vazio { color: var(--muted); }
+
+  /* ===== teclado aberto: popups seguem a área visível; barra e botão + saem da frente ===== */
+  body.teclado .bottom-nav, body.teclado .fab { display: none !important; }
+  body.teclado .modal-overlay { top: var(--vvt, 0px); bottom: auto; height: var(--vvh, 100%); }
+  body.teclado .modal { max-height: calc(var(--vvh, 100vh) - 8px); padding-bottom: 14px; scroll-padding-bottom: 80px; }
+  body.teclado .auth-screen { align-items: flex-start; overflow-y: auto; height: var(--vvh, 100%); }
+  .cat-faltam { margin-top: 10px; padding: 10px; border-radius: 12px; background: rgba(250,204,21,.10); border: 1px solid rgba(250,204,21,.45); }
+  .cat-faltam-tit { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #facc15; }
+  :root[data-theme="light"] .cat-faltam-tit { color: #854d0e; }
+  .cat-fill.erro { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239,68,68,.25); }
+
+  /* login, carregamento e bloqueio mantêm sempre a identidade visual padrão (tema Escuro), qualquer que seja o tema escolhido */
+  .auth-screen, .loading-screen, .lock-screen {
+    --bg: #0a0f1e; --card: rgba(255,255,255,.04); --card-solid: #121a2e; --card2: rgba(255,255,255,.07); --card3: #1b2644;
+    --primary: #4f8cff; --primary2: #7c5cff; --pr: 79,140,255; --pr2: 124,92,255;
+    --success: #22c55e; --danger: #f43f5e; --warn: #f5b301; --orange: #fb923c; --teal: #2dd4bf;
+    --text: #eef2ff; --muted: #93a0bd; --border: rgba(255,255,255,.09); --border-strong: rgba(255,255,255,.16);
+    --grad: linear-gradient(135deg, #4f8cff 0%, #7c5cff 100%);
+    --w: 255,255,255;
+    --accent-text: #9dbfff; --success-text: #4ade80; --danger-text: #fb7185; --warn-text: #fcd34d;
+    --auth-bg: rgba(18,26,46,.8); --chip-bg: rgba(0,0,0,.22); --track: rgba(255,255,255,.09);
+    --shadow: 0 12px 32px rgba(0,0,0,.35); --shadow-lg: 0 18px 44px rgba(0,0,0,.55);
+    color-scheme: dark; color: var(--text);
+  }
 </style>
 </head>
 <body>
@@ -807,7 +831,8 @@
         <div class="input-group"><label>Nome de usuário</label><input type="text" id="rsNome" autocomplete="off"></div>
         <div class="input-group"><label>CPF</label><input type="text" id="rsCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
         <div class="input-group"><label>Telefone</label><input type="text" id="rsTel" maxlength="15" inputmode="tel" autocomplete="off"></div>
-        <div class="input-group"><label>E-mail (se não cadastrou um, deixe em branco)</label><input type="email" id="rsEmail" autocomplete="off"></div>
+        <div class="input-group"><label>E-mail</label><input type="email" id="rsEmail" autocomplete="off"></div>
+        <label class="check-row" style="margin:-4px 0 12px;"><input type="checkbox" id="rsSemEmail"><span>Meu cadastro é antigo e não tem e-mail</span></label>
         <button class="btn" id="btnRsVerificar" type="button">Verificar dados</button>
       </div>
       <div id="recSenhaPasso2" style="display:none;">
@@ -1112,8 +1137,8 @@
     <div class="input-group"><label>Nome de Usuário</label><input type="text" id="cadNome"></div>
     <div class="input-group"><label>CPF</label><input type="text" id="cadCpf" maxlength="14" inputmode="numeric"></div>
     <div class="input-group"><label>Gênero</label><select id="cadGenero"></select></div>
-    <div class="input-group"><label>Telefone</label><input type="text" id="cadTelefone" maxlength="15" inputmode="tel"></div>
-    <div class="input-group"><label>E-mail (opcional)</label><input type="email" id="cadEmail"></div>
+    <div class="input-group"><label>Telefone</label><input type="text" id="cadTelefone" maxlength="15" inputmode="tel" placeholder="(00) 00000-0000"></div>
+    <div class="input-group"><label>E-mail</label><input type="email" id="cadEmail" placeholder="nome@exemplo.com"></div>
     <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="cadSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="cadSenha">👁️</button></div></div>
     <button class="btn" id="btnCad">Criar Conta</button>
   </div>
@@ -1415,6 +1440,7 @@ let state = {
   devedores: [], devIndisponivel: false, devErro: '', filtroReceber: 'aberto', recDevId: null
 };
 let chartMotivos = null, chartPizza = null, gaugeCharts = {};
+const SEM_MOTIVO = 'Sem motivo';
 let opcoesCompra = { motivo: [], tipo: [], pagto: [] };
 let motivosGrupo = [], tiposGrupo = []; // listas do grupo (tabelas motivos_grupo / tipos_grupo), alimentadas pelos padrões do admin
 let opcoesResp = [];
@@ -1465,10 +1491,26 @@ const somaTerceiros = lista => lista.reduce((s, c) => s + valorTerceiros(c), 0);
 const pagoPessoa = (c, nome) => { const v = Number(c.valor_parcela) || 0; return v ? valorPagoParcela(c) * (valorPessoa(c, nome) / v) : 0; };
 
 function mostrarErro(msg) { const el = $('msgErro'); el.textContent = msg; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 5000); }
-function abrirModal(id) { $(id).classList.add('open'); if (id === 'modalCompra') $('fabCompra').style.display = 'none'; }
-function fecharModal(id) {
+/* popups em pilha: ao fechar (X ou toque fora) um popup aberto a partir de outro, volta para o anterior.
+   O "pai" é o popup que estava aberto, ou que acabou de ser fechado para abrir este (ex.: Configurações → Notificações). */
+const _paiModal = {}; let _recemFechado = null;
+function abrirModal(id) {
+  const el = $(id), aberto = document.querySelector('.modal-overlay.open:not(#' + id + ')');
+  if (!el.classList.contains('open')) {
+    const topo = [...document.querySelectorAll('.modal-overlay.open')].sort((a, b) => (+getComputedStyle(a).zIndex || 0) - (+getComputedStyle(b).zIndex || 0)).pop();
+    if (topo && topo.id !== id) _paiModal[id] = topo.id;
+    else if (!aberto && _recemFechado && _recemFechado.id !== id && Date.now() - _recemFechado.t < 80) _paiModal[id] = _recemFechado.id;
+    else delete _paiModal[id];
+  }
+  el.classList.add('open'); if (id === 'modalCompra') $('fabCompra').style.display = 'none';
+}
+function fecharModal(id, voltar) {
   fecharPainel();
   $(id).classList.remove('open');
+  _recemFechado = { id, t: Date.now() };
+  const pai = voltar ? _paiModal[id] : null;
+  if (voltar) delete _paiModal[id];
+  if (pai && $(pai) && !$(pai).classList.contains('open')) { $(pai).classList.add('open'); }
   if (state.abaAtual === 'inclusao' && !document.querySelector('.modal-overlay.open')) $('fabCompra').style.display = 'flex';
 }
 /* =========================================
@@ -2216,6 +2258,25 @@ function abrirPainelMes(el) {
   abrirPainel(el, painel);
 }
 
+/* ---- teclado do celular: a tela acompanha a área visível, o campo em uso fica à vista e a barra/botão + saem da frente ---- */
+function iniciarTeclado() {
+  const vv = window.visualViewport; if (!vv) return;
+  let base = Math.max(window.innerHeight, vv.height);
+  const atualizar = () => {
+    if (!document.body.classList.contains('teclado')) base = Math.max(base, window.innerHeight);
+    const aberto = base - vv.height > 120;
+    const r = document.documentElement.style;
+    r.setProperty('--vvh', Math.round(vv.height) + 'px'); r.setProperty('--vvt', Math.round(vv.offsetTop) + 'px');
+    document.body.classList.toggle('teclado', aberto);
+  };
+  vv.addEventListener('resize', atualizar); vv.addEventListener('scroll', atualizar);
+  window.addEventListener('orientationchange', () => { base = 0; setTimeout(() => { base = Math.max(window.innerHeight, vv.height); atualizar(); }, 400); });
+  document.addEventListener('focusin', e => {
+    const t = e.target; if (!t || !/^(INPUT|TEXTAREA)$/.test(t.tagName) || t.readOnly) return;
+    setTimeout(() => { try { t.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (er) { t.scrollIntoView(); } }, 320);
+  });
+  atualizar();
+}
 function iniciarCampos() {
   const ordenar = arr => [...arr].sort((a, b) => a.localeCompare(b));
   criarCombo('cResponsavel', { opcoes: () => [...membrosGrupo.map(m => m.nome), DIV_LABEL], livre: false, cap: true });
@@ -2239,6 +2300,7 @@ function iniciarCampos() {
   criarDataPicker('cDataCompra');
   criarDataPicker('recData');
   iniciarSelects();
+  iniciarTeclado();
 }
 
 /* ---- listas de seleção no visual do app: nenhum <select> abre a janela nativa do celular/navegador ---- */
@@ -2816,7 +2878,7 @@ function recSenhaDados() {
 function recSenhaMostrar(ativo) {
   $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = ativo ? 'block' : 'none';
   $('recSenhaPasso1').style.display = 'block'; $('recSenhaPasso2').style.display = 'none';
-  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; });
+  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; }); $('rsSemEmail').checked = false;
 }
 function recSenhaErro(e) {
   const m = (e && e.message) || '';
@@ -2826,13 +2888,13 @@ function recSenhaErro(e) {
 }
 async function recSenhaVerificar() {
   const d = recSenhaDados();
-  if (!d.p_nome || !d.p_cpf || !d.p_telefone) return mostrarErro('Preencha nome, CPF e telefone.');
+  if (!d.p_nome || !d.p_cpf || !d.p_telefone || (!d.p_email && !$('rsSemEmail').checked)) return mostrarErro('Preencha todos os campos: nome, CPF, telefone e e-mail.');
   if (!validaCPF(d.p_cpf)) return mostrarErro('O CPF informado é inválido.');
   const b = $('btnRsVerificar'); b.disabled = true; b.textContent = 'Verificando...';
   const { data, error } = await db.rpc('verificar_cadastro_recuperacao', d);
   b.disabled = false; b.textContent = 'Verificar dados';
   if (error || data !== true) return mostrarErro(recSenhaErro(error));
-  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail'].forEach(i => { $(i).disabled = true; });
+  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsSemEmail'].forEach(i => { $(i).disabled = true; });
   $('recSenhaPasso1').style.display = 'none'; $('recSenhaPasso2').style.display = 'block';
   $('recSenhaDica').textContent = 'Dados conferidos! Agora defina a sua nova senha.';
   setTimeout(() => $('rsSenha').focus(), 50);
@@ -2945,11 +3007,7 @@ function renderFiltroPessoa() {
 
 function atualizarSelectCategorias() { /* o campo de categoria lê categoriasOrcamento direto */ }
 
-async function sair() {
-  // com biometria ativa, "Sair" só bloqueia: a biometria substitui a senha e volta direto para quem fez o último login neste aparelho
-  if (currentUser && modoAcesso(currentUser.id) === 'bio') { fecharPainel(); if (!_bloqueado) bloquearApp(currentUser.id, currentUser.email); return; }
-  await db.auth.signOut(); location.reload();
-}
+async function sair() { await db.auth.signOut(); location.reload(); }
 
 /* =========================================
    CARGA DE DADOS
@@ -3692,27 +3750,49 @@ function abrirModalCategorizar() {
       <div class="cat-details-grid">
         <div>👤 ${esc(rotuloResp(p))}</div>
         <div>📅 Venc: ${venc}</div>
-        <div>🏷️ ${esc(capIni(p.tipo || 'N/A'))}</div>
-        <div>📝 ${esc(capIni(p.motivo || 'N/A'))}</div>
+        <div>🏷️ ${esc(capIni(p.tipo || 'Tipo não preenchido'))}</div>
+        <div>📝 ${esc(capIni(p.motivo || 'Motivo não preenchido'))}</div>
         <div>🔢 Parcela ${esc(p.parcela_referencia || '1/1')}</div>
       </div>
       <div class="cat-select-wrapper">
         <select class="cat-select" data-idcompra="${esc(p.id_compra)}">${opts}</select>
       </div>
+      ${(!p.motivo || !p.tipo) ? `<div class="cat-faltam"><div class="cat-faltam-tit">⚠️ Para categorizar, preencha o que faltou nesta compra:</div><div class="imp-row">
+        ${p.motivo ? '' : `<input class="imp-in cat-fill" type="text" data-idcompra="${esc(p.id_compra)}" data-campo="motivo" placeholder="Motivo (obrigatório)" autocomplete="off">`}
+        ${p.tipo ? '' : `<input class="imp-in cat-fill" type="text" data-idcompra="${esc(p.id_compra)}" data-campo="tipo" placeholder="Tipo (obrigatório)" autocomplete="off">`}
+      </div></div>` : ''}
     </div>`;
   }).join('') : '<p style="text-align:center;color:var(--muted);padding:20px;">Tudo categorizado!</p>';
   
+  document.querySelectorAll('#listaPendentes .cat-fill').forEach(el => {
+    const m = el.dataset.campo === 'motivo';
+    criarCombo(el, { opcoes: () => m ? opcoesCompra.motivo : opcoesCompra.tipo, livre: true, rotuloCriar: m ? 'Novo motivo' : 'Novo tipo' });
+  });
   abrirModal('modalCategorizar');
 }
 async function salvarCategorizacao() {
   const mes = state.mesesSelecionados[0];
   const sels = [...document.querySelectorAll('.cat-select')].filter(s => s.value);
   if (!sels.length) return alert('Nenhuma categoria selecionada.');
+  // campos que ficaram em branco na inclusão da compra são obrigatórios para categorizar
+  const extras = {};
+  document.querySelectorAll('#listaPendentes .cat-fill').forEach(el => el.classList.remove('erro'));
+  for (const sel of sels) {
+    const faltam = [...document.querySelectorAll(`#listaPendentes .cat-fill[data-idcompra="${CSS.escape(sel.dataset.idcompra)}"]`)];
+    const vazio = faltam.find(el => !el.value.trim());
+    if (vazio) {
+      faltam.forEach(el => { if (!el.value.trim()) el.classList.add('erro'); });
+      vazio.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      const nome = (sel.closest('.categorizar-card').querySelector('.cat-title') || {}).textContent || 'a compra';
+      return alert(`Para categorizar "${nome}", preencha ${faltam.filter(el => !el.value.trim()).map(el => el.dataset.campo === 'motivo' ? 'o motivo' : 'o tipo').join(' e ')}.`);
+    }
+    if (faltam.length) { extras[sel.dataset.idcompra] = {}; faltam.forEach(el => { extras[sel.dataset.idcompra][el.dataset.campo] = capIni(el.value.replace(/\s+/g, ' ').trim()); }); }
+  }
   const btn = $('btnSalvarCategorizacao'); btn.disabled = true;
   
   const res = await Promise.all(sels.map(s => 
     // categoriza TODAS as parcelas do grupo da compra (qualquer mês, qualquer responsável)
-    db.from('compras').update({ categoria_orcamento: s.value })
+    db.from('compras').update({ categoria_orcamento: s.value, ...(extras[s.dataset.idcompra] || {}) })
       .eq('id_compra', s.dataset.idcompra)
       .in('criado_por', emailsGrupo())
   ));
@@ -3797,7 +3877,7 @@ function renderInclusao() {
   const doProx = state.compras.filter(c => c.mes_referencia === prox && isAtiva(c));
   const ant = state.compras.filter(c => c.mes_referencia === mesAnteriorRef(ultimo) && isAtiva(c));
 
-  if (state.filtroMotivo && !doMes.some(c => (c.motivo || 'Outros') === state.filtroMotivo)) state.filtroMotivo = null;
+  if (state.filtroMotivo && !doMes.some(c => (c.motivo || SEM_MOTIVO) === state.filtroMotivo)) state.filtroMotivo = null;
   if (state.filtroPagto && !doMes.some(c => rotuloPagto(c) === state.filtroPagto)) state.filtroPagto = null;
 
   const total = doMes.reduce((s, c) => s + Number(c.valor_parcela), 0);
@@ -3838,7 +3918,7 @@ function renderInclusao() {
   // o gráfico respeita o filtro de forma de pagamento (filtro cruzado), mas não o de motivo (para poder trocar de barra)
   const baseGrafico = state.filtroPagto ? doMes.filter(p => rotuloPagto(p) === state.filtroPagto) : doMes;
   const motivos = {};
-  baseGrafico.forEach(p => { const m = p.motivo || 'Outros'; motivos[m] = (motivos[m] || 0) + Number(p.valor_parcela); });
+  baseGrafico.forEach(p => { const m = p.motivo || SEM_MOTIVO; motivos[m] = (motivos[m] || 0) + Number(p.valor_parcela); });
   const arr = Object.entries(motivos).sort((a, b) => b[1] - a[1]);
   $('chartWrap').style.height = Math.max(220, arr.length * 45) + 'px';
   if (chartMotivos) { chartMotivos.destroy(); chartMotivos = null; }
@@ -3846,7 +3926,7 @@ function renderInclusao() {
   const sel = state.filtroMotivo;
   chartMotivos = new Chart($('chartMotivos'), {
     type: 'bar',
-    data: { labels: arr.map(a => capIni(a[0])), datasets: [{ data: arr.map(a => a[1]), backgroundColor: arr.map(a => (!sel || a[0] === sel) ? corTema('--primary') : `rgba(${corTema('--pr')},.28)`), borderRadius: 8, barThickness: 22 }] },
+    data: { labels: arr.map(a => capIni(a[0])), datasets: [{ data: arr.map(a => a[1]), backgroundColor: arr.map(a => a[0] === SEM_MOTIVO ? ((!sel || a[0] === sel) ? '#f5b301' : 'rgba(245,179,1,.3)') : (!sel || a[0] === sel) ? corTema('--primary') : `rgba(${corTema('--pr')},.28)`), borderRadius: 8, barThickness: 22 }] },
     options: {
       indexAxis: 'y', responsive: true, maintainAspectRatio: false, animation: false, layout: { padding: { right: 110 } },
       interaction: { mode: 'nearest', axis: 'y', intersect: false },
@@ -3892,7 +3972,7 @@ function renderFiltrosAtivos() {
 
 function comprasFiltradas() {
   let l = state.compras.filter(c => state.mesesSelecionados.includes(c.mes_referencia) && isAtiva(c));
-  if (state.filtroMotivo) l = l.filter(c => (c.motivo || 'Outros') === state.filtroMotivo);
+  if (state.filtroMotivo) l = l.filter(c => (c.motivo || SEM_MOTIVO) === state.filtroMotivo);
   if (state.filtroPagto) l = l.filter(c => rotuloPagto(c) === state.filtroPagto);
   const f = state.filtroAtivo;
   if (f === 'pago') l = l.filter(c => c.pagamento);
@@ -4561,7 +4641,7 @@ function exportarPDF() {
       <div class="rp-kpi neutral"><div class="l">Parcelas</div><div class="v">${l.length}</div></div>
     </div>
     <div class="rp-grid">
-      ${bloco('Por motivo', agrupar(p => p.motivo || 'Outros'), '#4f46e5')}
+      ${bloco('Por motivo', agrupar(p => p.motivo || SEM_MOTIVO), '#4f46e5')}
       ${bloco('Por forma de pagamento', agrupar(p => rotuloPagto(p)), '#0ea5e9')}
       ${bloco('Por responsável', porResp, '#7c5cff')}
     </div>
@@ -4986,7 +5066,9 @@ async function cadastrarUsuario() {
   const emailIn = $('cadEmail').value.trim();
   const senha = $('cadSenha').value;
   const btn = $('btnCad');
-  if (!grupo || !nome || !senha || !cpf) return alert('ID do Grupo, Nome, CPF e Senha são obrigatórios.');
+  if (!grupo || !nome || !senha || !cpf || !tel || !emailIn || !$('cadGenero').value) return alert('Todos os campos são obrigatórios: ID do Grupo, Nome, CPF, Telefone, E-mail, Gênero e Senha.');
+  if (tel.replace(/\D/g, '').length < 10) return alert('Informe um telefone válido, com DDD.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailIn)) return alert('Informe um e-mail válido.');
   const genero = $('cadGenero').value;
   if (!genero) return alert('Escolha o gênero (masculino ou feminino).');
   if (!validaCPF(cpf)) return alert('O CPF informado é inválido.');
@@ -4999,7 +5081,7 @@ async function cadastrarUsuario() {
     const { data: eCpf } = await db.from('profiles').select('id').eq('cpf', cpf).maybeSingle();
     if (eCpf) { alert(`O CPF "${cpf}" já está cadastrado.`); return reset(); }
 
-    const emailReal = emailIn || `${cpf.replace(/\D/g, '')}@gestao.local`;
+    const emailReal = emailIn;
     btn.textContent = 'Criando...';
     // remove um login antigo desse e-mail que ficou sem perfil (era a causa do erro profiles_id_fkey)
     const { error: eOrfao } = await db.rpc('remover_auth_orfao', { p_email: emailReal });
@@ -5061,6 +5143,7 @@ function ligarEventos() {
   $('btnLogin').addEventListener('click', fazerLogin);
   $('btnEsqueci').addEventListener('click', () => { recSenhaMostrar(true); $('rsNome').value = $('loginUser').value.trim().includes('@') ? '' : $('loginUser').value.trim(); });
   $('btnRsVoltar').addEventListener('click', () => recSenhaMostrar(false));
+  $('rsSemEmail').addEventListener('change', e => { $('rsEmail').disabled = e.target.checked; if (e.target.checked) $('rsEmail').value = ''; });
   $('btnRsVerificar').addEventListener('click', recSenhaVerificar);
   $('btnRsSalvar').addEventListener('click', recSenhaSalvar);
   $('rsCpf').addEventListener('input', e => mascaraCPF(e.target));
@@ -5161,8 +5244,8 @@ function ligarEventos() {
     const t = e.target;
     const tog = t.closest('[data-toggle]');
     if (tog) { const i = $(tog.dataset.toggle); i.type = i.type === 'password' ? 'text' : 'password'; tog.textContent = i.type === 'password' ? '👁️' : '🙈'; return; }
-    const cl = t.closest('[data-close]'); if (cl) return fecharModal(cl.dataset.close);
-    if (t.classList.contains('modal-overlay')) return fecharModal(t.id);
+    const cl = t.closest('[data-close]'); if (cl) return fecharModal(cl.dataset.close, true);
+    if (t.classList.contains('modal-overlay') && t.id !== 'modalGenero') return fecharModal(t.id, true);
     const tm = t.closest('[data-tema]'); if (tm) return aplicarTema(tm.dataset.tema, true);
     const rf = t.closest('[data-recf]'); if (rf) { state.filtroReceber = rf.dataset.recf; return renderReceber(); }
     const gt = t.closest('[data-gtab]'); if (gt) return mudarAbaGerenciar(gt.dataset.gtab);
