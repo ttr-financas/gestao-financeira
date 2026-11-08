@@ -711,7 +711,7 @@
   @media (max-width: 400px) { .month-selector { gap: 6px; } .multi-month-btn { min-width: 0; padding: 10px 14px; gap: 6px; } .btn-olho { left: 6px; } }
 
   /* ===== barra de navegação: colunas proporcionais, largura total e conteúdo centralizado ===== */
-  .bottom-nav { width: calc(100% - 16px); max-width: 680px; display: grid; grid-template-columns: minmax(0,1.25fr) minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr); gap: 3px; padding: 5px; align-items: stretch; }
+  .bottom-nav { width: calc(100% - 16px); max-width: 680px; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); gap: 2px; padding: 5px; align-items: stretch; }
   .bottom-nav button { justify-content: center; align-items: center; min-height: 58px; padding: 7px 2px; gap: 4px; font-size: 10px; line-height: 1.15; text-align: center; text-wrap: balance; overflow-wrap: normal; word-break: normal; hyphens: none; }
   .bottom-nav button svg { flex: none; }
   @media (min-width: 560px) { .bottom-nav button { font-size: 12px; flex-direction: row; gap: 8px; min-height: 52px; } .bottom-nav button svg { width: 20px; height: 20px; } }
@@ -795,6 +795,18 @@
   .sug-quem { font-size: 11px; color: var(--muted); margin: 3px 0 8px; word-break: break-word; }
   .sug-msg { font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
   .sug-acoes { margin-top: 10px; }
+
+  /* gráfico compacto Gasto x Orçado */
+  .gxo-card { background: var(--card, rgba(127,127,127,.08)); border: 1px solid var(--border, rgba(127,127,127,.25)); border-radius: 16px; padding: 10px 12px; margin: 12px 0; }
+  .gxo-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; margin-bottom: 6px; }
+  .gxo-head span { font-size: 11.5px; font-weight: 600; }
+  .gxo-linha { display: grid; grid-template-columns: 46px 1fr auto; gap: 8px; align-items: center; font-size: 11.5px; margin: 3px 0; }
+  .gxo-linha span { color: var(--muted); }
+  .gxo-linha b { font-size: 11.5px; min-width: 78px; text-align: right; }
+  .gxo-trilho { height: 8px; border-radius: 99px; background: rgba(127,127,127,.18); overflow: hidden; }
+  .gxo-barra { height: 100%; border-radius: 99px; transition: width .3s; }
+  .gxo-barra.orc { background: rgba(129,140,248,.8); }
+  .gxo-chart { position: relative; height: 96px; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -844,7 +856,6 @@
         <div class="input-group"><label>CPF</label><input type="text" id="rsCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
         <div class="input-group"><label>Telefone</label><input type="text" id="rsTel" maxlength="15" inputmode="tel" autocomplete="off"></div>
         <div class="input-group"><label>E-mail</label><input type="email" id="rsEmail" autocomplete="off"></div>
-        <label class="check-row" style="margin:-4px 0 12px;"><input type="checkbox" id="rsSemEmail"><span>Meu cadastro é antigo e não tem e-mail</span></label>
         <button class="btn" id="btnRsVerificar" type="button">Verificar dados</button>
       </div>
       <div id="recSenhaPasso2" style="display:none;">
@@ -912,11 +923,18 @@
         <div class="stat s-gasto clickable" data-go="inclusao"><span class="lbl">Gasto no mês</span><span class="val" style="color:var(--orange);" id="pizzaGasto">R$ 0,00</span><span class="stat-sub" id="pizzaGastoSub"></span></div>
         <div class="stat s-porq clickable" data-go="porquinhos"><span class="lbl">Porquinho</span><span class="val" style="color:var(--warn);" id="pizzaPorq">R$ 0,00</span></div>
         <div class="stat s-sobra"><span class="lbl" title="Renda líquida − gasto − porquinho">Sobra do Mês</span><span class="val" style="color:var(--success);" id="pizzaSobra">R$ 0,00</span></div>
-        <div class="stat s-terc clickable" data-go="receber" id="statTerceiros" style="display:none;"><span class="lbl">Terceiros</span><span class="val" style="color:var(--accent-text);" id="pizzaTerc">R$ 0,00</span><span class="stat-sub">Parte de pessoas de fora nas compras do mês (A Receber). Não entra no seu gasto.</span></div>
+        <div class="stat s-terc clickable" data-go="receber" id="statTerceiros" style="display:none;"><span class="lbl">Terceiros</span><span class="val" style="color:var(--accent-text);" id="pizzaTerc">R$ 0,00</span><span class="stat-sub">Parte de pessoas de fora nas compras do mês (Compras Divididas). Não entra no seu gasto.</span></div>
       </div>
     </section>
 
     <div id="alertaPendentesContainer"></div>
+
+    <section class="gxo-card" id="gxoCard" aria-label="Gasto comparado com o orçado">
+      <div class="gxo-head"><strong>Gasto x Orçado</strong><span id="gxoPct"></span></div>
+      <div class="gxo-linha"><span>Orçado</span><div class="gxo-trilho"><div class="gxo-barra orc" id="gxoBarOrc"></div></div><b class="sensivel" id="gxoValOrc"></b></div>
+      <div class="gxo-linha"><span>Gasto</span><div class="gxo-trilho"><div class="gxo-barra gas" id="gxoBarGas"></div></div><b class="sensivel" id="gxoValGas"></b></div>
+      <div class="gxo-chart" id="gxoChartWrap"><canvas id="gxoChart"></canvas></div>
+    </section>
 
     <div class="section-head">
       <h3>Tetos por Categoria</h3>
@@ -969,8 +987,8 @@
     <div class="porq-grid" id="listaPorquinhos"></div>
   </div>
   <div class="page" id="pageReceber">
-    <div class="section-head"><h3>A Receber</h3><button class="chip-btn" id="btnRecHistorico" type="button">📜 Histórico</button></div>
-    <p class="hint">Compras em que pessoas de fora da casa dividiram com você. Elas ficam aqui até quitarem o que devem.</p>
+    <div class="section-head"><h3>Compras Divididas</h3><button class="chip-btn" id="btnRecHistorico" type="button">📜 Histórico</button></div>
+    <p class="hint">Compras que você dividiu com amigos e outras pessoas de fora da casa. A parte delas fica aqui até quitarem o que devem.</p>
     <div class="rec-resumo" id="recResumo"></div>
     <div class="filtro-pessoa" id="recFiltro">
       <button class="active" data-recf="aberto">A receber</button>
@@ -978,6 +996,17 @@
       <button data-recf="todos">Todas</button>
     </div>
     <div id="listaReceber"></div>
+  </div>
+  <div class="page" id="pageVendas">
+    <div class="section-head"><h3>Vendas e Serviços</h3><div style="display:flex;gap:8px;"><button class="chip-btn" id="btnVdHistorico" type="button">📜 Histórico</button><button class="chip-btn" id="btnVdNovo" type="button">+ Nova</button></div></div>
+    <p class="hint">Cobrança de clientes que compraram algo seu ou contrataram um serviço. É um controle separado das compras divididas e não entra no seu planejamento de gastos.</p>
+    <div class="rec-resumo" id="vdResumo"></div>
+    <div class="filtro-pessoa" id="vdFiltro">
+      <button class="active" data-vdf="aberto">A receber</button>
+      <button data-vdf="quitado">Pagas</button>
+      <button data-vdf="todos">Todas</button>
+    </div>
+    <div id="listaVendas"></div>
   </div>
 </main>
 
@@ -996,7 +1025,11 @@
   </button>
   <button data-aba="receber">
     <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-    A Receber
+    Divididas
+  </button>
+  <button data-aba="vendas">
+    <svg viewBox="0 0 24 24"><path d="M3 7h18v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg>
+    Vendas
   </button>
 </nav>
 
@@ -1330,7 +1363,7 @@
       <div class="input-group"><label>Avisar</label><input type="text" id="notifAntes"></div>
     </div>
     <label class="check-row" style="margin-top:12px;"><input type="checkbox" id="notifAtrasadas"><span>Incluir parcelas atrasadas no aviso</span></label>
-    <p class="hint">O aviso resume quantas parcelas vencem, o valor total e o tipo de pagamento. Você também recebe um aviso 1 dia antes de vencer uma parcela que alguém te deve (A Receber). No iPhone, adicione o app à Tela de Início e abra por lá para receber.</p>
+    <p class="hint">O aviso resume quantas parcelas vencem, o valor total e o tipo de pagamento. Você também recebe um aviso 1 dia antes de vencer uma parcela que alguém te deve (Compras Divididas ou Vendas e Serviços). No iPhone, adicione o app à Tela de Início e abra por lá para receber.</p>
     <button class="btn" id="btnSalvarNotif">Salvar Configurações</button>
   </div>
 </div>
@@ -1403,8 +1436,67 @@
 <div class="modal-overlay" id="modalRecHistorico">
   <div class="modal">
     <div class="modal-header"><h3>Histórico de compras</h3><button class="close-btn" data-close="modalRecHistorico">×</button></div>
-    <p class="hint" style="margin-top:0;">Tudo o que já foi cobrado de pessoas de fora, com as datas e os valores de cada pagamento.</p>
+    <p class="hint" style="margin-top:0;">Tudo o que já foi dividido e cobrado de pessoas de fora, com as datas e os valores de cada pagamento.</p>
     <div id="recHistoricoCorpo"></div>
+  </div>
+</div>
+
+<!-- MODAL NOVA/EDITAR VENDA OU SERVIÇO (separado das outras inclusões) -->
+<div class="modal-overlay" id="modalVenda">
+  <div class="modal">
+    <div class="modal-header"><h3 id="vdTituloModal">Nova venda ou serviço</h3><button class="close-btn" data-close="modalVenda">×</button></div>
+    <input type="hidden" id="vdEditId">
+    <div class="form-grid">
+      <div class="input-group"><label>Tipo</label><select id="vdTipo"><option value="servico">🛠️ Serviço</option><option value="venda">🛍️ Venda de produto</option></select></div>
+      <div class="input-group"><label>Gênero do cliente</label><select id="vdGenero"></select></div>
+      <div class="input-group full"><label>Cliente</label><input type="text" id="vdCliente" maxlength="80" autocomplete="off" placeholder="Nome de quem vai pagar"></div>
+      <div class="input-group full"><label>O que foi vendido / serviço prestado</label><input type="text" id="vdDescricao" maxlength="120" autocomplete="off" placeholder="Ex: Instalação elétrica, notebook usado..."></div>
+      <div class="input-group"><label>Valor total</label><input type="text" class="money" id="vdValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
+      <div class="input-group"><label>Nº de parcelas</label><input type="number" id="vdParcelas" min="1" max="120" value="1" inputmode="numeric"></div>
+      <div class="input-group"><label>1º vencimento</label><input type="date" id="vdVenc"></div>
+      <div class="input-group"><label>Data da venda</label><input type="date" id="vdData"></div>
+      <div class="input-group full"><label>Observação (opcional)</label><input type="text" id="vdObs" maxlength="160" autocomplete="off" placeholder="Ex: combinado por Pix"></div>
+    </div>
+    <p class="hint" id="vdPrevia" style="margin:8px 0 0;"></p>
+    <div class="action-row" style="margin-top:16px;">
+      <button class="btn secondary" data-close="modalVenda" type="button">Cancelar</button>
+      <button class="btn" id="btnVdSalvar" type="button">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECEBER (VENDAS E SERVIÇOS) -->
+<div class="modal-overlay" id="modalVdReceber">
+  <div class="modal">
+    <div class="modal-header"><h3 id="vdRecTitulo">Receber</h3><button class="close-btn" data-close="modalVdReceber">×</button></div>
+    <div class="info-box" id="vdRecInfo"></div>
+    <div class="form-grid">
+      <div class="input-group"><label>Valor recebido</label><input type="text" class="money" id="vdRecValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
+      <div class="input-group"><label>Data</label><input type="date" id="vdRecData"></div>
+      <div class="input-group full"><label>Observação (opcional)</label><input type="text" id="vdRecObs" maxlength="80" placeholder="Ex: Pix, dinheiro"></div>
+    </div>
+    <div class="action-row" style="margin-top:16px;">
+      <button class="btn secondary" id="btnVdRecParcela" type="button">Preencher parcela</button>
+      <button class="btn secondary" id="btnVdRecQuitar" type="button">Preencher o restante</button>
+    </div>
+    <div class="action-row" style="margin-top:10px;">
+      <button class="btn" id="btnVdSalvarRec" type="button">Registrar</button>
+    </div>
+    <h4 style="margin:18px 0 10px;font-size:14px;">Recebimentos registrados</h4>
+    <div id="vdRecLista" style="max-height:30vh;overflow-y:auto;"></div>
+    <div class="action-row" style="margin-top:14px;">
+      <button class="btn secondary" id="btnVdEditar" type="button">✏️ Editar</button>
+      <button class="btn ghost" id="btnVdRemover" type="button" style="color:var(--danger-text);">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO VENDAS E SERVIÇOS -->
+<div class="modal-overlay" id="modalVdHistorico">
+  <div class="modal">
+    <div class="modal-header"><h3>Histórico de vendas e serviços</h3><button class="close-btn" data-close="modalVdHistorico">×</button></div>
+    <p class="hint" style="margin-top:0;">Tudo o que já foi cobrado de clientes, com as datas e os valores de cada pagamento.</p>
+    <div id="vdHistoricoCorpo"></div>
   </div>
 </div>
 
@@ -1463,9 +1555,10 @@ let state = {
   porqErro: '',
   extratoPorqId: null,
   extras: [], extraIndisponivel: false, porqColVis: false,
-  devedores: [], devIndisponivel: false, devErro: '', filtroReceber: 'aberto', recDevId: null
+  devedores: [], devIndisponivel: false, devErro: '', filtroReceber: 'aberto', recDevId: null,
+  vendas: [], vdIndisponivel: false, vdErro: '', filtroVendas: 'aberto', vdId: null
 };
-let chartMotivos = null, chartPizza = null, gaugeCharts = {};
+let chartMotivos = null, chartPizza = null, gaugeCharts = {}, gxoChart = null;
 const SEM_MOTIVO = 'Sem motivo';
 let opcoesCompra = { motivo: [], tipo: [], pagto: [] };
 let motivosGrupo = [], tiposGrupo = []; // listas do grupo (tabelas motivos_grupo / tipos_grupo), alimentadas pelos padrões do admin
@@ -1885,7 +1978,7 @@ function renderReceber() {
   document.querySelectorAll('#recFiltro button').forEach(b => b.classList.toggle('active', b.dataset.recf === state.filtroReceber));
   if (state.devIndisponivel) {
     res.innerHTML = '';
-    box.innerHTML = `<div class="empty-msg">O recurso "A Receber" ainda não foi ativado no banco de dados. Execute o SQL de criação da tabela devedores no Supabase e recarregue a página.${state.devErro ? `<br><small>${esc(state.devErro)}</small>` : ''}</div>`;
+    box.innerHTML = `<div class="empty-msg">O recurso "Compras Divididas" ainda não foi ativado no banco de dados. Execute o SQL de criação da tabela devedores no Supabase e recarregue a página.${state.devErro ? `<br><small>${esc(state.devErro)}</small>` : ''}</div>`;
     return;
   }
   const mes = state.mesesSelecionados[0], nomeMes = formatarMes(mes);
@@ -2098,6 +2191,235 @@ async function removerDevedor() {
   if (error) return alert('Erro ao remover: ' + error.message);
   state.devedores = state.devedores.filter(x => x.id !== d.id);
   fecharModal('modalReceber'); renderReceber();
+}
+
+/* =========================================
+   VENDAS E SERVIÇOS (cobrança de clientes — separado de "Compras Divididas" e do planejamento)
+   ========================================= */
+const vdRecs = v => Array.isArray(v.recebimentos) ? v.recebimentos : [];
+const vdRecebido = v => vdRecs(v).reduce((s, r) => s + (Number(r.valor) || 0), 0);
+const vdRestante = v => Math.max(0, (Number(v.valor_total) || 0) - vdRecebido(v));
+const vdAtivas = () => state.vendas.filter(v => !v.cancelado);
+// parcelas: total dividido em centavos, uma por mês a partir do 1º vencimento; recebimentos abatem da mais antiga p/ a mais nova
+function vdGerarParcelas(totalReais, n, primeiroVenc) {
+  n = Math.max(1, parseInt(n) || 1);
+  const total = Math.round((Number(totalReais) || 0) * 100), base = Math.floor(total / n);
+  const [y, m, d] = String(primeiroVenc).slice(0, 10).split('-').map(Number);
+  return Array.from({ length: n }, (_, i) => {
+    const ult = new Date(y, m - 1 + i + 1, 0).getDate(), dt = new Date(y, m - 1 + i, Math.min(d, ult));
+    const venc = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+    return { num: i + 1, de: n, ref: `${i + 1}/${n}`, venc, mes: venc.slice(0, 7), cent: i === n - 1 ? total - base * (n - 1) : base };
+  });
+}
+function vdParcelas(v) {
+  if (!v.primeiro_venc) return [];
+  const ps = vdGerarParcelas(v.valor_total, v.parcelas, v.primeiro_venc), hoje = hojeISO();
+  let sobra = Math.round(vdRecebido(v) * 100);
+  return ps.map(p => {
+    const pagoC = Math.min(p.cent, Math.max(0, sobra)); sobra -= p.cent;
+    const valor = p.cent / 100, pago = pagoC / 100, falta = Math.max(0, (p.cent - pagoC) / 100);
+    return { ...p, valor, pago, falta, quitada: falta < 0.005, atrasada: falta >= 0.005 && p.venc < hoje };
+  });
+}
+const vdParcMes = (v, mes) => vdParcelas(v).filter(p => p.mes === mes);
+const vdParcMesAberta = (v, mes) => vdParcMes(v, mes).find(p => !p.quitada) || null;
+const vdProxima = v => vdParcelas(v).find(p => !p.quitada) || null;
+const vdIcone = v => v.tipo === 'venda' ? '🛍️' : '🛠️';
+async function carregarVendas() {
+  const { data, error } = await db.from('vendas_servicos').select('*').eq('grupo_id', grupoId()).order('id', { ascending: true });
+  if (error) { state.vdIndisponivel = true; state.vdErro = error.message || ''; state.vendas = []; return; }
+  state.vdIndisponivel = false; state.vdErro = ''; state.vendas = data || [];
+}
+function renderVendas() {
+  const box = $('listaVendas'), res = $('vdResumo'); if (!box) return;
+  document.querySelectorAll('#vdFiltro button').forEach(b => b.classList.toggle('active', b.dataset.vdf === state.filtroVendas));
+  if (state.vdIndisponivel) {
+    res.innerHTML = '';
+    box.innerHTML = `<div class="empty-msg">O recurso "Vendas e Serviços" ainda não foi ativado no banco de dados. Execute o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase e recarregue a página.${state.vdErro ? `<br><small>${esc(state.vdErro)}</small>` : ''}</div>`;
+    return;
+  }
+  const mes = state.mesesSelecionados[0], nomeMes = formatarMes(mes), todas = vdAtivas();
+  const doMes = todas.map(v => ({ v, pm: vdParcMes(v, mes) })).filter(x => x.pm.length);
+  const emAberto = x => x.pm.some(p => !p.quitada);
+  const abertosMes = doMes.filter(emAberto);
+  const faltaMes = abertosMes.reduce((t, x) => t + x.pm.reduce((s, p) => s + p.falta, 0), 0);
+  const valorMes = doMes.reduce((t, x) => t + x.pm.reduce((s, p) => s + p.valor, 0), 0);
+  const recebidoMes = doMes.reduce((t, x) => t + x.pm.reduce((s, p) => s + p.pago, 0), 0);
+  let atraso = '';
+  if (mes >= ymLocal()) {
+    const ant = []; todas.forEach(v => vdParcelas(v).forEach(p => { if (p.mes < mes && !p.quitada) ant.push(p); }));
+    if (ant.length) { const menor = ant.map(p => p.mes).sort()[0]; atraso = `<div class="rec-atraso">⚠️ Há <strong class="sensivel">${formatarMoeda(ant.reduce((t, p) => t + p.falta, 0))}</strong> em parcelas de meses anteriores ainda não recebidas. <button type="button" class="btn-action" data-act="rec-atraso" data-id="${esc(menor)}">Ver ${esc(formatarMes(menor))}</button></div>`; }
+  }
+  if (!doMes.length) {
+    res.innerHTML = atraso;
+    box.innerHTML = `<div class="empty-msg">Nenhuma parcela de vendas ou serviços em ${esc(nomeMes)}.<br><small>Toque em "+ Nova" para cadastrar uma venda ou um serviço.</small></div>`;
+    return;
+  }
+  const nClientes = new Set(abertosMes.map(x => normalizarNome(x.v.cliente))).size;
+  res.innerHTML = `${atraso}<div class="rec-kpi wide"><div class="lbl">A receber em ${esc(nomeMes)}</div><div class="val sensivel">${faltaMes > 0.004 ? formatarMoeda(faltaMes) : '✅ Tudo recebido'}</div><div class="rec-sub">${abertosMes.length ? `${nClientes} cliente(s) · ${abertosMes.length} cobrança(s) em aberto` : 'Todas as parcelas do mês foram pagas'}</div></div>
+    <div class="rec-kpi"><div class="lbl">Valor do mês</div><div class="val sensivel">${formatarMoeda(valorMes)}</div></div>
+    <div class="rec-kpi"><div class="lbl">Já recebido do mês</div><div class="val sensivel" style="color:var(--success-text);">${formatarMoeda(recebidoMes)}</div></div>`;
+  const f = state.filtroVendas;
+  const lista = doMes.filter(x => f === 'todos' ? true : f === 'quitado' ? !emAberto(x) : emAberto(x));
+  if (!lista.length) { box.innerHTML = `<div class="empty-msg">${f === 'aberto' ? `Nada a receber em ${esc(nomeMes)}. Todas as parcelas do mês foram pagas.` : `Nenhuma parcela paga em ${esc(nomeMes)} ainda.`}</div>`; return; }
+  const grupos = {};
+  lista.forEach(x => { const k = normalizarNome(x.v.cliente); (grupos[k] = grupos[k] || { k, nome: x.v.cliente, itens: [] }).itens.push(x); });
+  const arr = Object.values(grupos).map(g => ({ ...g, falta: g.itens.reduce((s, x) => s + x.pm.reduce((t, p) => t + p.falta, 0), 0) })).sort((a, b) => b.falta - a.falta || a.nome.localeCompare(b.nome));
+  const itemHTML = ({ v, pm }) => {
+    const total = Number(v.valor_total) || 0, rec = vdRecebido(v), rest = vdRestante(v), pct = total > 0 ? Math.min(100, Math.round(rec / total * 100)) : 0;
+    const ps = vdParcelas(v), quit = rest <= 0.004, pAb = pm.find(p => !p.quitada), pagoMes = !pAb;
+    const valMes = pm.reduce((s, p) => s + p.valor, 0), faltaDoMes = pm.reduce((s, p) => s + p.falta, 0);
+    const destaque = pagoMes ? `<div class="rec-prox paga sensivel">✅ <b>Parcela ${esc(pm.map(p => p.ref).join(' + '))} de ${esc(nomeMes)} paga</b> · ${formatarMoeda(valMes)}</div>`
+      : `<div class="rec-prox ${pAb.atrasada ? 'atraso' : ''} sensivel">${pAb.atrasada ? '⚠️ Vencida' : '⏰ Do mês'}: <b>parcela ${esc(pAb.ref)}</b> · vence ${esc(dataBR(pAb.venc))}<span class="rec-valor">🟡 ${formatarMoeda(pAb.falta)}<small>valor da parcela</small></span></div>`;
+    const lst = ps.length > 1 ? `<details class="rec-parcs"><summary>Ver as ${ps.length} parcelas</summary>${ps.map(p => `<div class="rec-parc ${p.quitada ? 'paga' : p.atrasada ? 'atr' : ''}"><b>${esc(p.ref)}</b><div>${esc(dataBR(p.venc))}</div><div class="sensivel">${p.quitada ? '✅ ' + formatarMoeda(p.valor) : formatarMoeda(p.falta)}</div></div>`).join('')}</details>` : '';
+    return `<div class="rec-item">
+      <div class="rec-item-top"><span>${vdIcone(v)} ${esc(capIni(v.descricao))}</span><span class="v sensivel">${pagoMes ? '✅ Paga' : formatarMoeda(faltaDoMes)}</span></div>
+      ${destaque}
+      <div class="rec-meta sensivel"><span class="rec-total-mini">valor total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}</span> · recebido ${formatarMoeda(rec)}${v.observacao ? '<br>' + esc(v.observacao) : ''}</div>
+      <div class="rec-bar"><div style="width:${pct}%"></div></div>
+      ${lst}
+      <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Quitado</span>' : ''}<button class="btn-action primary" data-act="vd-abrir" data-id="${esc(v.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button></div>
+    </div>`;
+  };
+  box.innerHTML = arr.map(g => {
+    const nome = capNome(g.nome), aberto = g.falta > 0.004;
+    return `<div class="rec-pessoa">
+      <div class="rec-top"><div class="rec-avatar">${esc(nome.charAt(0))}</div><div style="min-width:0;"><div class="rec-nome">${esc(nome)}</div><div class="rec-devendo">${g.itens.length} cobrança(s) em ${esc(nomeMes)}</div></div><div class="rec-total sensivel">${aberto ? formatarMoeda(g.falta) : '✅'}</div></div>
+      ${g.itens.map(itemHTML).join('')}
+      ${aberto ? `<div class="rec-pessoa-acoes"><button class="btn secondary" data-act="vd-copiar" data-id="${esc(g.k)}">📋 Copiar cobrança</button><button class="btn success" data-act="vd-wpp" data-id="${esc(g.k)}">💬 WhatsApp</button></div>` : ''}
+    </div>`;
+  }).join('');
+}
+function vdTextoCobranca(chave, mes) {
+  const itens = vdAtivas().filter(v => normalizarNome(v.cliente) === chave && vdRestante(v) > 0.004 && (!mes || vdParcMesAberta(v, mes)));
+  if (!itens.length) return '';
+  const primeiro = capNome(itens[0].cliente).split(' ')[0], LINHA = '━━━━━━━━━━━━━━';
+  const blocos = itens.map(v => {
+    const ps = vdParcelas(v), abertas = ps.filter(p => !p.quitada), rest = vdRestante(v), rec = vdRecebido(v);
+    const l = [LINHA, `${vdIcone(v)} *${capIni(v.descricao)}*`, ''];
+    const prox = (mes && vdParcMesAberta(v, mes)) || abertas[0];
+    if (prox) {
+      l.push(`🟡 *VALOR DA PARCELA ${prox.ref}: ${formatarMoeda(prox.falta).toUpperCase()}*` + (prox.pago > 0.004 ? ` _(de ${formatarMoeda(prox.valor)})_` : ''));
+      l.push(prox.atrasada ? `⚠️ *VENCIDA* desde ${dataBR(prox.venc)}` : `📅 Vence em ${dataBR(prox.venc)}`); l.push('');
+    }
+    if (abertas.length > 1) { l.push('📋 Parcelas em aberto:'); abertas.forEach(p => l.push(`   • ${p.ref} · ${dataBR(p.venc)} · ${formatarMoeda(p.falta)}${p.atrasada ? ' (vencida)' : ''}`)); l.push(''); }
+    l.push(`Valor total: ${formatarMoeda(v.valor_total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}`);
+    if (rec > 0.004) l.push(`Já pago: ${formatarMoeda(rec)}`);
+    l.push(`Falta no total: ${formatarMoeda(rest)}`);
+    return l.join('\n');
+  });
+  const proxima = itens.map(v => (mes && vdParcMesAberta(v, mes)) || vdProxima(v)).filter(Boolean);
+  const pagarAgora = proxima.reduce((t, p) => t + p.falta, 0), total = itens.reduce((t, v) => t + vdRestante(v), 0);
+  const vencido = itens.reduce((t, v) => t + vdParcelas(v).filter(p => p.atrasada).reduce((s, p) => s + p.falta, 0), 0);
+  const resumo = [];
+  if (itens.length > 1) { resumo.push(`🟡 *TOTAL DAS PARCELAS COBRADAS AGORA: ${formatarMoeda(pagarAgora).toUpperCase()}*`); resumo.push(`💰 Falta no total (tudo): ${formatarMoeda(total)}`); }
+  if (vencido > 0.004) resumo.push(`⚠️ Vencido até hoje: ${formatarMoeda(vencido)}`);
+  return `${saudacaoHora()}, ${primeiro}! Tudo bem? Espero que esteja tudo certo por aí 😊\n\nPassando pra lembrar do que está pendente ${itens.every(v => v.tipo === 'venda') ? 'da sua compra' : itens.every(v => v.tipo !== 'venda') ? 'do serviço prestado' : 'da compra e do serviço'}:\n\n${blocos.join('\n\n')}\n${LINHA}\n\n${resumo.length ? resumo.join('\n') + '\n\n' : ''}Quando puder, me envie o comprovante, por favor. ${obrigadoDe(itens[0].genero)}! 🙏\n— ${NOME_APP}`;
+}
+async function vdCopiarCobranca(chave) { const t = vdTextoCobranca(chave, state.mesesSelecionados[0]); if (!t) return; notificar(await copiarTexto(t) ? 'Cobrança copiada! É só colar na conversa.' : 'Não foi possível copiar neste aparelho.', 'sucesso'); }
+function vdWhatsCobranca(chave) { const t = vdTextoCobranca(chave, state.mesesSelecionados[0]); if (!t) return; semBloqueioPor(120000); window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank'); }
+
+/* ---- incluir / editar (tela própria, separada das demais inclusões) ---- */
+function vdPrevia() {
+  const v = lerMoeda($('vdValor')), n = parseInt($('vdParcelas').value) || 1;
+  $('vdPrevia').textContent = v > 0 && n > 0 ? (n > 1 ? `${n} parcelas de aproximadamente ${formatarMoeda(v / n)}, uma por mês.` : 'Pagamento à vista, em uma única parcela.') : '';
+}
+function abrirVenda(id) {
+  const v = id ? state.vendas.find(x => String(x.id) === String(id)) : null;
+  $('vdEditId').value = v ? v.id : '';
+  $('vdTituloModal').textContent = v ? 'Editar venda ou serviço' : 'Nova venda ou serviço';
+  $('vdTipo').value = v ? (v.tipo || 'servico') : 'servico';
+  $('vdGenero').innerHTML = optsGenero(v && v.genero, 'Selecione…');
+  $('vdCliente').value = v ? v.cliente : ''; $('vdDescricao').value = v ? v.descricao : '';
+  setMoeda($('vdValor'), v ? v.valor_total : null); $('vdParcelas').value = v ? v.parcelas : 1;
+  $('vdVenc').value = v ? String(v.primeiro_venc).slice(0, 10) : hojeISO();
+  $('vdData').value = v && v.data_venda ? String(v.data_venda).slice(0, 10) : hojeISO();
+  $('vdObs').value = v ? (v.observacao || '') : '';
+  vdPrevia(); abrirModal('modalVenda');
+}
+async function salvarVenda() {
+  const cliente = capNome($('vdCliente').value.trim()), desc = capIni($('vdDescricao').value.trim()), valor = lerMoeda($('vdValor')), n = parseInt($('vdParcelas').value), venc = $('vdVenc').value, gen = $('vdGenero').value;
+  if (!cliente) return notificar('Informe o nome do cliente.', 'erro');
+  if (!desc) return notificar('Informe o que foi vendido ou o serviço prestado.', 'erro');
+  if (!(valor > 0)) return notificar('Informe um valor maior que zero.', 'erro');
+  if (!(n >= 1 && n <= 120)) return notificar('O número de parcelas deve ficar entre 1 e 120.', 'erro');
+  if (!venc) return notificar('Informe a data do 1º vencimento.', 'erro');
+  if (!gen) return notificar('Selecione o gênero do cliente (usado nos textos de cobrança).', 'erro');
+  const id = $('vdEditId').value, atual = id ? state.vendas.find(x => String(x.id) === String(id)) : null;
+  const row = { cliente, genero: gen, tipo: $('vdTipo').value, descricao: desc, valor_total: Math.round(valor * 100) / 100, parcelas: n, primeiro_venc: venc, data_venda: $('vdData').value || null, observacao: $('vdObs').value.trim() || null };
+  const btn = $('btnVdSalvar'); btn.disabled = true;
+  let error;
+  if (atual) ({ error } = await db.from('vendas_servicos').update(row).eq('id', atual.id).eq('grupo_id', grupoId()));
+  else ({ error } = await db.from('vendas_servicos').insert({ ...row, grupo_id: grupoId(), criado_por: currentUser.nome, recebimentos: [] }));
+  btn.disabled = false;
+  if (error) return notificar('Erro ao salvar: ' + error.message, 'erro');
+  fecharModal('modalVenda'); notificar(atual ? 'Venda/serviço atualizado!' : 'Venda/serviço cadastrado!', 'sucesso');
+  if (!atual) { state.mesesSelecionados = [venc.slice(0, 7)]; atualizarLabelMes(); }
+  await carregarVendas(); renderVendas();
+}
+/* ---- receber ---- */
+function abrirVdReceber(id) {
+  const v = state.vendas.find(x => String(x.id) === String(id)); if (!v) return;
+  state.vdId = v.id;
+  $('vdRecTitulo').textContent = capNome(v.cliente) + ' · ' + capIni(v.descricao);
+  $('vdRecData').value = hojeISO(); setMoeda($('vdRecValor'), null); $('vdRecObs').value = '';
+  renderVdReceberModal(); abrirModal('modalVdReceber');
+}
+function renderVdReceberModal() {
+  const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
+  const pr = vdProxima(v);
+  $('vdRecInfo').innerHTML = (pr ? `${pr.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <strong>parcela ${esc(pr.ref)}</strong> · vence ${esc(dataBR(pr.venc))}<span class="rec-valor">🟡 ${formatarMoeda(pr.falta)}<small>valor da parcela</small></span><br>` : '✅ <strong>Tudo recebido.</strong><br>')
+    + `Total ${formatarMoeda(v.valor_total)} · recebido ${formatarMoeda(vdRecebido(v))} · falta <strong>${formatarMoeda(vdRestante(v))}</strong>`;
+  const rs = vdRecs(v).map((r, i) => [r, i]).reverse();
+  $('vdRecLista').innerHTML = rs.length ? rs.map(([r, i]) => `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">💵 Recebido${r.obs ? ' · ' + esc(r.obs) : ''}</div><div class="meta" style="font-size:12px;">${esc(dataBR(r.data))}</div></div><div class="valor sensivel" style="font-weight:700;">${formatarMoeda(r.valor)}</div><button class="btn-action danger" data-act="vd-delmov" data-idx="${i}" type="button">🗑️</button></div>`).join('')
+    : '<p style="text-align:center;color:var(--muted);padding:16px;font-size:13px;">Nenhum recebimento ainda.</p>';
+}
+async function vdGravarRecebimentos(v, novo) {
+  const { error } = await db.from('vendas_servicos').update({ recebimentos: novo }).eq('id', v.id).eq('grupo_id', grupoId());
+  if (error) { notificar('Erro ao salvar: ' + error.message, 'erro'); return false; }
+  v.recebimentos = novo; return true;
+}
+async function salvarVdRecebimento() {
+  const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
+  const val = lerMoeda($('vdRecValor'));
+  if (!(val > 0)) return notificar('Informe um valor maior que zero.', 'erro');
+  if (val > vdRestante(v) + 0.004 && !await confirmar({ titulo: 'Valor acima do devido', mensagem: `O valor passa do que falta (${formatarMoeda(vdRestante(v))}). Registrar mesmo assim?`, confirmarTexto: 'Registrar', tipo: 'aviso' })) return;
+  const btn = $('btnVdSalvarRec'); btn.disabled = true;
+  const ok = await vdGravarRecebimentos(v, [...vdRecs(v), { valor: val, data: $('vdRecData').value || hojeISO(), obs: capIni($('vdRecObs').value.trim()), por: currentUser.nome }]);
+  btn.disabled = false; if (!ok) return;
+  notificar('Recebimento registrado!', 'sucesso'); setMoeda($('vdRecValor'), null); $('vdRecObs').value = '';
+  renderVdReceberModal(); renderVendas();
+}
+async function vdExcluirRecebimento(idx) {
+  const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
+  if (!await confirmar({ titulo: 'Excluir recebimento', mensagem: 'Deseja excluir este recebimento? O valor volta a ficar em aberto.', confirmarTexto: 'Excluir', tipo: 'perigo' })) return;
+  if (!await vdGravarRecebimentos(v, vdRecs(v).filter((_, i) => i !== idx))) return;
+  renderVdReceberModal(); renderVendas();
+}
+async function removerVenda() {
+  const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
+  if (!await confirmar({ titulo: 'Excluir venda/serviço', mensagem: `Excluir "${v.descricao}" de ${capNome(v.cliente)}?\n\nOs recebimentos registrados também serão apagados.`, confirmarTexto: 'Excluir', tipo: 'perigo' })) return;
+  const { error } = await db.from('vendas_servicos').delete().eq('id', v.id).eq('grupo_id', grupoId());
+  if (error) return notificar('Erro ao excluir: ' + error.message, 'erro');
+  state.vendas = state.vendas.filter(x => x.id !== v.id);
+  fecharModal('modalVdReceber'); renderVendas();
+}
+function renderVdHistorico() {
+  const box = $('vdHistoricoCorpo'), todos = vdAtivas();
+  if (!todos.length) { box.innerHTML = '<div class="empty-msg">Nenhuma venda ou serviço cadastrado ainda.</div>'; return; }
+  const tot = todos.reduce((s, v) => s + (Number(v.valor_total) || 0), 0), rec = todos.reduce((s, v) => s + vdRecebido(v), 0), ab = tot - rec;
+  const grupos = {};
+  todos.forEach(v => { const k = normalizarNome(v.cliente); (grupos[k] = grupos[k] || { nome: v.cliente, itens: [] }).itens.push(v); });
+  const resumo = `<div class="hist-kpis"><div><span>Total cobrado</span><strong class="sensivel">${formatarMoeda(tot)}</strong></div><div><span>Recebido</span><strong class="sensivel" style="color:var(--success-text);">${formatarMoeda(rec)}</strong></div><div><span>Em aberto</span><strong class="sensivel">${formatarMoeda(ab)}</strong></div></div>`;
+  box.innerHTML = resumo + Object.values(grupos).sort((a, b) => a.nome.localeCompare(b.nome)).map(g => {
+    const gTot = g.itens.reduce((s, v) => s + (Number(v.valor_total) || 0), 0), gRec = g.itens.reduce((s, v) => s + vdRecebido(v), 0), gAb = gTot - gRec;
+    const itens = g.itens.slice().sort((a, b) => String(b.data_venda || b.primeiro_venc).localeCompare(String(a.data_venda || a.primeiro_venc))).map(v => {
+      const rs = vdRecs(v).slice().sort((a, b) => String(a.data).localeCompare(String(b.data))), quit = vdRestante(v) <= 0.004;
+      return `<div class="hist-compra"><div class="hist-linha"><div><strong>${vdIcone(v)} ${esc(capIni(v.descricao))}</strong><small>${v.data_venda ? 'Em ' + esc(dataBR(String(v.data_venda).slice(0, 10))) + ' · ' : ''}${v.parcelas}x · 1º venc. ${esc(dataBR(String(v.primeiro_venc).slice(0, 10)))}</small></div><div class="hist-val sensivel">${formatarMoeda(v.valor_total)}<small>${quit ? '✅ quitado' : 'falta ' + formatarMoeda(vdRestante(v))}</small></div></div>
+        ${rs.length ? `<div class="hist-pgtos">${rs.map(r => `<div><span>💵 ${esc(dataBR(r.data))}${r.obs ? ' · ' + esc(r.obs) : ''}</span><b class="sensivel">${formatarMoeda(r.valor)}</b></div>`).join('')}</div>` : '<div class="hist-pgtos"><div><span>Nenhum pagamento ainda</span></div></div>'}</div>`;
+    }).join('');
+    return `<details class="hist-pessoa" open><summary><span class="hist-nome">${esc(capNome(g.nome))}</span><span class="hist-soma sensivel">${formatarMoeda(gTot)} <small>· recebido ${formatarMoeda(gRec)}${gAb > 0.004 ? ' · falta ' + formatarMoeda(gAb) : ''}</small></span></summary>${itens}</details>`;
+  }).join('');
 }
 
 function normalizarNome(s) { return String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
@@ -2324,7 +2646,7 @@ function iniciarCampos() {
   criarCombo('impResp', { opcoes: () => opcoesResp, livre: false, cap: true });
   criarMesPicker('impMes');
   criarDataPicker('cDataCompra');
-  criarDataPicker('recData');
+  criarDataPicker('recData'); criarDataPicker('vdVenc'); criarDataPicker('vdData'); criarDataPicker('vdRecData');
   iniciarSelects();
   iniciarTeclado();
 }
@@ -2584,7 +2906,7 @@ function ligarAcesso() {
   });
   window.addEventListener('pagehide', travar);
   $('btnCfgAcesso').addEventListener('click', () => { fecharModal('modalConfiguracoes'); renderAcesso(); abrirModal('modalAcesso'); });
-  // toque numa notificação com o app aberto: vai direto para a aba do aviso (ex.: A Receber)
+  // toque numa notificação com o app aberto: vai direto para a aba do aviso (ex.: Compras Divididas)
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
     if (e.data && e.data.tipo === 'abrir-aba' && currentUser && document.getElementById('page' + e.data.aba.charAt(0).toUpperCase() + e.data.aba.slice(1))) mudarAba(e.data.aba);
   });
@@ -2904,7 +3226,7 @@ function recSenhaDados() {
 function recSenhaMostrar(ativo) {
   $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = ativo ? 'block' : 'none';
   $('recSenhaPasso1').style.display = 'block'; $('recSenhaPasso2').style.display = 'none';
-  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; }); $('rsSemEmail').checked = false;
+  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; });
 }
 function recSenhaErro(e) {
   const m = (e && e.message) || '';
@@ -2914,13 +3236,13 @@ function recSenhaErro(e) {
 }
 async function recSenhaVerificar() {
   const d = recSenhaDados();
-  if (!d.p_nome || !d.p_cpf || !d.p_telefone || (!d.p_email && !$('rsSemEmail').checked)) return mostrarErro('Preencha todos os campos: nome, CPF, telefone e e-mail.');
+  if (!d.p_nome || !d.p_cpf || !d.p_telefone || !d.p_email) return mostrarErro('Preencha todos os campos: nome, CPF, telefone e e-mail.');
   if (!validaCPF(d.p_cpf)) return mostrarErro('O CPF informado é inválido.');
   const b = $('btnRsVerificar'); b.disabled = true; b.textContent = 'Verificando...';
   const { data, error } = await db.rpc('verificar_cadastro_recuperacao', d);
   b.disabled = false; b.textContent = 'Verificar dados';
   if (error || data !== true) return mostrarErro(recSenhaErro(error));
-  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsSemEmail'].forEach(i => { $(i).disabled = true; });
+  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail'].forEach(i => { $(i).disabled = true; });
   $('recSenhaPasso1').style.display = 'none'; $('recSenhaPasso2').style.display = 'block';
   $('recSenhaDica').textContent = 'Dados conferidos! Agora defina a sua nova senha.';
   setTimeout(() => $('rsSenha').focus(), 50);
@@ -3053,12 +3375,14 @@ async function carregarDados() {
   state.compras = todas;
   await carregarPorquinhos();
   await carregarDevedores();
+  await carregarVendas();
   preencherDatalists();
   atualizarLabelMes();
   // Só renderiza a aba ativa
   if (state.abaAtual === 'orcamento') await carregarOrcamento();
   else if (state.abaAtual === 'porquinhos') renderPorquinhos();
   else if (state.abaAtual === 'receber') renderReceber();
+  else if (state.abaAtual === 'vendas') renderVendas();
   else renderInclusao();
 }
 
@@ -3128,6 +3452,7 @@ function refresh() {
   if (state.abaAtual === 'orcamento') carregarOrcamento();
   else if (state.abaAtual === 'porquinhos') renderPorquinhos();
   else if (state.abaAtual === 'receber') renderReceber();
+  else if (state.abaAtual === 'vendas') renderVendas();
   else renderInclusao();
 }
 
@@ -3505,10 +3830,44 @@ function comprasDoMesPessoa(mes) {
   return state.compras.filter(c => c.mes_referencia === mes && isAtiva(c) && daPessoa(c, state.filtroPessoa));
 }
 
+// gráfico pequeno: orçado x gasto (total em barras finas + as maiores categorias lado a lado)
+function renderGastoOrcado(comprasMes, pessoa) {
+  const card = $('gxoCard'); if (!card) return;
+  const linhas = categoriasOrcamento.map(cat => ({
+    nome: capIni(cat.nome),
+    orc: orcamentosMes.filter(o => o.categoria_id === cat.id).reduce((s, o) => s + (Number(o.valor_planejado) || 0), 0),
+    gas: somaPessoa(comprasMes.filter(c => c.categoria_orcamento === cat.nome), pessoa)
+  }));
+  const totOrc = linhas.reduce((t, l) => t + l.orc, 0), totGas = somaPessoa(comprasMes, pessoa);
+  if (gxoChart) { gxoChart.destroy(); gxoChart = null; }
+  if (totOrc <= 0 && totGas <= 0) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const maior = Math.max(totOrc, totGas, 0.01), pct = totOrc > 0 ? Math.round(totGas / totOrc * 100) : null;
+  $('gxoBarOrc').style.width = (totOrc / maior * 100) + '%';
+  const gb = $('gxoBarGas'); gb.style.width = (totGas / maior * 100) + '%';
+  gb.style.background = totOrc > 0 && totGas > totOrc ? 'var(--danger)' : pct !== null && pct >= 90 ? 'var(--orange)' : 'var(--success)';
+  $('gxoValOrc').textContent = formatarMoeda(totOrc); $('gxoValGas').textContent = formatarMoeda(totGas);
+  const el = $('gxoPct');
+  el.textContent = pct === null ? 'sem orçamento' : totGas > totOrc ? `${formatarMoeda(totGas - totOrc)} acima` : `${pct}% usado`;
+  el.style.color = totOrc > 0 && totGas > totOrc ? 'var(--danger-text)' : 'var(--muted)';
+  const top = linhas.filter(l => l.orc > 0 || l.gas > 0).sort((a, b) => Math.max(b.orc, b.gas) - Math.max(a.orc, a.gas)).slice(0, 6);
+  const wrap = $('gxoChartWrap'); wrap.style.display = top.length > 1 && typeof Chart !== 'undefined' ? '' : 'none';
+  if (wrap.style.display === 'none') return;
+  gxoChart = new Chart($('gxoChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: top.map(l => l.nome.length > 9 ? l.nome.slice(0, 8) + '…' : l.nome), datasets: [
+      { label: 'Orçado', data: top.map(l => l.orc), backgroundColor: 'rgba(129,140,248,.55)', borderRadius: 3, maxBarThickness: 14 },
+      { label: 'Gasto', data: top.map(l => l.gas), backgroundColor: top.map(l => l.orc > 0 && l.gas > l.orc ? '#f43f5e' : '#22c55e'), borderRadius: 3, maxBarThickness: 14 }] },
+    options: { responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${formatarMoeda(c.parsed.y)}` } } },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, color: corTema('--muted') } }, y: { display: false, beginAtZero: true } } }
+  });
+}
 function renderPlanejamento() {
   const mes = state.mesesSelecionados[0];
   const pessoa = state.filtroPessoa;
   const comprasMes = comprasDoMesPessoa(mes);
+  renderGastoOrcado(comprasMes, pessoa);
   const comprasAnt = comprasDoMesPessoa(mesAnteriorRef(mes));
 
   const pendentes = comprasMes.filter(c => !c.categoria_orcamento);
@@ -3959,7 +4318,7 @@ function renderInclusao() {
   if (total > 0) { const d = ((totalProx - total) / total) * 100; if (Math.abs(d) >= 0.5) tp = `<span class="trend ${d > 0 ? 'up' : 'down'}">${d > 0 ? '↑' : '↓'} ${Math.abs(d).toFixed(0)}%</span>`; }
   html += `<div class="kpi-card"><div class="label">Próximo Mês (${MESES_ABR[parseInt(prox.split('-')[1]) - 1]})</div><div class="value">${formatarMoeda(totalProx)}${tp}</div><div class="subtext">Já comprometido</div></div>`;
   const recAb = state.devedores.filter(d => compraAtivaId(d.id_compra) && devRestante(d) > 0.004);
-  if (recAb.length) html += `<div class="kpi-card clickable" data-go="receber"><div class="label">A receber de fora</div><div class="value">${formatarMoeda(recAb.reduce((t, d) => t + devRestante(d), 0))}</div><div class="subtext">${new Set(recAb.map(d => normalizarNome(d.pessoa))).size} pessoa(s) devendo</div></div>`;
+  if (recAb.length) html += `<div class="kpi-card clickable" data-go="receber"><div class="label">Divididas a receber</div><div class="value">${formatarMoeda(recAb.reduce((t, d) => t + devRestante(d), 0))}</div><div class="subtext">${new Set(recAb.map(d => normalizarNome(d.pessoa))).size} pessoa(s) devendo</div></div>`;
   $('kpiGrid').innerHTML = html;
 
   const vl = listaVencimentos();
@@ -4422,7 +4781,7 @@ function impDivisaoHTML(x) {
   }).join('');
   return `<div class="imp-div">${linhas}<div class="div-total" data-dtotal></div>
     <div class="imp-row"><button type="button" class="btn-action" data-d="igual">Dividir igualmente</button><button type="button" class="btn-action" data-d="ext">+ Pessoa de fora</button></div>
-    <p class="hint" style="margin:8px 0 0;">A parte de quem é "de fora" não entra nos seus gastos e fica em A Receber até a pessoa te pagar.</p></div>`;
+    <p class="hint" style="margin:8px 0 0;">A parte de quem é "de fora" não entra nos seus gastos e fica em Compras Divididas até a pessoa te pagar.</p></div>`;
 }
 // atualiza porcentagens, valores e o total sem refazer o cartão (para não perder o foco ao digitar)
 function impDivAtualizar(card, x, exceto) {
@@ -4613,7 +4972,7 @@ async function impSalvar() {
       feitos += lote.length;
     }
     await db.from('historico_compras').insert(hist);
-    // pessoas de fora: cada uma vira uma cobrança em "A Receber" (o total considera só as parcelas lançadas agora)
+    // pessoas de fora: cada uma vira uma cobrança em "Compras Divididas" (o total considera só as parcelas lançadas agora)
     for (const x of sel) if (x._div && x._div.externos.length) await sincronizarDevedores(x._id, capIni(x.nome.trim()), Math.round(x.valor * (x.total - x.cur + 1) * 100) / 100, x._div.externos);
   } catch (e) {
     btn.disabled = false; impAtualizarResumo();
@@ -5197,7 +5556,6 @@ function ligarEventos() {
   $('btnLogin').addEventListener('click', fazerLogin);
   $('btnEsqueci').addEventListener('click', () => { recSenhaMostrar(true); $('rsNome').value = $('loginUser').value.trim().includes('@') ? '' : $('loginUser').value.trim(); });
   $('btnRsVoltar').addEventListener('click', () => recSenhaMostrar(false));
-  $('rsSemEmail').addEventListener('change', e => { $('rsEmail').disabled = e.target.checked; if (e.target.checked) $('rsEmail').value = ''; });
   $('btnRsVerificar').addEventListener('click', recSenhaVerificar);
   $('btnRsSalvar').addEventListener('click', recSenhaSalvar);
   $('rsCpf').addEventListener('input', e => mascaraCPF(e.target));
@@ -5277,6 +5635,15 @@ function ligarEventos() {
   document.addEventListener('scroll', posicionarPainel, true);
   if (window.visualViewport) { window.visualViewport.addEventListener('resize', posicionarPainel); window.visualViewport.addEventListener('scroll', posicionarPainel); }
   $('btnPDF').addEventListener('click', exportarPDF);
+  $('btnVdHistorico').addEventListener('click', () => { renderVdHistorico(); abrirModal('modalVdHistorico'); });
+  $('btnVdNovo').addEventListener('click', () => abrirVenda());
+  $('btnVdSalvar').addEventListener('click', salvarVenda);
+  $('btnVdSalvarRec').addEventListener('click', salvarVdRecebimento);
+  $('btnVdRemover').addEventListener('click', removerVenda);
+  $('btnVdEditar').addEventListener('click', () => { const id = state.vdId; fecharModal('modalVdReceber'); setTimeout(() => abrirVenda(id), 120); });
+  $('btnVdRecParcela').addEventListener('click', () => { const v = state.vendas.find(x => String(x.id) === String(state.vdId)); const pr = v && vdProxima(v); if (pr) setMoeda($('vdRecValor'), pr.falta); else if (v) setMoeda($('vdRecValor'), vdRestante(v)); });
+  $('btnVdRecQuitar').addEventListener('click', () => { const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (v) setMoeda($('vdRecValor'), vdRestante(v)); });
+  ['vdValor', 'vdParcelas'].forEach(i => $(i).addEventListener('input', vdPrevia));
   $('btnRecHistorico').addEventListener('click', () => { renderRecHistorico(); abrirModal('modalRecHistorico'); });
   $('btnVerVencimentos').addEventListener('click', verVencimentos);
   $('btnNovoPorquinho').addEventListener('click', () => abrirModalPorquinho());
@@ -5310,6 +5677,7 @@ function ligarEventos() {
     const cl = t.closest('[data-close]'); if (cl) return fecharModal(cl.dataset.close, true);
     if (t.classList.contains('modal-overlay') && t.id !== 'modalGenero') return fecharModal(t.id, true);
     const tm = t.closest('[data-tema]'); if (tm) return aplicarTema(tm.dataset.tema, true);
+    const vf = t.closest('[data-vdf]'); if (vf) { state.filtroVendas = vf.dataset.vdf; return renderVendas(); }
     const rf = t.closest('[data-recf]'); if (rf) { state.filtroReceber = rf.dataset.recf; return renderReceber(); }
     const gt = t.closest('[data-gtab]'); if (gt) return mudarAbaGerenciar(gt.dataset.gtab);
     const ht = t.closest('[data-htab]'); if (ht) return mudarAbaHistorico(ht.dataset.htab);
@@ -5350,6 +5718,10 @@ function ligarEventos() {
       case 'rec-copiar': copiarCobranca(id); break;
       case 'rec-wpp': whatsCobranca(id); break;
       case 'rec-delmov': excluirRecebimento(parseInt(a.dataset.idx)); break;
+      case 'vd-abrir': abrirVdReceber(id); break;
+      case 'vd-copiar': vdCopiarCobranca(id); break;
+      case 'vd-wpp': vdWhatsCobranca(id); break;
+      case 'vd-delmov': vdExcluirRecebimento(parseInt(a.dataset.idx)); break;
     }
   });
 }
