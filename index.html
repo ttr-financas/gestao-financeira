@@ -783,6 +783,18 @@
     --shadow: 0 12px 32px rgba(0,0,0,.35); --shadow-lg: 0 18px 44px rgba(0,0,0,.55);
     color-scheme: dark; color: var(--text);
   }
+
+  /* ===== sugestões ===== */
+  .input-group textarea { width: 100%; min-height: 110px; padding: 12px 14px; background: rgba(var(--w),.05); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font: inherit; font-size: 16px; resize: vertical; line-height: 1.45; }
+  .input-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--pr),.25); }
+  .sug-item { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; background: rgba(var(--w),.03); }
+  .sug-item.ok { opacity: .72; }
+  .sug-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+  .sug-st { font-size: 11px; color: var(--muted); font-weight: 700; }
+  .sug-item.ok .sug-st { color: var(--success-text); }
+  .sug-quem { font-size: 11px; color: var(--muted); margin: 3px 0 8px; word-break: break-word; }
+  .sug-msg { font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+  .sug-acoes { margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -1256,6 +1268,7 @@
     <button class="cfg-item" id="btnCfgAcesso" type="button"><span class="cfg-ic">🔐</span><span class="cfg-tx"><strong>Biometria, senha ou conectado</strong><small id="cfgAcessoResumo">Permanecer conectado</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Cadastros</div>
     <button class="cfg-item" id="btnCfgListas" type="button"><span class="cfg-ic">🏷️</span><span class="cfg-tx"><strong>Motivos e tipos</strong><small>Veja, inclua ou exclua as opções das suas compras</small></span><span class="cfg-seta">›</span></button>
+    <button class="cfg-item" id="btnCfgSugestoes" type="button"><span class="cfg-ic">💡</span><span class="cfg-tx"><strong>Sugestões e problemas</strong><small>Envie um bug, melhoria ou dúvida</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAdmin" style="display:none;">Administração</div>
     <button class="cfg-item" id="btnGerenciarUsuarios" type="button" style="display:none;"><span class="cfg-ic">👥</span><span class="cfg-tx"><strong>Gerenciar usuários</strong><small>Acessos e permissões do grupo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Conta</div>
@@ -1273,6 +1286,19 @@
       <button class="cfg-item" type="button" data-acesso="conectado"><span class="cfg-ic">✅</span><span class="cfg-tx"><strong>Permanecer conectado</strong><small>Abre direto, sem pedir nada</small></span><span class="cfg-ok">✓</span></button>
     </div>
     <p class="hint" id="cfgAcessoHint"></p>
+  </div>
+</div>
+
+<!-- MODAL SUGESTÕES -->
+<div class="modal-overlay" id="modalSugestoes">
+  <div class="modal">
+    <div class="modal-header"><h3>Sugestões e problemas</h3><button class="close-btn" data-close="modalSugestoes">×</button></div>
+    <p class="hint" style="margin-top:0;">Encontrou um erro ou tem uma ideia? Conte aqui. Seu nome e e-mail vão junto com a mensagem.</p>
+    <div class="input-group"><label>Tipo</label><select id="sugTipo"><option value="bug">🐞 Bug (algo não funciona)</option><option value="melhoria">✨ Melhoria (uma ideia)</option><option value="duvida">❓ Dúvida</option><option value="outro">💬 Outro</option></select></div>
+    <div class="input-group"><label>Mensagem <span id="sugContador" style="float:right;color:var(--muted);font-weight:500;">0/1000</span></label><textarea id="sugTexto" rows="5" maxlength="1000" placeholder="Descreva com detalhes. Se for um bug, diga em qual tela aconteceu e o que você fez."></textarea></div>
+    <button class="btn" id="btnSugEnviar" type="button">Enviar</button>
+    <h4 id="sugListaTitulo" style="margin:18px 0 8px;font-size:14px;">Minhas sugestões</h4>
+    <div id="sugLista"></div>
   </div>
 </div>
 
@@ -3040,6 +3066,34 @@ function preencherDatalists() {
   const uniq = campo => [...new Set(state.compras.map(c => (c[campo] || '').trim()).filter(Boolean))].map(capIni);
   const ord = arr => uniqNorm(arr).sort((a, b) => a.localeCompare(b));
   opcoesCompra = { motivo: ord([...motivosGrupo.map(m => capIni(m.nome)), ...uniq('motivo')]), tipo: ord([...tiposGrupo.map(t => capIni(t.nome)), ...uniq('tipo')]), pagto: ord([...TIPOS_PAGTO_PADRAO, ...uniq('tipo_pagamento')]) };
+}
+
+/* ---- Sugestões (bug, melhoria...) ---- */
+const SUG_TIPOS = { bug: '🐞 Bug', melhoria: '✨ Melhoria', duvida: '❓ Dúvida', outro: '💬 Outro' };
+async function carregarSugestoes() {
+  const adm = !!(currentUser && currentUser.is_admin), box = $('sugLista');
+  $('sugListaTitulo').textContent = adm ? 'Sugestões recebidas (todos os usuários)' : 'Minhas sugestões';
+  box.innerHTML = '<p class="hint">Carregando…</p>';
+  const { data, error } = await db.from('sugestoes').select('*').order('criado_em', { ascending: false }).limit(100);
+  if (error) { box.innerHTML = `<p class="hint">Não foi possível carregar a lista (${esc(error.message)}). Rode o SQL novo no Supabase.</p>`; return; }
+  box.innerHTML = (data || []).length ? data.map(r => {
+    const dt = new Date(r.criado_em), quando = isNaN(dt) ? '' : dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="sug-item ${r.status === 'resolvida' ? 'ok' : ''}"><div class="sug-top"><strong>${SUG_TIPOS[r.tipo] || esc(r.tipo)}</strong><span class="sug-st">${r.status === 'resolvida' ? '✅ Resolvida' : '🕐 Nova'}</span></div>
+      <div class="sug-quem">${adm ? `De <b>${esc(capNome(r.nome || ''))}</b>${r.email ? ' · ' + esc(r.email) : ''}${r.grupo_id ? ' · grupo ' + esc(r.grupo_id) : ''} · ` : ''}${esc(quando)}</div>
+      <div class="sug-msg">${esc(r.mensagem)}</div>
+      ${adm ? `<div class="sug-acoes"><button type="button" class="btn-action" data-sug="${esc(r.id)}" data-st="${r.status === 'resolvida' ? 'nova' : 'resolvida'}">${r.status === 'resolvida' ? 'Reabrir' : 'Marcar como resolvida'}</button></div>` : ''}</div>`;
+  }).join('') : '<p class="hint">Nenhuma mensagem ainda.</p>';
+}
+async function enviarSugestao() {
+  const texto = $('sugTexto').value.trim();
+  if (texto.length < 5) return alert('Escreva a sua mensagem (pelo menos algumas palavras).');
+  const b = $('btnSugEnviar'); b.disabled = true; b.textContent = 'Enviando...';
+  const { error } = await db.from('sugestoes').insert([{ user_id: currentUser.id, nome: currentUser.nome, email: currentUser.email, grupo_id: currentUser.grupo_id, tipo: $('sugTipo').value, mensagem: texto }]);
+  b.disabled = false; b.textContent = 'Enviar';
+  if (error) return alert(/sugestoes|relation|schema cache/i.test(error.message || '') ? 'Recurso ainda não ativado: rode o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase.' : 'Não foi possível enviar: ' + error.message);
+  $('sugTexto').value = ''; $('sugContador').textContent = '0/1000';
+  notificar('Mensagem enviada! Obrigado.', 'sucesso');
+  carregarSugestoes();
 }
 
 /* ---- Motivos e tipos do grupo (cópia dos padrões do admin; o usuário inclui e exclui) ---- */
@@ -5195,6 +5249,15 @@ function ligarEventos() {
   $('btnCfgNotif').addEventListener('click', () => { fecharModal('modalConfiguracoes'); abrirModalNotificacoes(); });
   $('btnCfgListas').addEventListener('click', () => { $('listaPadraoLinha').style.display = currentUser && currentUser.is_admin ? 'flex' : 'none'; renderListasMT(); abrirModal('modalListas'); });
   $('btnListaAdd').addEventListener('click', adicionarListaMT);
+  $('btnCfgSugestoes').addEventListener('click', () => { fecharModal('modalConfiguracoes'); $('sugTexto').value = ''; $('sugContador').textContent = '0/1000'; abrirModal('modalSugestoes'); carregarSugestoes(); });
+  $('btnSugEnviar').addEventListener('click', enviarSugestao);
+  $('sugTexto').addEventListener('input', e => { $('sugContador').textContent = e.target.value.length + '/1000'; });
+  $('sugLista').addEventListener('click', async e => {
+    const b = e.target.closest('[data-sug]'); if (!b) return;
+    const { error } = await db.from('sugestoes').update({ status: b.dataset.st }).eq('id', b.dataset.sug);
+    if (error) return alert('Erro ao atualizar: ' + error.message);
+    carregarSugestoes();
+  });
   $('listaNovoNome').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); adicionarListaMT(); } });
   $('modalListas').addEventListener('click', e => { const b = e.target.closest('[data-lista]'); if (b) excluirListaMT(b.dataset.lista, b.dataset.id); });
   $('btnOlho').addEventListener('click', () => aplicarPrivacidade(!document.body.classList.contains('privado')));
