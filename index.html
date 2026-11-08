@@ -709,6 +709,56 @@
   body.privado .btn-olho .ic-ver { display: none; }
   body.privado .btn-olho .ic-oculto { display: block; }
   @media (max-width: 400px) { .month-selector { gap: 6px; } .multi-month-btn { min-width: 0; padding: 10px 14px; gap: 6px; } .btn-olho { left: 6px; } }
+
+  /* ===== barra de navegação: colunas proporcionais, largura total e conteúdo centralizado ===== */
+  .bottom-nav { width: calc(100% - 16px); max-width: 680px; display: grid; grid-template-columns: minmax(0,1.25fr) minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr); gap: 3px; padding: 5px; align-items: stretch; }
+  .bottom-nav button { justify-content: center; align-items: center; min-height: 58px; padding: 7px 2px; gap: 4px; font-size: 10px; line-height: 1.15; text-align: center; text-wrap: balance; overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .bottom-nav button svg { flex: none; }
+  @media (min-width: 560px) { .bottom-nav button { font-size: 12px; flex-direction: row; gap: 8px; min-height: 52px; } .bottom-nav button svg { width: 20px; height: 20px; } }
+
+  /* ===== listas e datas no visual do app ===== */
+  .sel-wrap { position: relative; width: 100%; min-width: 0; }
+  .sel-wrap select { pointer-events: none; width: 100%; }
+  .sel-wrap { cursor: pointer; }
+  .dia-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; padding: 6px 10px; }
+  .dia-grid .dia-sem { text-align: center; font-size: 11px; color: var(--muted); padding: 4px 0; font-weight: 700; }
+  .dia-grid button { min-height: 36px; border-radius: 10px; border: 1px solid transparent; background: none; color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
+  .dia-grid button:hover { background: rgba(var(--pr),.16); }
+  .dia-grid button.hoje { border-color: rgba(var(--pr),.6); }
+  .dia-grid button.sel { background: var(--grad); color: #fff; font-weight: 700; }
+  .imp-pend { margin: 10px 0 !important; }
+  .imp-card .imp-in[data-f="nome"] { margin-bottom: 2px; }
+  .imp-card .imp-row { margin-top: 8px; }
+
+  /* ===== A Receber por mês + histórico ===== */
+  .rec-mini { font-size: 11px; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(var(--w),.12); }
+  .rec-total-mini { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .rec-total { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
+  .rec-total .rec-total-mini { margin-top: 2px; }
+  .rec-prox.paga { background: rgba(34,197,94,.10); border-color: rgba(34,197,94,.4); color: var(--success-text); }
+  .rec-paga-box { text-align: center; font-size: 13px; font-weight: 700; color: var(--success-text); background: rgba(34,197,94,.10); border: 1px solid rgba(34,197,94,.35); border-radius: 12px; padding: 11px; }
+  .rec-atraso { grid-column: 1 / -1; font-size: 12.5px; line-height: 1.5; padding: 10px 12px; border-radius: 12px; background: rgba(239,68,68,.10); border: 1px solid rgba(239,68,68,.35); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .rec-atraso .btn-action { margin-left: auto; }
+  .hist-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .hist-kpis > div { background: rgba(var(--pr),.08); border: 1px solid rgba(var(--pr),.25); border-radius: 14px; padding: 10px 8px; text-align: center; min-width: 0; }
+  .hist-kpis span { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+  .hist-kpis strong { font-size: 13.5px; word-break: break-word; }
+  .hist-pessoa { border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; background: rgba(var(--w),.03); }
+  .hist-pessoa > summary { list-style: none; cursor: pointer; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: rgba(var(--pr),.08); }
+  .hist-pessoa > summary::-webkit-details-marker { display: none; }
+  .hist-nome { font-weight: 800; font-size: 15px; }
+  .hist-soma { font-weight: 700; font-size: 13px; text-align: right; }
+  .hist-soma small { color: var(--muted); font-weight: 500; font-size: 11px; }
+  .hist-compra { padding: 12px 14px; border-top: 1px solid var(--border); }
+  .hist-linha { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .hist-linha small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .hist-val { text-align: right; flex: none; }
+  .hist-val strong { display: block; font-size: 14px; }
+  .hist-st { font-size: 11px; color: var(--warn-text, #facc15); font-weight: 700; }
+  .hist-st.ok { color: var(--success-text); }
+  .hist-pgtos { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(var(--w),.04); font-size: 12px; }
+  .hist-pgtos > div { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; }
+  .hist-pgtos.vazio { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -748,6 +798,25 @@
       <div class="input-group"><label>E-mail, Nome ou CPF</label><input type="text" id="loginUser" placeholder="Digite seus dados de acesso" autocomplete="username"></div>
       <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="loginSenha" placeholder="Digite sua senha" autocomplete="current-password"><button type="button" class="toggle-password" data-toggle="loginSenha">👁️</button></div></div>
       <button class="btn" id="btnLogin">Entrar</button>
+      <button class="btn ghost" id="btnEsqueci" type="button">Esqueci minha senha</button>
+    </div>
+    <div id="recSenhaForm" style="display:none;">
+      <h3 style="margin:0 0 6px;font-size:17px;">Recuperar acesso</h3>
+      <p class="hint" id="recSenhaDica" style="margin-top:0;">Para sua segurança, informe os dados do seu cadastro exatamente como foram cadastrados. Se tudo estiver correto, você define uma nova senha.</p>
+      <div id="recSenhaPasso1">
+        <div class="input-group"><label>Nome de usuário</label><input type="text" id="rsNome" autocomplete="off"></div>
+        <div class="input-group"><label>CPF</label><input type="text" id="rsCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
+        <div class="input-group"><label>Telefone</label><input type="text" id="rsTel" maxlength="15" inputmode="tel" autocomplete="off"></div>
+        <div class="input-group"><label>E-mail (se não cadastrou um, deixe em branco)</label><input type="email" id="rsEmail" autocomplete="off"></div>
+        <button class="btn" id="btnRsVerificar" type="button">Verificar dados</button>
+      </div>
+      <div id="recSenhaPasso2" style="display:none;">
+        <div class="input-group"><label>Nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha">👁️</button></div></div>
+        <div class="input-group"><label>Repita a nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha2">👁️</button></div></div>
+        <p class="hint">Mínimo de 6 caracteres, com uma letra maiúscula, uma minúscula e um número.</p>
+        <button class="btn" id="btnRsSalvar" type="button">Salvar nova senha</button>
+      </div>
+      <button class="btn ghost" id="btnRsVoltar" type="button">Voltar ao login</button>
     </div>
   </div>
 </div>
@@ -863,13 +932,13 @@
     <div class="porq-grid" id="listaPorquinhos"></div>
   </div>
   <div class="page" id="pageReceber">
-    <div class="section-head"><h3>A Receber</h3></div>
+    <div class="section-head"><h3>A Receber</h3><button class="chip-btn" id="btnRecHistorico" type="button">📜 Histórico</button></div>
     <p class="hint">Compras em que pessoas de fora da casa dividiram com você. Elas ficam aqui até quitarem o que devem.</p>
     <div class="rec-resumo" id="recResumo"></div>
     <div class="filtro-pessoa" id="recFiltro">
-      <button class="active" data-recf="aberto">Em aberto</button>
-      <button data-recf="quitado">Quitados</button>
-      <button data-recf="todos">Todos</button>
+      <button class="active" data-recf="aberto">A receber</button>
+      <button data-recf="quitado">Pagas</button>
+      <button data-recf="todos">Todas</button>
     </div>
     <div id="listaReceber"></div>
   </div>
@@ -1138,8 +1207,7 @@
       <div class="input-group"><label>Mês da fatura</label><input type="text" id="impMes"></div>
       <div class="input-group"><label>Dia do venc.</label><input type="text" inputmode="numeric" id="impDia" maxlength="2"></div>
     </div>
-    <datalist id="dlImpMotivo"></datalist><datalist id="dlImpTipo"></datalist>
-    <input type="file" id="impArquivo" accept=".csv,.txt,text/csv,text/plain" style="display:none">
+        <input type="file" id="impArquivo" accept=".csv,.txt,text/csv,text/plain" style="display:none">
     <button class="btn secondary" id="btnImpArquivo" type="button" style="margin-top:0;">📎 Escolher arquivo da fatura</button>
     <p class="hint" id="impArqNome" style="margin-top:8px;"></p>
     <div id="impColunas" style="display:none;"></div>
@@ -1160,18 +1228,26 @@
     <div class="tema-grid" id="temaGrid"></div>
     <p class="hint">O tema fica salvo neste aparelho. O padrão é o Escuro.</p>
     <div class="cfg-titulo">Acesso ao app</div>
-    <div id="cfgAcesso">
-      <button class="cfg-item" type="button" data-acesso="bio"><span class="cfg-ic">🔐</span><span class="cfg-tx"><strong id="cfgBioTitulo">Biometria</strong><small>Pede ao abrir o app e quando voltar depois de 5 min minimizado</small></span><span class="cfg-ok">✓</span></button>
-      <button class="cfg-item" type="button" data-acesso="senha"><span class="cfg-ic">🔑</span><span class="cfg-tx"><strong>Pedir minha senha</strong><small>Pede a senha ao abrir o app e quando voltar depois de 5 min minimizado</small></span><span class="cfg-ok">✓</span></button>
-      <button class="cfg-item" type="button" data-acesso="conectado"><span class="cfg-ic">✅</span><span class="cfg-tx"><strong>Permanecer conectado</strong><small>Abre direto, sem pedir nada</small></span><span class="cfg-ok">✓</span></button>
-    </div>
-    <p class="hint" id="cfgAcessoHint"></p>
+    <button class="cfg-item" id="btnCfgAcesso" type="button"><span class="cfg-ic">🔐</span><span class="cfg-tx"><strong>Biometria, senha ou conectado</strong><small id="cfgAcessoResumo">Permanecer conectado</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Cadastros</div>
     <button class="cfg-item" id="btnCfgListas" type="button"><span class="cfg-ic">🏷️</span><span class="cfg-tx"><strong>Motivos e tipos</strong><small>Veja, inclua ou exclua as opções das suas compras</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAdmin" style="display:none;">Administração</div>
     <button class="cfg-item" id="btnGerenciarUsuarios" type="button" style="display:none;"><span class="cfg-ic">👥</span><span class="cfg-tx"><strong>Gerenciar usuários</strong><small>Acessos e permissões do grupo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Conta</div>
     <div class="info-box" id="cfgConta"></div>
+  </div>
+</div>
+
+<!-- MODAL ACESSO AO APP -->
+<div class="modal-overlay" id="modalAcesso">
+  <div class="modal">
+    <div class="modal-header"><h3>Acesso ao app</h3><button class="close-btn" data-close="modalAcesso">×</button></div>
+    <div id="cfgAcesso">
+      <button class="cfg-item" type="button" data-acesso="bio"><span class="cfg-ic">🔐</span><span class="cfg-tx"><strong id="cfgBioTitulo">Biometria</strong><small>Pede ao abrir e sempre que minimizar, fechar ou bloquear o celular</small></span><span class="cfg-ok">✓</span></button>
+      <button class="cfg-item" type="button" data-acesso="senha"><span class="cfg-ic">🔑</span><span class="cfg-tx"><strong>Pedir minha senha</strong><small>Pede a senha ao abrir e sempre que minimizar, fechar ou bloquear o celular</small></span><span class="cfg-ok">✓</span></button>
+      <button class="cfg-item" type="button" data-acesso="conectado"><span class="cfg-ic">✅</span><span class="cfg-tx"><strong>Permanecer conectado</strong><small>Abre direto, sem pedir nada</small></span><span class="cfg-ok">✓</span></button>
+    </div>
+    <p class="hint" id="cfgAcessoHint"></p>
   </div>
 </div>
 
@@ -1269,6 +1345,15 @@
     <h4 style="margin:18px 0 10px;font-size:14px;">Recebimentos registrados</h4>
     <div id="recLista" style="max-height:30vh;overflow-y:auto;"></div>
     <button class="btn ghost" id="btnRecRemover" type="button" style="margin-top:14px;color:var(--danger-text);">Remover esta cobrança</button>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO A RECEBER -->
+<div class="modal-overlay" id="modalRecHistorico">
+  <div class="modal">
+    <div class="modal-header"><h3>Histórico de compras</h3><button class="close-btn" data-close="modalRecHistorico">×</button></div>
+    <p class="hint" style="margin-top:0;">Tudo o que já foi cobrado de pessoas de fora, com as datas e os valores de cada pagamento.</p>
+    <div id="recHistoricoCorpo"></div>
   </div>
 </div>
 
@@ -1724,6 +1809,9 @@ async function sincronizarDevedores(idCompra, nome, total, externos) {
   }
 }
 
+// parcela(s) da pessoa no mês selecionado
+const devParcMes = (d, mes) => devParcelas(d).filter(p => p.mes === mes);
+const devParcMesAberta = (d, mes) => devParcMes(d, mes).find(p => !p.quitada) || null;
 function renderReceber() {
   const box = $('listaReceber'), res = $('recResumo'); if (!box) return;
   document.querySelectorAll('#recFiltro button').forEach(b => b.classList.toggle('active', b.dataset.recf === state.filtroReceber));
@@ -1732,59 +1820,104 @@ function renderReceber() {
     box.innerHTML = `<div class="empty-msg">O recurso "A Receber" ainda não foi ativado no banco de dados. Execute o SQL de criação da tabela devedores no Supabase e recarregue a página.${state.devErro ? `<br><small>${esc(state.devErro)}</small>` : ''}</div>`;
     return;
   }
-  const mes = state.mesesSelecionados[0];
-  const todos = state.devedores.filter(d => compraAtivaId(d.id_compra) || devRecebido(d) > 0.004);
-  const abertos = todos.filter(d => devRestante(d) > 0.004);
-  const aReceber = abertos.reduce((s, d) => s + devRestante(d), 0);
-  const recebido = todos.reduce((s, d) => s + devRecebido(d), 0);
-  const previsto = abertos.reduce((s, d) => s + Math.min(devRestante(d), parcelaDevedor(d, mes)), 0);
-  const nPessoas = new Set(abertos.map(d => normalizarNome(d.pessoa))).size;
-  res.innerHTML = `<div class="rec-kpi wide"><div class="lbl">Total a receber</div><div class="val sensivel">${formatarMoeda(aReceber)}</div><div class="rec-sub">${nPessoas} pessoa(s) devendo · ${abertos.length} cobrança(s) em aberto</div></div>
-    <div class="rec-kpi"><div class="lbl">Já recebido</div><div class="val sensivel" style="color:var(--success-text);">${formatarMoeda(recebido)}</div></div>
-    <div class="rec-kpi"><div class="lbl">Parcelas de ${esc(formatarMes(mes))}</div><div class="val sensivel">${formatarMoeda(previsto)}</div></div>`;
+  const mes = state.mesesSelecionados[0], nomeMes = formatarMes(mes);
+  // só entra o que tem parcela real neste mês
+  const doMes = state.devedores.filter(d => compraAtivaId(d.id_compra)).map(d => ({ d, pm: devParcMes(d, mes) })).filter(x => x.pm.length);
+  const emAberto = x => x.pm.some(p => !p.quitada);
+  const abertosMes = doMes.filter(emAberto);
+  const faltaMes = abertosMes.reduce((t, x) => t + x.pm.reduce((s, p) => s + p.falta, 0), 0);
+  const valorMes = doMes.reduce((t, x) => t + x.pm.reduce((s, p) => s + p.valor, 0), 0);
+  const recebidoMes = doMes.reduce((t, x) => t + x.pm.reduce((s, p) => s + p.pago, 0), 0);
+  const totalAberto = state.devedores.filter(d => compraAtivaId(d.id_compra)).reduce((t, d) => t + devRestante(d), 0);
+  // atraso de meses anteriores (aviso só a partir do mês atual, para não "sujar" meses antigos)
+  let atraso = '';
+  if (mes >= ymLocal()) {
+    const ant = []; state.devedores.filter(d => compraAtivaId(d.id_compra)).forEach(d => devParcelas(d).forEach(p => { if (p.mes < mes && !p.quitada) ant.push(p); }));
+    if (ant.length) { const menor = ant.map(p => p.mes).sort()[0]; atraso = `<div class="rec-atraso">⚠️ Há <strong class="sensivel">${formatarMoeda(ant.reduce((t, p) => t + p.falta, 0))}</strong> em parcelas de meses anteriores ainda não recebidas. <button type="button" class="btn-action" data-act="rec-atraso" data-id="${esc(menor)}">Ver ${esc(formatarMes(menor))}</button></div>`; }
+  }
+  if (!doMes.length) {
+    res.innerHTML = atraso;
+    box.innerHTML = `<div class="empty-msg">Nenhuma parcela a receber em ${esc(nomeMes)}.</div>`;
+    return;
+  }
+  const nPessoas = new Set(abertosMes.map(x => normalizarNome(x.d.pessoa))).size;
+  res.innerHTML = `${atraso}<div class="rec-kpi wide"><div class="lbl">A receber em ${esc(nomeMes)}</div><div class="val sensivel">${faltaMes > 0.004 ? formatarMoeda(faltaMes) : '✅ Tudo recebido'}</div><div class="rec-sub">${abertosMes.length ? `${nPessoas} pessoa(s) · ${abertosMes.length} cobrança(s) do mês` : `${doMes.length} parcela(s) do mês pagas`}</div><div class="rec-mini">Valor total em aberto (todas as parcelas): <span class="sensivel">${formatarMoeda(totalAberto)}</span></div></div>
+    <div class="rec-kpi"><div class="lbl">Valor do mês</div><div class="val sensivel">${formatarMoeda(valorMes)}</div></div>
+    <div class="rec-kpi"><div class="lbl">Já recebido do mês</div><div class="val sensivel" style="color:var(--success-text);">${formatarMoeda(recebidoMes)}</div></div>`;
 
   const f = state.filtroReceber;
-  const lista = todos.filter(d => f === 'todos' ? true : f === 'quitado' ? devRestante(d) <= 0.004 : devRestante(d) > 0.004);
+  const lista = doMes.filter(x => f === 'todos' ? true : f === 'quitado' ? !emAberto(x) : emAberto(x));
   if (!lista.length) {
-    box.innerHTML = `<div class="empty-msg">${f === 'aberto' ? 'Ninguém está te devendo no momento. Para cobrar alguém, crie uma compra e use "Dividir com outras pessoas" no campo Responsável.' : 'Nada por aqui.'}</div>`;
+    box.innerHTML = `<div class="empty-msg">${f === 'aberto' ? `Nada a receber em ${esc(nomeMes)}. Todas as parcelas do mês foram pagas.` : `Nenhuma parcela paga em ${esc(nomeMes)} ainda.`}</div>`;
     return;
   }
   const grupos = {};
-  lista.forEach(d => { const k = normalizarNome(d.pessoa); (grupos[k] = grupos[k] || { k, nome: d.pessoa, itens: [] }).itens.push(d); });
-  const arr = Object.values(grupos).map(g => ({ ...g, rest: g.itens.reduce((s, d) => s + devRestante(d), 0) })).sort((a, b) => b.rest - a.rest);
+  lista.forEach(x => { const k = normalizarNome(x.d.pessoa); (grupos[k] = grupos[k] || { k, nome: x.d.pessoa, itens: [] }).itens.push(x); });
+  const arr = Object.values(grupos).map(g => ({ ...g,
+    falta: g.itens.reduce((s, x) => s + x.pm.reduce((t, p) => t + p.falta, 0), 0),
+    valor: g.itens.reduce((s, x) => s + x.pm.reduce((t, p) => t + p.valor, 0), 0),
+    totalCompras: g.itens.reduce((s, x) => s + (Number(x.d.valor_total) || 0), 0) })).sort((a, b) => b.falta - a.falta || a.nome.localeCompare(b.nome));
 
-  const itemHTML = d => {
+  const itemHTML = ({ d, pm }) => {
     const total = Number(d.valor_total) || 0, rec = devRecebido(d), rest = devRestante(d);
     const pct = total > 0 ? Math.min(100, Math.round(rec / total * 100)) : 0;
     const ps = devParcelas(d), quit = rest <= 0.004;
-    const abertas = ps.filter(p => !p.quitada), atrasadas = abertas.filter(p => p.atrasada), prox = abertas[0];
-    let destaque = '';
-    if (!quit && prox) {
-      const venc = prox.venc ? dataBR(prox.venc) : formatarMes(prox.mes);
-      destaque = `<div class="rec-prox ${prox.atrasada ? 'atraso' : ''} sensivel">${prox.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <b>parcela ${esc(prox.ref)}</b> · vence ${esc(venc)}<span class="rec-valor">🟡 ${formatarMoeda(prox.falta)}<small>valor da parcela ${esc(prox.ref)}${prox.pago > 0.004 ? ` (de ${formatarMoeda(prox.valor)}, já pago ${formatarMoeda(prox.pago)})` : ''}</small></span>${atrasadas.length > 1 ? `<br>${atrasadas.length} parcelas vencidas somando ${formatarMoeda(atrasadas.reduce((t, p) => t + p.falta, 0))}` : ''}</div>`;
+    const pAb = pm.find(p => !p.quitada), pagoMes = !pAb;
+    const valMes = pm.reduce((s, p) => s + p.valor, 0), faltaDoMes = pm.reduce((s, p) => s + p.falta, 0);
+    let destaque;
+    if (pagoMes) destaque = `<div class="rec-prox paga sensivel">✅ <b>Parcela ${esc(pm.map(p => p.ref).join(' + '))} de ${esc(nomeMes)} paga</b> · ${formatarMoeda(valMes)}</div>`;
+    else {
+      const venc = pAb.venc ? dataBR(pAb.venc) : formatarMes(pAb.mes);
+      destaque = `<div class="rec-prox ${pAb.atrasada ? 'atraso' : ''} sensivel">${pAb.atrasada ? '⚠️ Vencida' : '⏰ Do mês'}: <b>parcela ${esc(pAb.ref)}</b> · vence ${esc(venc)}<span class="rec-valor">🟡 ${formatarMoeda(pAb.falta)}<small>valor da parcela ${esc(pAb.ref)}${pAb.pago > 0.004 ? ` (de ${formatarMoeda(pAb.valor)}, já pago ${formatarMoeda(pAb.pago)})` : ''}</small></span></div>`;
     }
-    const lista = ps.length > 1 ? `<details class="rec-parcs"><summary>Ver as ${ps.length} parcelas</summary>${ps.map(p => `<div class="rec-parc ${p.quitada ? 'paga' : p.atrasada ? 'atr' : ''}"><b>${esc(p.ref)}</b><div>${esc(p.venc ? dataBR(p.venc) : formatarMes(p.mes))}<div class="st">${p.quitada ? '✅ Paga' : p.atrasada ? 'Vencida' : p.pago > 0.004 ? 'Parcial · pago ' + formatarMoeda(p.pago) : 'A vencer'}</div></div><span class="vv sensivel">${formatarMoeda(p.quitada ? p.valor : p.falta)}</span></div>`).join('')}</details>` : '';
+    const lst = ps.length > 1 ? `<details class="rec-parcs"><summary>Ver as ${ps.length} parcelas</summary>${ps.map(p => `<div class="rec-parc ${p.quitada ? 'paga' : p.atrasada ? 'atr' : ''}"><b>${esc(p.ref)}</b><div>${esc(p.venc ? dataBR(p.venc) : formatarMes(p.mes))}<div class="st">${p.quitada ? '✅ Paga' : p.atrasada ? 'Vencida' : p.pago > 0.004 ? 'Parcial · pago ' + formatarMoeda(p.pago) : 'A vencer'}</div></div><span class="vv sensivel">${formatarMoeda(p.quitada ? p.valor : p.falta)}</span></div>`).join('')}</details>` : '';
     return `<div class="rec-item">
-      <div class="rec-item-top"><span>${esc(capIni(d.nome_compra))}</span><span class="v sensivel">${quit ? '' : formatarMoeda(rest)}</span></div>
+      <div class="rec-item-top"><span>${esc(capIni(d.nome_compra))}</span><span class="v sensivel">${pagoMes ? '✅ Paga' : formatarMoeda(faltaDoMes)}</span></div>
       ${destaque}
-      <div class="rec-meta sensivel">Parte ${pronDe(d.genero)}: ${esc(fmtPct(d.percentual))}% · total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}<br>Recebido ${formatarMoeda(rec)} · <b>Falta no total ${formatarMoeda(rest)}</b></div>
+      <div class="rec-meta sensivel">Parte ${pronDe(d.genero)}: ${esc(fmtPct(d.percentual))}% · <span class="rec-total-mini">valor total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}</span><br><span class="rec-total-mini">Recebido ${formatarMoeda(rec)} · falta no total ${formatarMoeda(rest)}</span></div>
       <div class="rec-bar"><div style="width:${pct}%"></div></div>
-      ${lista}
-      <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Quitado</span>' : ''}<button class="btn-action primary" data-act="rec-abrir" data-id="${esc(d.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button></div>
+      ${lst}
+      <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Compra quitada</span>' : ''}<button class="btn-action primary" data-act="rec-abrir" data-id="${esc(d.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button></div>
     </div>`;
   };
   box.innerHTML = arr.map(g => {
-    const nome = capNome(g.nome), aberto = g.rest > 0.004;
+    const nome = capNome(g.nome), aberto = g.falta > 0.004;
     return `<div class="rec-pessoa">
-      <div class="rec-top"><div class="rec-avatar">${esc(nome.charAt(0))}</div><div style="min-width:0;"><div class="rec-nome">${esc(nome)}</div><div class="rec-devendo">${g.itens.length} compra(s)</div></div><div class="rec-total"><strong class="sensivel">${formatarMoeda(g.rest)}</strong><span class="rec-devendo">${aberto ? 'a receber' : 'quitado'}</span></div></div>
+      <div class="rec-top"><div class="rec-avatar">${esc(nome.charAt(0))}</div><div style="min-width:0;"><div class="rec-nome">${esc(nome)}</div><div class="rec-devendo">${g.itens.length} compra(s) em ${esc(nomeMes)}</div></div><div class="rec-total"><strong class="sensivel">${aberto ? formatarMoeda(g.falta) : '✅ Paga'}</strong><span class="rec-devendo">${aberto ? 'a receber no mês' : 'parcela do mês'}</span><span class="rec-total-mini sensivel">valor total ${formatarMoeda(g.totalCompras)}</span></div></div>
       ${g.itens.map(itemHTML).join('')}
-      ${aberto ? `<div class="rec-pessoa-acoes"><button class="btn secondary" data-act="rec-copiar" data-id="${esc(g.k)}">📋 Copiar cobrança</button><button class="btn success" data-act="rec-wpp" data-id="${esc(g.k)}">💬 WhatsApp</button></div>` : ''}
+      ${aberto ? `<div class="rec-pessoa-acoes"><button class="btn secondary" data-act="rec-copiar" data-id="${esc(g.k)}">📋 Copiar cobrança</button><button class="btn success" data-act="rec-wpp" data-id="${esc(g.k)}">💬 WhatsApp</button></div>` : `<div class="rec-paga-box">✅ A parcela de ${esc(nomeMes)} de ${esc(nome)} foi paga.</div>`}
     </div>`;
   }).join('');
 }
 
-function textoCobranca(chave) {
-  const itens = state.devedores.filter(d => normalizarNome(d.pessoa) === chave && devRestante(d) > 0.004 && compraAtivaId(d.id_compra));
+/* ---- histórico de compras (tudo o que já foi cobrado, com datas de pagamento) ---- */
+function renderRecHistorico() {
+  const todos = state.devedores.filter(d => compraAtivaId(d.id_compra) || devRecebido(d) > 0.004);
+  const box = $('recHistoricoCorpo');
+  if (!todos.length) { box.innerHTML = '<div class="empty-msg">Nenhuma compra com pessoas de fora ainda.</div>'; return; }
+  const totalCobrado = todos.reduce((s, d) => s + (Number(d.valor_total) || 0), 0);
+  const totalRec = todos.reduce((s, d) => s + devRecebido(d), 0);
+  const totalAb = todos.reduce((s, d) => s + devRestante(d), 0);
+  const dataCompra = d => { const c = state.compras.find(x => String(x.id_compra) === String(d.id_compra)); return c ? (c.data_compra ? String(c.data_compra).slice(0, 10) : (c.data_parcela ? String(c.data_parcela).slice(0, 10) : '')) : ''; };
+  const grupos = {};
+  todos.forEach(d => { const k = normalizarNome(d.pessoa); (grupos[k] = grupos[k] || { nome: d.pessoa, itens: [] }).itens.push(d); });
+  const pessoas = Object.values(grupos).sort((a, b) => a.nome.localeCompare(b.nome));
+  const resumo = `<div class="hist-kpis"><div><span>Total cobrado</span><strong class="sensivel">${formatarMoeda(totalCobrado)}</strong></div><div><span>Recebido</span><strong class="sensivel" style="color:var(--success-text);">${formatarMoeda(totalRec)}</strong></div><div><span>Em aberto</span><strong class="sensivel" style="color:var(--warn-text, #facc15);">${formatarMoeda(totalAb)}</strong></div></div>`;
+  box.innerHTML = resumo + pessoas.map(g => {
+    const gTot = g.itens.reduce((s, d) => s + (Number(d.valor_total) || 0), 0), gRec = g.itens.reduce((s, d) => s + devRecebido(d), 0), gAb = gTot - gRec;
+    const itens = g.itens.slice().sort((a, b) => String(dataCompra(b)).localeCompare(String(dataCompra(a)))).map(d => {
+      const rest = devRestante(d), quit = rest <= 0.004, rs = devRecebimentos(d).slice().sort((a, b) => String(a.data).localeCompare(String(b.data)));
+      const ultimo = rs.length ? rs[rs.length - 1].data : '';
+      const dc = dataCompra(d);
+      return `<div class="hist-compra"><div class="hist-linha"><div><strong>${esc(capIni(d.nome_compra))}</strong><small>${dc ? 'Compra em ' + esc(dataBR(dc)) + ' · ' : ''}${esc(fmtPct(d.percentual))}% ${pronDe(d.genero) === 'da pessoa' ? 'da pessoa' : pronDe(d.genero)}</small></div><div class="hist-val"><strong class="sensivel">${formatarMoeda(d.valor_total)}</strong><span class="hist-st ${quit ? 'ok' : ''}">${quit ? 'Quitada' + (ultimo ? ' em ' + esc(dataBR(ultimo)) : '') : 'Falta ' + formatarMoeda(rest)}</span></div></div>
+        ${rs.length ? `<div class="hist-pgtos">${rs.map(r => `<div><span>💵 ${esc(dataBR(r.data))}${r.obs ? ' · ' + esc(r.obs) : ''}</span><b class="sensivel">${formatarMoeda(r.valor)}</b></div>`).join('')}</div>` : '<div class="hist-pgtos vazio">Nenhum pagamento registrado.</div>'}</div>`;
+    }).join('');
+    return `<details class="hist-pessoa" open><summary><span class="hist-nome">${esc(capNome(g.nome))}</span><span class="hist-soma sensivel">${formatarMoeda(gTot)} <small>· recebido ${formatarMoeda(gRec)}${gAb > 0.004 ? ' · falta ' + formatarMoeda(gAb) : ''}</small></span></summary>${itens}</details>`;
+  }).join('');
+}
+
+function textoCobranca(chave, mes) {
+  const itens = state.devedores.filter(d => normalizarNome(d.pessoa) === chave && devRestante(d) > 0.004 && compraAtivaId(d.id_compra) && (!mes || devParcMesAberta(d, mes)));
   if (!itens.length) return '';
   const primeiro = capNome(itens[0].pessoa).split(' ')[0];
   const LINHA = '━━━━━━━━━━━━━━';
@@ -1793,7 +1926,7 @@ function textoCobranca(chave) {
   const blocos = itens.map(d => {
     const ps = devParcelas(d), abertas = ps.filter(p => !p.quitada), rest = devRestante(d), rec = devRecebido(d);
     const l = [LINHA, `🛒 *${capIni(d.nome_compra)}*`, ''];
-    const prox = abertas[0];
+    const prox = (mes && devParcMesAberta(d, mes)) || abertas[0];
     if (prox) {
       l.push(`🟡 *VALOR DA PARCELA ${prox.ref}: ${formatarMoeda(prox.falta).toUpperCase()}*` + (prox.pago > 0.004 ? ` _(de ${formatarMoeda(prox.valor)})_` : ''));
       l.push(prox.atrasada ? `⚠️ *VENCIDA* desde ${dataBR(prox.venc) || formatarMes(prox.mes)}` : `📅 Vence em ${dataBR(prox.venc) || formatarMes(prox.mes)}`);
@@ -1810,8 +1943,8 @@ function textoCobranca(chave) {
     return l.join('\n');
   });
   const total = itens.reduce((t, d) => t + devRestante(d), 0);
-  const proxima = itens.map(devProxima).filter(Boolean);
-  const devidoAgora = proxima.reduce((t, p) => t + (p.atrasada ? p.falta : 0), 0);
+  const proxima = itens.map(d => (mes && devParcMesAberta(d, mes)) || devProxima(d)).filter(Boolean);
+  const devidoAgora = itens.reduce((t, d) => t + devParcelas(d).filter(p => p.atrasada).reduce((s, p) => s + p.falta, 0), 0);
   const pagarAgora = proxima.reduce((t, p) => t + p.falta, 0);
   const resumo = [];
   if (itens.length > 1) {
@@ -1841,12 +1974,12 @@ async function copiarTexto(txt) {
   try { const ta = document.createElement('textarea'); ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e) { return false; }
 }
 async function copiarCobranca(chave) {
-  const t = textoCobranca(chave); if (!t) return;
+  const t = textoCobranca(chave, state.mesesSelecionados[0]); if (!t) return;
   notificar(await copiarTexto(t) ? 'Cobrança copiada! É só colar na conversa.' : 'Não foi possível copiar neste aparelho.', 'sucesso');
 }
 function whatsCobranca(chave) {
-  const t = textoCobranca(chave); if (!t) return;
-  window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
+  const t = textoCobranca(chave, state.mesesSelecionados[0]); if (!t) return;
+  semBloqueioPor(120000); window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
 }
 
 function abrirReceber(id) {
@@ -1965,7 +2098,7 @@ function envolverCampo(input, classe) {
 }
 
 function criarCombo(id, cfg) {
-  const input = $(id); if (!input || input._combo) return;
+  const input = typeof id === 'string' ? $(id) : id; if (!input || input._combo) return;
   input._combo = cfg;
   input.type = 'text'; input.autocomplete = 'off'; input.spellcheck = false;
   envolverCampo(input, cfg.livre ? 'livre' : '');
@@ -2103,6 +2236,99 @@ function iniciarCampos() {
   criarCombo('impCartao', { opcoes: () => impCartoes, livre: true, rotuloCriar: 'Novo cartão' });
   criarCombo('impResp', { opcoes: () => opcoesResp, livre: false, cap: true });
   criarMesPicker('impMes');
+  criarDataPicker('cDataCompra');
+  criarDataPicker('recData');
+  iniciarSelects();
+}
+
+/* ---- listas de seleção no visual do app: nenhum <select> abre a janela nativa do celular/navegador ---- */
+function envolverSelects(raiz) {
+  (raiz || document).querySelectorAll('select').forEach(sel => {
+    if (sel.parentNode && sel.parentNode.classList && sel.parentNode.classList.contains('sel-wrap')) return;
+    const w = document.createElement('div'); w.className = 'sel-wrap';
+    sel.parentNode.insertBefore(w, sel); w.appendChild(sel);
+  });
+}
+function abrirListaSelect(w, sel) {
+  const el = document.createElement('div'); el.dataset.minw = '230';
+  const atual = sel.value;
+  const ops = [...sel.options].filter(o => !o.hidden);
+  if (!ops.length) el.innerHTML = '<div class="combo-vazio">Nenhuma opção disponível.</div>';
+  ops.forEach(o => {
+    const d = document.createElement('div');
+    d.className = 'combo-item' + (o.value === '' ? ' vazio' : '') + (o.value === atual ? ' sel' : '');
+    d.textContent = o.textContent;
+    if (o.disabled) d.style.opacity = '.4';
+    d.addEventListener('mousedown', e => e.preventDefault());
+    d.addEventListener('click', () => {
+      if (o.disabled) return;
+      fecharPainel();
+      if (sel.value !== o.value) { sel.value = o.value; sel.dispatchEvent(new Event('input', { bubbles: true })); sel.dispatchEvent(new Event('change', { bubbles: true })); }
+    });
+    el.appendChild(d);
+  });
+  abrirPainel(w, el);
+  const cur = el.querySelector('.combo-item.sel'); if (cur) cur.scrollIntoView({ block: 'nearest' });
+}
+function iniciarSelects() {
+  envolverSelects();
+  let agendado = false;
+  new MutationObserver(() => { if (agendado) return; agendado = true; requestAnimationFrame(() => { agendado = false; envolverSelects(); }); }).observe(document.body, { childList: true, subtree: true });
+  document.addEventListener('click', e => {
+    const w = e.target.closest && e.target.closest('.sel-wrap'); if (!w) return;
+    const sel = w.querySelector('select'); if (!sel || sel.disabled) return;
+    if (painelAtual && painelAtual.anchor === w) return fecharPainel();
+    abrirListaSelect(w, sel);
+  });
+  document.addEventListener('keydown', e => {
+    const sel = e.target && e.target.tagName === 'SELECT' ? e.target : null; if (!sel || !sel.parentNode.classList.contains('sel-wrap')) return;
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); abrirListaSelect(sel.parentNode, sel); }
+    else if (e.key === 'Escape') fecharPainel();
+  });
+}
+
+// campo de data no visual do app (calendário próprio); .value continua devolvendo "AAAA-MM-DD"
+function criarDataPicker(id) {
+  const el = typeof id === 'string' ? $(id) : id; if (!el || el._data) return;
+  el._data = true;
+  el.type = 'text'; el.readOnly = true; el.autocomplete = 'off'; el.setAttribute('inputmode', 'none'); el.placeholder = 'Selecione a data';
+  envolverCampo(el, '');
+  Object.defineProperty(el, 'value', {
+    configurable: true,
+    get() { return el._iso || ''; },
+    set(v) { el._iso = /^\d{4}-\d{2}-\d{2}/.test(v || '') ? String(v).slice(0, 10) : ''; _nativeValueSet.call(el, el._iso ? dataBR(el._iso) : ''); }
+  });
+  const alternar = () => { if (painelAtual && painelAtual.anchor === el) fecharPainel(); else abrirPainelData(el); };
+  el.addEventListener('click', alternar);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alternar(); } else if (e.key === 'Escape') fecharPainel(); });
+}
+function abrirPainelData(el) {
+  const base = el._iso ? new Date(el._iso + 'T12:00:00') : new Date();
+  let ano = base.getFullYear(), mes = base.getMonth();
+  const hoje = hojeISO();
+  const painel = document.createElement('div'); painel.dataset.minw = '300';
+  const escolher = iso => { el.value = iso; fecharPainel(); el.dispatchEvent(new Event('change', { bubbles: true })); };
+  const desenhar = () => {
+    painel.innerHTML = '';
+    const head = document.createElement('div'); head.className = 'mes-head';
+    const mk = (t, fn) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.addEventListener('click', fn); return b; };
+    const tit = document.createElement('strong'); tit.textContent = MESES_ABR[mes] + ' ' + ano;
+    head.append(mk('‹', () => { mes--; if (mes < 0) { mes = 11; ano--; } desenhar(); }), tit, mk('›', () => { mes++; if (mes > 11) { mes = 0; ano++; } desenhar(); }));
+    const grid = document.createElement('div'); grid.className = 'dia-grid';
+    ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].forEach(l => { const d = document.createElement('span'); d.className = 'dia-sem'; d.textContent = l; grid.appendChild(d); });
+    const ini = new Date(ano, mes, 1).getDay(), dias = new Date(ano, mes + 1, 0).getDate();
+    for (let i = 0; i < ini; i++) grid.appendChild(document.createElement('span'));
+    for (let d = 1; d <= dias; d++) {
+      const iso = ano + '-' + String(mes + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = d;
+      if (iso === hoje) b.classList.add('hoje'); if (iso === el._iso) b.classList.add('sel');
+      b.addEventListener('click', () => escolher(iso)); grid.appendChild(b);
+    }
+    const foot = document.createElement('div'); foot.className = 'mes-foot';
+    foot.appendChild(mk('Hoje', () => escolher(hoje)));
+    painel.append(head, grid, foot);
+  };
+  desenhar(); abrirPainel(el, painel);
 }
 
 // cria a categoria digitada na compra, se ainda não existir
@@ -2151,8 +2377,7 @@ const porqSoDeposito = p => p.visibilidade === 'individual' && !porqDono(p);
 
 /* ---- acesso: biometria / Face ID ou permanecer conectado ----
    A biometria funciona como um BLOQUEIO do app neste aparelho (WebAuthn com autenticador do próprio celular).
-   A sessão continua guardada; o app só pede a biometria/Face ID ao abrir e depois de 5 min minimizado. */
-const BIO_MIN_BLOQUEIO = 5;
+   A sessão continua guardada; o app pede a biometria/Face ID (ou a senha) ao abrir e SEMPRE que for minimizado, fechado ou o celular for bloqueado. */
 const bioNome = () => ehIOS() ? 'Face ID' : 'biometria';
 const chBio = uid => 'ttr_bio_cred_' + uid, chModo = uid => 'ttr_modo_acesso_' + uid, chPrimeiro = uid => 'ttr_primeiro_acesso_' + uid;
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -2160,7 +2385,9 @@ const lsSet = (k, v) => { try { if (v === null) localStorage.removeItem(k); else
 const bufParaB64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 // 'bio' = biometria/Face ID · 'senha' = pede a senha · 'conectado' = abre direto
 const modoAcesso = uid => { const m = lsGet(chModo(uid)); return (m === 'bio' && lsGet(chBio(uid))) ? 'bio' : m === 'senha' ? 'senha' : 'conectado'; };
-let _bloqueado = false, _ocultoEm = 0;
+let _bloqueado = false, _autenticando = false, _lockTentar = null, _semBloqueioAte = 0;
+// janelas do sistema que tiram o app da tela (seletor de arquivo, WhatsApp, PDF, cadastro de biometria) não devem bloquear ao voltar
+const semBloqueioPor = ms => { _semBloqueioAte = Date.now() + (ms || 90000); };
 
 async function bioDisponivel() {
   try { return !!(window.isSecureContext && window.PublicKeyCredential && navigator.credentials && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); }
@@ -2201,14 +2428,14 @@ function bloquearApp(uid, email) {
     _bloqueado = true;
     const porSenha = modoAcesso(uid) === 'senha';
     const tela = $('lockScreen'), btn = $('btnDesbloquear'), msg = $('lockMsg'), campo = $('lockSenha');
-    const liberar = () => { _bloqueado = false; tela.classList.remove('open'); campo.value = ''; resolve(true); };
+    const liberar = () => { _bloqueado = false; _lockTentar = null; tela.classList.remove('open'); campo.value = ''; resolve(true); };
     campo.style.display = porSenha ? 'block' : 'none'; campo.value = '';
     msg.textContent = porSenha ? 'Digite a sua senha para abrir o app.' : `Confirme com ${bioNome()} para abrir o app.`;
-    $('btnLockSenha').textContent = porSenha ? 'Sair da conta' : 'Entrar com senha';
+    $('btnLockSenha').textContent = porSenha ? 'Sair da conta' : 'Entrar com senha ou outra conta';
     tela.classList.add('open');
     let tentando = false;
     const tentar = async () => {
-      if (tentando) return; tentando = true; btn.disabled = true;
+      if (tentando) return; tentando = true; btn.disabled = true; _autenticando = true;
       try {
         if (porSenha) {
           if (!campo.value) { msg.textContent = 'Digite a sua senha.'; return; }
@@ -2217,12 +2444,14 @@ function bloquearApp(uid, email) {
         } else await bioVerificar(uid);
         liberar();
       } catch (e) { msg.textContent = porSenha ? 'Não foi possível confirmar a senha. Tente de novo.' : 'Não foi possível confirmar. Toque em Desbloquear para tentar de novo.'; }
-      finally { tentando = false; btn.disabled = false; }
+      finally { tentando = false; btn.disabled = false; setTimeout(() => { _autenticando = false; }, 800); }
     };
+    _lockTentar = porSenha ? null : tentar;
     btn.onclick = tentar;
     campo.onkeydown = e => { if (e.key === 'Enter') tentar(); };
     $('btnLockSenha').onclick = async () => { await db.auth.signOut(); location.reload(); };
-    if (porSenha) setTimeout(() => campo.focus(), 50); else tentar(); // biometria: tenta já ao abrir; se o aparelho exigir um toque, o botão resolve
+    if (porSenha) { if (document.visibilityState === 'visible') setTimeout(() => campo.focus(), 50); }
+    else if (document.visibilityState === 'visible') tentar(); // biometria: tenta já ao abrir; se o aparelho exigir um toque, o botão resolve
   });
 }
 function renderAcesso() {
@@ -2230,33 +2459,43 @@ function renderAcesso() {
   const uid = currentUser.id, modo = modoAcesso(uid);
   $('cfgBioTitulo').textContent = ehIOS() ? 'Face ID' : 'Biometria do celular';
   document.querySelectorAll('#cfgAcesso [data-acesso]').forEach(b => b.classList.toggle('sel', b.dataset.acesso === modo));
+  const volta = 'Ao minimizar o app ou bloquear o celular, você volta exatamente para a tela em que estava; se fechar o app, ele abre na tela principal.';
   $('cfgAcessoHint').textContent = modo === 'bio'
-    ? `O app pede ${bioNome()} sempre que for aberto e quando você voltar a ele depois de mais de ${BIO_MIN_BLOQUEIO} minutos minimizado.`
+    ? `O app pede ${bioNome()} ao abrir e sempre que for minimizado, fechado ou o celular for bloqueado. ${bioNome() === 'Face ID' ? 'O Face ID' : 'A biometria'} substitui a senha e entra direto na conta de quem fez o último login neste aparelho. ${volta}`
     : modo === 'senha'
-      ? `O app pede a sua senha sempre que for aberto e quando você voltar a ele depois de mais de ${BIO_MIN_BLOQUEIO} minutos minimizado.`
-      : 'O app abre direto e continua conectado neste aparelho.';
+      ? `O app pede a sua senha ao abrir e sempre que for minimizado, fechado ou o celular for bloqueado. ${volta}`
+      : 'O app abre direto e continua conectado neste aparelho, sem pedir nada.';
+  const r = $('cfgAcessoResumo'); if (r) r.textContent = modo === 'bio' ? `Pedindo ${bioNome()}` : modo === 'senha' ? 'Pedindo a senha' : 'Permanecer conectado';
 }
 async function escolherAcesso(modo) {
   const u = currentUser; if (!u) return;
   if (modo === 'conectado') { lsSet(chModo(u.id), 'conectado'); notificar('Você vai permanecer conectado neste aparelho.', 'sucesso'); return renderAcesso(); }
-  if (modo === 'senha') { lsSet(chModo(u.id), 'senha'); notificar('O app vai pedir a sua senha ao abrir.', 'sucesso'); return renderAcesso(); }
+  if (modo === 'senha') { lsSet(chModo(u.id), 'senha'); notificar('O app vai pedir a sua senha ao abrir e ao voltar para ele.', 'sucesso'); return renderAcesso(); }
   if (!(await bioDisponivel())) return alert(`Este aparelho não tem ${bioNome()} disponível, ou o app não está em um endereço seguro (https).`);
   if (!lsGet(chBio(u.id))) {
+    semBloqueioPor(60000);
     try { await bioCadastrar(u); } catch (e) { renderAcesso(); return alert('Não foi possível cadastrar: ' + bioErroTexto(e)); }
   }
   lsSet(chModo(u.id), 'bio');
-  notificar(`${ehIOS() ? 'Face ID' : 'Biometria'} ativado: o app vai pedir ao abrir.`, 'sucesso');
+  notificar(`${ehIOS() ? 'Face ID' : 'Biometria'} ativado: o app vai pedir ao abrir e ao voltar para ele.`, 'sucesso');
   renderAcesso();
 }
 function ligarAcesso() {
   $('cfgAcesso').addEventListener('click', e => { const b = e.target.closest('[data-acesso]'); if (b) escolherAcesso(b.dataset.acesso); });
-  // depois de minimizado por mais de 5 minutos, pede a biometria/Face ID de novo
+  // ao minimizar, fechar ou bloquear o celular: o app esconde o conteúdo na hora; ao voltar pede biometria/senha e continua na mesma tela
+  const travar = () => {
+    if (!currentUser || _bloqueado || _autenticando || Date.now() < _semBloqueioAte) return;
+    if (modoAcesso(currentUser.id) === 'conectado') return;
+    fecharPainel();
+    bloquearApp(currentUser.id, currentUser.email);
+  };
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') { if (!_bloqueado) _ocultoEm = Date.now(); return; }
-    if (!currentUser || _bloqueado || !_ocultoEm) return;
-    const min = (Date.now() - _ocultoEm) / 60000; _ocultoEm = 0;
-    if (min >= BIO_MIN_BLOQUEIO && modoAcesso(currentUser.id) !== 'conectado') bloquearApp(currentUser.id, currentUser.email);
+    if (document.visibilityState === 'hidden') travar();
+    else if (_bloqueado && _lockTentar) _lockTentar(); // voltou: tenta a biometria/Face ID na hora
+    else if (_bloqueado) { const c = $('lockSenha'); if (c && c.style.display !== 'none') setTimeout(() => c.focus(), 50); }
   });
+  window.addEventListener('pagehide', travar);
+  $('btnCfgAcesso').addEventListener('click', () => { fecharModal('modalConfiguracoes'); renderAcesso(); abrirModal('modalAcesso'); });
   // toque numa notificação com o app aberto: vai direto para a aba do aviso (ex.: A Receber)
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
     if (e.data && e.data.tipo === 'abrir-aba' && currentUser && document.getElementById('page' + e.data.aba.charAt(0).toUpperCase() + e.data.aba.slice(1))) mudarAba(e.data.aba);
@@ -2283,8 +2522,9 @@ function onbPasso(passos, i) {
   const prox = () => { if (i + 1 < passos.length) onbPasso(passos, i + 1); else fecharModal('modalOnboarding'); };
   const cab = `<div class="onb-passos">Passo ${i + 1} de ${passos.length}</div>`;
   if (tipo === 'bio') {
-    corpo.innerHTML = `${cab}<div class="onb-ic">🔐</div><h3>Entrar com ${esc(bioNome())}</h3><p>Cadastre agora e, nas próximas vezes, o app pede ${esc(bioNome())} ao abrir (e quando você voltar depois de ${BIO_MIN_BLOQUEIO} minutos minimizado). Você pode mudar isso depois em Configurações.</p><button class="btn" id="onbOk" type="button">Cadastrar ${esc(bioNome())}</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`;
+    corpo.innerHTML = `${cab}<div class="onb-ic">🔐</div><h3>Entrar com ${esc(bioNome())}</h3><p>Cadastre agora e, nas próximas vezes, o app pede ${esc(bioNome())} ao abrir e sempre que você voltar a ele depois de minimizar ou bloquear o celular. Você pode mudar isso depois em Configurações.</p><button class="btn" id="onbOk" type="button">Cadastrar ${esc(bioNome())}</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`;
     $('onbOk').onclick = async () => {
+      semBloqueioPor(60000);
       const b = $('onbOk'); b.disabled = true;
       try { await bioCadastrar(currentUser); notificar(`${ehIOS() ? 'Face ID' : 'Biometria'} cadastrado! O app vai pedir ao abrir.`, 'sucesso'); prox(); }
       catch (e) { alert('Não foi possível cadastrar: ' + bioErroTexto(e)); b.disabled = false; }
@@ -2382,6 +2622,7 @@ async function ativarPush() {
   if (!pushSuportado()) { alert('Este navegador não suporta notificações push. No iPhone, adicione o app à Tela de Início e abra por lá.'); return false; }
   const btn = $('btnAtivarPush'); btn.disabled = true;
   try {
+    semBloqueioPor(30000);
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') { alert('Não foi possível ativar: a permissão de notificação foi negada.'); return false; }
     const reg = await registrarSW();
@@ -2568,6 +2809,46 @@ function validaCPF(cpf) {
 /* =========================================
    AUTENTICAÇÃO
    ========================================= */
+/* ---- esqueci minha senha: confere nome, CPF, telefone e e-mail do cadastro e então permite criar nova senha ---- */
+function recSenhaDados() {
+  return { p_nome: $('rsNome').value.trim(), p_cpf: $('rsCpf').value.trim(), p_telefone: $('rsTel').value.trim(), p_email: $('rsEmail').value.trim() };
+}
+function recSenhaMostrar(ativo) {
+  $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = ativo ? 'block' : 'none';
+  $('recSenhaPasso1').style.display = 'block'; $('recSenhaPasso2').style.display = 'none';
+  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; });
+}
+function recSenhaErro(e) {
+  const m = (e && e.message) || '';
+  if (/tentativas/i.test(m)) return 'Muitas tentativas. Aguarde alguns minutos e tente de novo.';
+  if (/function|schema cache/i.test(m)) return 'Recurso ainda não ativado no banco: execute o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase.';
+  return 'Os dados informados não conferem com o cadastro. Confira e tente de novo.';
+}
+async function recSenhaVerificar() {
+  const d = recSenhaDados();
+  if (!d.p_nome || !d.p_cpf || !d.p_telefone) return mostrarErro('Preencha nome, CPF e telefone.');
+  if (!validaCPF(d.p_cpf)) return mostrarErro('O CPF informado é inválido.');
+  const b = $('btnRsVerificar'); b.disabled = true; b.textContent = 'Verificando...';
+  const { data, error } = await db.rpc('verificar_cadastro_recuperacao', d);
+  b.disabled = false; b.textContent = 'Verificar dados';
+  if (error || data !== true) return mostrarErro(recSenhaErro(error));
+  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail'].forEach(i => { $(i).disabled = true; });
+  $('recSenhaPasso1').style.display = 'none'; $('recSenhaPasso2').style.display = 'block';
+  $('recSenhaDica').textContent = 'Dados conferidos! Agora defina a sua nova senha.';
+  setTimeout(() => $('rsSenha').focus(), 50);
+}
+async function recSenhaSalvar() {
+  const s1 = $('rsSenha').value, s2 = $('rsSenha2').value;
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(s1)) return mostrarErro('A senha deve ter no mínimo 6 caracteres, com uma maiúscula, uma minúscula e um número.');
+  if (s1 !== s2) return mostrarErro('As senhas não são iguais.');
+  const b = $('btnRsSalvar'); b.disabled = true; b.textContent = 'Salvando...';
+  const { data, error } = await db.rpc('redefinir_senha_cadastro', { ...recSenhaDados(), p_nova: s1 });
+  b.disabled = false; b.textContent = 'Salvar nova senha';
+  if (error || data !== true) return mostrarErro(recSenhaErro(error));
+  const nome = $('rsNome').value.trim();
+  recSenhaMostrar(false); $('loginUser').value = nome; $('loginSenha').value = '';
+  notificar('Senha alterada! Entre com a nova senha.', 'sucesso', 6000);
+}
 async function fazerLogin() {
   const userInput = $('loginUser').value.trim();
   const pass = $('loginSenha').value;
@@ -2607,7 +2888,7 @@ async function carregarPerfil(userId) {
   $('authScreen').style.display = 'none';
   $('appHeader').style.display = 'flex';
   $('monthSelector').style.display = 'flex';
-  $('bottomNav').style.display = 'flex';
+  $('bottomNav').style.display = 'grid';
   $('nomeUsuario').textContent = currentUser.nome;
   aplicarPrivacidade(lerPrivacidade());
 
@@ -2664,7 +2945,11 @@ function renderFiltroPessoa() {
 
 function atualizarSelectCategorias() { /* o campo de categoria lê categoriasOrcamento direto */ }
 
-async function sair() { await db.auth.signOut(); location.reload(); }
+async function sair() {
+  // com biometria ativa, "Sair" só bloqueia: a biometria substitui a senha e volta direto para quem fez o último login neste aparelho
+  if (currentUser && modoAcesso(currentUser.id) === 'bio') { fecharPainel(); if (!_bloqueado) bloquearApp(currentUser.id, currentUser.email); return; }
+  await db.auth.signOut(); location.reload();
+}
 
 /* =========================================
    CARGA DE DADOS
@@ -4023,7 +4308,7 @@ function impRedesenharCartao(card, x) {
   const i = +card.dataset.i, aberto = card.querySelector('.imp-mais') && card.querySelector('.imp-mais').open;
   card.outerHTML = impCard(x, i);
   const novo = $('impLista').querySelector(`.imp-card[data-i="${i}"]`);
-  if (novo) { if (aberto && novo.querySelector('.imp-mais')) novo.querySelector('.imp-mais').open = true; impDivAtualizar(novo, x); }
+  if (novo) { if (aberto && novo.querySelector('.imp-mais')) novo.querySelector('.imp-mais').open = true; impDivAtualizar(novo, x); impLigarCombos(novo); }
 }
 function impLigarDivisao() {
   const lista = $('impLista');
@@ -4070,13 +4355,21 @@ function impCard(x, i) {
       ${x.dividir ? '' : `<select data-f="resp" title="Responsável por esta compra">${impOptsSelect(opcoesResp, x.resp)}</select>`}
       <select data-f="cat" title="Categoria">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Categoria…')}</select>
     </div>
-    <div class="imp-row"><input class="imp-in" type="text" data-f="motivoC" list="dlImpMotivo" value="${esc(x.motivoC)}" placeholder="Motivo" autocomplete="off"><input class="imp-in" type="text" data-f="tipoC" list="dlImpTipo" value="${esc(x.tipoC)}" placeholder="Tipo" autocomplete="off"></div>
+    <div class="imp-row"><input class="imp-in" type="text" data-f="motivoC" value="${esc(x.motivoC)}" placeholder="Motivo" autocomplete="off"><input class="imp-in" type="text" data-f="tipoC" value="${esc(x.tipoC)}" placeholder="Tipo" autocomplete="off"></div>
     <label class="check-row imp-flag"><input type="checkbox" data-f="dividir"${x.dividir ? ' checked' : ''}><span>Dividir esta compra com outras pessoas</span></label>
     ${x.dividir ? impDivisaoHTML(x) : ''}
   </div>`;
 }
 // "categorizada" = categoria + motivo + tipo preenchidos
 const impCategorizada = x => !!(x.cat && String(x.motivoC || '').trim() && String(x.tipoC || '').trim());
+// motivo e tipo da importação usam a mesma lista suspensa do restante do app (sem lista nativa do navegador)
+function impLigarCombos(raiz) {
+  (raiz || $('impLista')).querySelectorAll('input[data-f="motivoC"],input[data-f="tipoC"]').forEach(el => {
+    if (el._combo) return;
+    const m = el.dataset.f === 'motivoC';
+    criarCombo(el, { opcoes: () => m ? opcoesCompra.motivo : opcoesCompra.tipo, livre: true, rotuloCriar: m ? 'Novo motivo' : 'Novo tipo' });
+  });
+}
 function impRender() {
   const it = imp.itens;
   const idx = st => it.map((x, i) => [x, i]).filter(([x]) => x.status === st);
@@ -4089,9 +4382,7 @@ function impRender() {
   if (imp.ignoradas.length) h += `<details class="imp-det"><summary>🚫 Linhas ignoradas (${imp.ignoradas.length})</summary>${imp.ignoradas.map(x => `<div class="imp-ja"><span>${esc(x.desc)}<small>${esc(x.motivo)}</small></span><strong>${fm(Math.abs(x.v))}</strong></div>`).join('')}</details>`;
   $('impLista').innerHTML = h;
   it.forEach((x, i) => { if (x.dividir && x.partes) { const c = $('impLista').querySelector(`.imp-card[data-i="${i}"]`); if (c) impDivAtualizar(c, x); } });
-  const motivos = opcoesCompra.motivo, tipos = opcoesCompra.tipo;
-  $('dlImpMotivo').innerHTML = motivos.map(v => `<option value="${esc(v)}">`).join('');
-  $('dlImpTipo').innerHTML = tipos.map(v => `<option value="${esc(v)}">`).join('');
+  impLigarCombos($('impLista'));
   impAtualizarResumo();
 }
 function impAtualizarResumo() {
@@ -4203,7 +4494,7 @@ async function impSalvar() {
 function impLigarEventos() {
   impLigarDivisao();
   $('btnImportarFatura').addEventListener('click', abrirImportacao);
-  $('btnImpArquivo').addEventListener('click', () => $('impArquivo').click());
+  $('btnImpArquivo').addEventListener('click', () => { semBloqueioPor(180000); $('impArquivo').click(); });
   $('impArquivo').addEventListener('change', async e => { const f = e.target.files[0]; try { await impLerArquivo(f); } finally { e.target.value = ''; } });
   $('impMes').addEventListener('change', impAnalisar);
   $('impCartao').addEventListener('change', impAnalisar);
@@ -4329,7 +4620,7 @@ async function gerarPdfIOS(nomeArquivo) {
       try { await navigator.share({ files: [arquivo], title: NOME_APP }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
     }
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = nomeArquivo + '.pdf'; a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement('a'); a.href = url; a.download = nomeArquivo + '.pdf'; a.target = '_blank'; semBloqueioPor(60000); document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   } catch (e) {
     alert('Não foi possível gerar o PDF neste aparelho: ' + (e.message || e));
@@ -4768,6 +5059,12 @@ function ligarEventos() {
   $('btnRecQuitar').addEventListener('click', () => { const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (d) setMoeda($('recValor'), devRestante(d)); });
   $('btnRecRemover').addEventListener('click', removerDevedor);
   $('btnLogin').addEventListener('click', fazerLogin);
+  $('btnEsqueci').addEventListener('click', () => { recSenhaMostrar(true); $('rsNome').value = $('loginUser').value.trim().includes('@') ? '' : $('loginUser').value.trim(); });
+  $('btnRsVoltar').addEventListener('click', () => recSenhaMostrar(false));
+  $('btnRsVerificar').addEventListener('click', recSenhaVerificar);
+  $('btnRsSalvar').addEventListener('click', recSenhaSalvar);
+  $('rsCpf').addEventListener('input', e => mascaraCPF(e.target));
+  $('rsTel').addEventListener('input', e => mascaraTelefone(e.target));
   $('loginUser').addEventListener('input', e => formatarLoginInput(e.target));
   [$('loginUser'), $('loginSenha')].forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); }));
   $('btnSair').addEventListener('click', e => { e.preventDefault(); sair(); });
@@ -4827,13 +5124,14 @@ function ligarEventos() {
   document.addEventListener('pointerdown', e => {
     if (!painelAtual) return;
     if (painelAtual.el.contains(e.target)) return;
-    const w = painelAtual.anchor.closest('.combo'); if (w && w.contains(e.target)) return;
+    const w = painelAtual.anchor.closest('.combo') || painelAtual.anchor; if (w.contains(e.target)) return;
     fecharPainel();
   });
   window.addEventListener('resize', posicionarPainel);
   document.addEventListener('scroll', posicionarPainel, true);
   if (window.visualViewport) { window.visualViewport.addEventListener('resize', posicionarPainel); window.visualViewport.addEventListener('scroll', posicionarPainel); }
   $('btnPDF').addEventListener('click', exportarPDF);
+  $('btnRecHistorico').addEventListener('click', () => { renderRecHistorico(); abrirModal('modalRecHistorico'); });
   $('btnVerVencimentos').addEventListener('click', verVencimentos);
   $('btnNovoPorquinho').addEventListener('click', () => abrirModalPorquinho());
   $('btnSalvarPorquinho').addEventListener('click', salvarPorquinho);
@@ -4902,6 +5200,7 @@ function ligarEventos() {
       case 'limpar-filtros': state.filtroMotivo = null; state.filtroPagto = null; renderInclusao(); break;
       case 'ver-venc': verVencimentos(); break;
       case 'rec-abrir': abrirReceber(id); break;
+      case 'rec-atraso': state.mesesSelecionados = [id]; atualizarLabelMes(); refresh(); break;
       case 'rec-copiar': copiarCobranca(id); break;
       case 'rec-wpp': whatsCobranca(id); break;
       case 'rec-delmov': excluirRecebimento(parseInt(a.dataset.idx)); break;
