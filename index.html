@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0a0f1e">
-<script>(function(){try{var t=localStorage.getItem("ttr_tema")||"dark";if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
+<script>(function(){try{var t=localStorage.getItem("ttr_tema")||"dark";if(["dark","light","amethyst","esmeralda"].indexOf(t)<0)t="dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -52,6 +52,18 @@
     --w: 255,255,255;
     --accent-text: #c4b5fd; --success-text: #4ade80; --danger-text: #fb7185; --warn-text: #fcd34d;
     --header-bg: rgba(16,10,31,.74); --nav-bg: rgba(26,18,48,.88); --auth-bg: rgba(26,18,48,.84); --overlay: rgba(8,4,18,.74);
+    --chip-bg: rgba(0,0,0,.25); --track: rgba(255,255,255,.1);
+    --shadow: 0 12px 32px rgba(0,0,0,.4); --shadow-lg: 0 18px 44px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+  :root[data-theme="esmeralda"] {
+    --bg: #06130f; --card: rgba(255,255,255,.045); --card-solid: #0e2119; --card2: rgba(255,255,255,.075); --card3: #153226;
+    --primary: #10b981; --primary2: #0d9488; --pr: 16,185,129; --pr2: 13,148,136;
+    --success: #4ade80; --danger: #f43f5e; --warn: #f5b301; --orange: #fb923c; --teal: #2dd4bf;
+    --text: #ecfdf5; --muted: #8fb3a3; --border: rgba(255,255,255,.09); --border-strong: rgba(255,255,255,.17);
+    --w: 255,255,255;
+    --accent-text: #6ee7b7; --success-text: #86efac; --danger-text: #fb7185; --warn-text: #fcd34d;
+    --header-bg: rgba(6,19,15,.74); --nav-bg: rgba(14,33,25,.88); --auth-bg: rgba(14,33,25,.84); --overlay: rgba(2,10,7,.74);
     --chip-bg: rgba(0,0,0,.25); --track: rgba(255,255,255,.1);
     --shadow: 0 12px 32px rgba(0,0,0,.4); --shadow-lg: 0 18px 44px rgba(0,0,0,.6);
     color-scheme: dark;
@@ -198,7 +210,7 @@
   .item .info .meta .status-aberto { background: rgba(244,63,94,.16); color: var(--danger-text); }
   .item .valor { text-align: right; font-weight: 800; font-size: 16px; white-space: nowrap; align-self: center; }
 
-  .fab { position: fixed; bottom: 92px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 30px; line-height: 1; border: none; box-shadow: 0 10px 24px rgba(var(--pr),.5); cursor: pointer; z-index: 90; display: none; align-items: center; justify-content: center; transition: transform .12s; }
+  .fab { position: fixed; bottom: calc(122px + env(safe-area-inset-bottom, 0px)); right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 30px; line-height: 1; border: none; box-shadow: 0 10px 24px rgba(var(--pr),.5); cursor: pointer; z-index: 90; display: none; align-items: center; justify-content: center; transition: transform .12s; }
   .fab:hover { transform: scale(1.06); }
   .fab:active { transform: scale(.94); }
 
@@ -242,6 +254,8 @@
   .stat.s-orc .lbl::before { background: var(--primary); }
   .stat.s-sobra .lbl::before { background: var(--success); }
   .stat.s-liq .lbl::before { background: #34d399; }
+  .stat.s-terc { grid-column: 1 / -1; }
+  .stat.s-terc .lbl::before { background: var(--accent-text); }
   .stat .val { font-size: 18px; font-weight: 800; letter-spacing: -.3px; word-break: break-word; }
 
   /* GAUGES */
@@ -608,6 +622,18 @@
   .div-pct input:disabled { opacity: .4; }
   .div-pct input:focus, .div-nome:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--pr),.22); }
   .div-nome { margin-bottom: 4px; }
+  .gauge-card.sem-cat { border-style: dashed; border-color: rgba(250,204,21,.55); cursor: pointer; }
+  .gauge-card.sem-cat .gauge-info strong { color: #facc15; }
+  :root[data-theme="light"] .gauge-card.sem-cat .gauge-info strong { color: #a16207; }
+  .imp-nota { font-size: 12px; line-height: 1.45; margin: 0 0 8px; padding: 7px 10px; border-radius: 10px; background: rgba(var(--pr),.10); border: 1px solid rgba(var(--pr),.28); }
+  .imp-pend { font-size: 11px; font-weight: 700; margin: 0 0 8px; padding: 5px 9px; border-radius: 8px; background: rgba(250,204,21,.14); border: 1px solid rgba(250,204,21,.45); color: #facc15; }
+  :root[data-theme="light"] .imp-pend { color: #854d0e; }
+  .imp-rodape { position: sticky; bottom: 0; margin: 14px -22px 0; padding: 12px 22px calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--card-solid); border-top: 1px solid var(--border-strong); z-index: 5; box-shadow: 0 -8px 18px rgba(0,0,0,.25); }
+  .modal:has(.imp-rodape) { padding-bottom: 0; }
+  .imp-rodape .btn { margin: 0; }
+  .imp-rodape small { display:block; text-align:center; color: var(--muted); font-size: 11px; margin-bottom: 8px; }
+  .div-gen { width: 100%; min-height: 40px; margin-bottom: 4px; padding: 8px 10px; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 15px; }
+  .div-gen option { color: #111; }
   .div-acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
   .div-acoes .btn-action { flex: 1 1 auto; text-align: center; }
   .div-total { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; font-weight: 700; }
@@ -639,6 +665,9 @@
   .rec-prox { font-size: 13px; line-height: 1.5; margin: 0 0 10px; padding: 10px 12px; border-radius: 12px; background: rgba(var(--pr),.10); border: 1px solid rgba(var(--pr),.25); }
   .rec-prox.atraso { background: rgba(239,68,68,.10); border-color: rgba(239,68,68,.35); }
   .rec-prox b { font-weight: 800; }
+  .rec-valor { display: block; margin: 8px 0 2px; padding: 9px 12px; border-radius: 10px; background: rgba(250,204,21,.16); border: 1px solid rgba(250,204,21,.55); color: #facc15; font-size: 20px; font-weight: 800; letter-spacing: -.3px; }
+  .rec-valor small { display:block; font-size: 11px; font-weight: 600; opacity: .85; letter-spacing: 0; }
+  :root[data-theme="light"] .rec-valor { color: #854d0e; background: #fef08a; border-color: #eab308; }
   .rec-parcs { margin: 10px 0 0; font-size: 12px; }
   .rec-parcs summary { cursor: pointer; color: var(--accent-text); font-weight: 600; padding: 4px 0; }
   .rec-parc { display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: center; padding: 7px 0; border-top: 1px solid var(--border); }
@@ -777,6 +806,7 @@
         <div class="stat s-gasto clickable" data-go="inclusao"><span class="lbl">Gasto no mês</span><span class="val" style="color:var(--orange);" id="pizzaGasto">R$ 0,00</span><span class="stat-sub" id="pizzaGastoSub"></span></div>
         <div class="stat s-porq clickable" data-go="porquinhos"><span class="lbl">Porquinho</span><span class="val" style="color:var(--warn);" id="pizzaPorq">R$ 0,00</span></div>
         <div class="stat s-sobra"><span class="lbl" title="Renda líquida − gasto − porquinho">Sobra do Mês</span><span class="val" style="color:var(--success);" id="pizzaSobra">R$ 0,00</span></div>
+        <div class="stat s-terc clickable" data-go="receber" id="statTerceiros" style="display:none;"><span class="lbl">Terceiros</span><span class="val" style="color:var(--accent-text);" id="pizzaTerc">R$ 0,00</span><span class="stat-sub">Parte de pessoas de fora nas compras do mês (A Receber). Não entra no seu gasto.</span></div>
       </div>
     </section>
 
@@ -807,7 +837,7 @@
     </div>
 
     <div class="chart-container">
-      <h3>Distribuição por Motivo (Realizado)</h3>
+      <h3>Composição dos Gastos por Motivo</h3>
       <div class="chart-wrap" id="chartWrap"><canvas id="chartMotivos"></canvas></div>
     </div>
 
@@ -852,7 +882,7 @@
   </button>
   <button data-aba="inclusao">
     <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-    Inclusão de Despesas
+    Inclusão e Gestão de Despesas
   </button>
   <button data-aba="porquinhos">
     <svg viewBox="0 0 24 24"><path d="M19 11c0-3.3-3.1-6-7-6S5 7.7 5 11c0 1.7.8 3.2 2 4.3V19h3v-1.5h4V19h3v-3.7c1.2-1.1 2-2.6 2-4.3z"/><path d="M19 11h2M9 10h.01"/><path d="M11 5.2C11 4 12 3 13 3"/></svg>
@@ -885,7 +915,7 @@
             <button type="button" class="btn-action" id="btnDivIgual">Dividir igualmente</button>
           </div>
           <div class="div-total" id="divTotal"></div>
-          <p class="hint" style="margin:8px 0 0;">Digite o % de uma pessoa e o restante é dividido entre as outras automaticamente. A "pessoa de fora" não mora com você: a parte dela não entra nos seus gastos e fica em <strong>A Receber</strong> até ela te pagar.</p>
+          <p class="hint" style="margin:8px 0 0;">Digite o % de uma pessoa e o restante é dividido entre as outras automaticamente. A "pessoa de fora" não mora com você: a parte dessa pessoa não entra nos seus gastos e fica em <strong>A Receber</strong> até que ela pague. Escolha o gênero de cada pessoa de fora para os textos de cobrança saírem corretos.</p>
         </div>
       </div>
       <div class="input-group"><label>Motivo</label><input type="text" id="cMotivo" placeholder="Selecione ou digite"></div>
@@ -1012,6 +1042,7 @@
     <div class="input-group"><label>ID do Grupo</label><input type="number" id="cadGrupo" min="1"></div>
     <div class="input-group"><label>Nome de Usuário</label><input type="text" id="cadNome"></div>
     <div class="input-group"><label>CPF</label><input type="text" id="cadCpf" maxlength="14" inputmode="numeric"></div>
+    <div class="input-group"><label>Gênero</label><select id="cadGenero"></select></div>
     <div class="input-group"><label>Telefone</label><input type="text" id="cadTelefone" maxlength="15" inputmode="tel"></div>
     <div class="input-group"><label>E-mail (opcional)</label><input type="email" id="cadEmail"></div>
     <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="cadSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="cadSenha">👁️</button></div></div>
@@ -1034,6 +1065,7 @@
     <div class="input-group"><label>ID do Grupo</label><input type="number" id="editGrupo" min="1"></div>
     <div class="input-group"><label>Nome de Usuário</label><input type="text" id="editNome"></div>
     <div class="input-group"><label>CPF</label><input type="text" id="editCpf" maxlength="14" inputmode="numeric"></div>
+    <div class="input-group"><label>Gênero</label><select id="editGenero"></select></div>
     <div class="input-group"><label>Telefone</label><input type="text" id="editTelefone" maxlength="15" inputmode="tel"></div>
     <div class="input-group"><label>E-mail</label><input type="email" id="editEmail"></div>
     <button class="btn" id="btnSalvarEdicaoUsuario">Salvar Alterações</button>
@@ -1114,7 +1146,7 @@
     <div class="info-box" id="impAviso" style="display:none;"></div>
     <div id="impResumo"></div>
     <div id="impLista"></div>
-    <button class="btn" id="btnImpSalvar" disabled>Nada selecionado</button>
+    <div class="imp-rodape"><small id="impRodapeInfo"></small><button class="btn" id="btnImpSalvar" disabled>Nada selecionado</button></div>
   </div>
 </div>
 
@@ -1126,17 +1158,36 @@
     <button class="cfg-item" id="btnCfgNotif" type="button"><span class="cfg-ic">🔔</span><span class="cfg-tx"><strong>Notificações de vencimento</strong><small id="cfgNotifResumo">Lembretes de parcelas vencendo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Aparência</div>
     <div class="tema-grid" id="temaGrid"></div>
-    <p class="hint">O tema fica salvo neste aparelho. "Automático" acompanha o modo claro/escuro do celular.</p>
+    <p class="hint">O tema fica salvo neste aparelho. O padrão é o Escuro.</p>
     <div class="cfg-titulo">Acesso ao app</div>
     <div id="cfgAcesso">
       <button class="cfg-item" type="button" data-acesso="bio"><span class="cfg-ic">🔐</span><span class="cfg-tx"><strong id="cfgBioTitulo">Biometria</strong><small>Pede ao abrir o app e quando voltar depois de 5 min minimizado</small></span><span class="cfg-ok">✓</span></button>
+      <button class="cfg-item" type="button" data-acesso="senha"><span class="cfg-ic">🔑</span><span class="cfg-tx"><strong>Pedir minha senha</strong><small>Pede a senha ao abrir o app e quando voltar depois de 5 min minimizado</small></span><span class="cfg-ok">✓</span></button>
       <button class="cfg-item" type="button" data-acesso="conectado"><span class="cfg-ic">✅</span><span class="cfg-tx"><strong>Permanecer conectado</strong><small>Abre direto, sem pedir nada</small></span><span class="cfg-ok">✓</span></button>
     </div>
     <p class="hint" id="cfgAcessoHint"></p>
+    <div class="cfg-titulo">Cadastros</div>
+    <button class="cfg-item" id="btnCfgListas" type="button"><span class="cfg-ic">🏷️</span><span class="cfg-tx"><strong>Motivos e tipos</strong><small>Veja, inclua ou exclua as opções das suas compras</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAdmin" style="display:none;">Administração</div>
     <button class="cfg-item" id="btnGerenciarUsuarios" type="button" style="display:none;"><span class="cfg-ic">👥</span><span class="cfg-tx"><strong>Gerenciar usuários</strong><small>Acessos e permissões do grupo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Conta</div>
     <div class="info-box" id="cfgConta"></div>
+  </div>
+</div>
+
+<!-- MODAL MOTIVOS E TIPOS -->
+<div class="modal-overlay modal-nivel-2" id="modalListas">
+  <div class="modal">
+    <div class="modal-header"><h3>Motivos e tipos</h3><button class="close-btn" data-close="modalListas">×</button></div>
+    <p class="hint" style="margin-top:0;">Estas opções aparecem ao cadastrar e importar compras. Excluir daqui não apaga compras já lançadas (se ainda houver compra usando a opção, ela continua sugerida). Você também pode digitar um motivo ou tipo novo direto na compra.</p>
+    <div class="form-grid">
+      <div class="input-group"><label>Novo</label><input type="text" id="listaNovoNome" maxlength="40" placeholder="Ex: Mercado, Essencial…" autocomplete="off"></div>
+      <div class="input-group"><label>Adicionar como</label><select id="listaNovoTipo"><option value="motivo">Motivo</option><option value="tipo">Tipo</option></select></div>
+    </div>
+    <label class="check-row" id="listaPadraoLinha" style="display:none;margin-top:6px;"><input type="checkbox" id="listaPadrao"><span>Admin: também tornar padrão para todos os usuários novos</span></label>
+    <button class="btn" id="btnListaAdd" type="button">+ Adicionar</button>
+    <h4 style="margin:18px 0 8px;font-size:14px;">Motivos</h4><div id="listaMotivos"></div>
+    <h4 style="margin:18px 0 8px;font-size:14px;">Tipos</h4><div id="listaTipos"></div>
   </div>
 </div>
 
@@ -1170,6 +1221,7 @@
     <div class="lock-ic">🔐</div>
     <h2>TTR Gestão Financeira</h2>
     <p id="lockMsg">Confirme que é você para abrir o app.</p>
+    <input type="password" id="lockSenha" autocomplete="current-password" placeholder="Sua senha" style="display:none;width:100%;margin-bottom:12px;padding:14px;border-radius:12px;border:1px solid var(--border-strong);background:var(--card2);color:var(--text);font:inherit;font-size:16px;">
     <button class="btn" id="btnDesbloquear" type="button">Desbloquear</button>
     <button class="btn ghost" id="btnLockSenha" type="button">Entrar com senha</button>
   </div>
@@ -1207,9 +1259,13 @@
       <div class="input-group full"><label>Observação (opcional)</label><input type="text" id="recObs" maxlength="80" placeholder="Ex: Pix, dinheiro"></div>
     </div>
     <div class="action-row" style="margin-top:16px;">
+      <button class="btn secondary" id="btnRecParcela" type="button">Preencher parcela</button>
       <button class="btn secondary" id="btnRecQuitar" type="button">Preencher o restante</button>
+    </div>
+    <div class="action-row" style="margin-top:10px;">
       <button class="btn" id="btnSalvarRec" type="button">Registrar</button>
     </div>
+    <div class="input-group" style="margin-top:14px;" id="recGeneroBox"><label>Gênero de <span id="recGeneroNome">esta pessoa</span> (usado nos textos de cobrança)</label><select id="recGenero"></select></div>
     <h4 style="margin:18px 0 10px;font-size:14px;">Recebimentos registrados</h4>
     <div id="recLista" style="max-height:30vh;overflow-y:auto;"></div>
     <button class="btn ghost" id="btnRecRemover" type="button" style="margin-top:14px;color:var(--danger-text);">Remover esta cobrança</button>
@@ -1275,6 +1331,7 @@ let state = {
 };
 let chartMotivos = null, chartPizza = null, gaugeCharts = {};
 let opcoesCompra = { motivo: [], tipo: [], pagto: [] };
+let motivosGrupo = [], tiposGrupo = []; // listas do grupo (tabelas motivos_grupo / tipos_grupo), alimentadas pelos padrões do admin
 let opcoesResp = [];
 let adOpcoes = [];
 
@@ -1316,6 +1373,9 @@ function rotuloResp(c) {
   return ehAmbos(c) ? 'Ambos' : capNome(c.responsavel);
 }
 const somaPessoa = (lista, p) => lista.reduce((s, c) => s + valorPessoa(c, p), 0);
+// "Terceiros" = parte da compra que é de pessoas de fora da casa (as de A Receber): total da parcela − soma das partes da casa
+const valorTerceiros = c => Math.max(0, (Number(c.valor_parcela) || 0) - valorPessoa(c, 'Geral'));
+const somaTerceiros = lista => lista.reduce((s, c) => s + valorTerceiros(c), 0);
 // quanto da parcela já foi pago, na parte que cabe à pessoa (Ambos divide ao meio)
 const pagoPessoa = (c, nome) => { const v = Number(c.valor_parcela) || 0; return v ? valorPagoParcela(c) * (valorPessoa(c, nome) / v) : 0; };
 
@@ -1424,14 +1484,12 @@ const TEMAS = [
   { id: 'dark', nome: 'Escuro', ic: '🌙', cores: ['#0a0f1e', '#4f8cff', '#7c5cff'] },
   { id: 'light', nome: 'Claro', ic: '☀️', cores: ['#f1f5fb', '#2563eb', '#7c3aed'] },
   { id: 'amethyst', nome: 'Ametista', ic: '🔮', cores: ['#100a1f', '#8b5cf6', '#ec4899'] },
-  { id: 'auto', nome: 'Automático', ic: '🖥️', cores: null }
+  { id: 'esmeralda', nome: 'Esmeralda', ic: '🌿', cores: ['#06130f', '#10b981', '#0d9488'] }
 ];
-function lerTema() { try { return localStorage.getItem('ttr_tema') || 'dark'; } catch (e) { return 'dark'; } }
+// padrão = Escuro (quem tinha "Automático" salvo volta para o Escuro)
+function lerTema() { try { const t = localStorage.getItem('ttr_tema'); return TEMAS.some(x => x.id === t) ? t : 'dark'; } catch (e) { return 'dark'; } }
 let temaPref = lerTema();
-function temaEfetivo(p) {
-  if (p === 'auto') return (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
-  return TEMAS.some(t => t.id === p) ? p : 'dark';
-}
+function temaEfetivo(p) { return TEMAS.some(t => t.id === p) ? p : 'dark'; }
 function corTema(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 function aplicarTema(pref, redesenhar) {
   temaPref = pref;
@@ -1495,7 +1553,7 @@ function divIniciar(c, externos) {
     else if (mesmoNome(c.responsavel, m.nome)) { pct = 100; inc = true; }
     divParts.push({ tipo: 'membro', nome: m.nome, incluir: inc, pct, manual: false });
   });
-  (externos || []).forEach(e => divParts.push({ tipo: 'externo', id: ++divSeq, nome: e.pessoa, incluir: true, pct: Number(e.percentual) || 0, manual: false }));
+  (externos || []).forEach(e => divParts.push({ tipo: 'externo', id: ++divSeq, nome: e.pessoa, genero: normGenero(e.genero), incluir: true, pct: Number(e.percentual) || 0, manual: false }));
   if (!c || amb) divRecalcular();
   divRender();
 }
@@ -1518,7 +1576,7 @@ function divRender() {
     const val = p.incluir ? fmtPct(p.pct) : '';
     const cls = p.manual ? '' : 'auto';
     if (p.tipo === 'membro') return `<div class="div-row" data-i="${i}"><label class="div-quem"><input type="checkbox" data-f="inc"${p.incluir ? ' checked' : ''}><span class="cx"><span class="nm">${esc(capNome(p.nome))}</span><span class="vl" data-vl></span></span></label><div class="div-pct"><input type="text" inputmode="decimal" data-f="pct" class="${cls}" value="${esc(val)}"${p.incluir ? '' : ' disabled'} placeholder="0" autocomplete="off"></div></div>`;
-    return `<div class="div-row ext" data-i="${i}"><div class="div-quem" style="cursor:default;"><span class="cx"><input type="text" class="div-nome" data-f="nome" value="${esc(p.nome)}" placeholder="Nome de quem vai pagar" maxlength="40" autocomplete="off"><span class="vl" data-vl></span></span></div><div class="div-pct"><input type="text" inputmode="decimal" data-f="pct" class="${cls}" value="${esc(val)}" placeholder="0" autocomplete="off"></div><button type="button" class="icon-btn" data-f="rm" title="Remover">✕</button></div>`;
+    return `<div class="div-row ext" data-i="${i}"><div class="div-quem" style="cursor:default;"><span class="cx"><input type="text" class="div-nome" data-f="nome" value="${esc(p.nome)}" placeholder="Nome de quem vai pagar" maxlength="40" autocomplete="off"><select class="div-gen" data-f="gen" aria-label="Gênero">${optsGenero(p.genero || generoConhecido(p.nome), 'Gênero…')}</select><span class="vl" data-vl></span></span></div><div class="div-pct"><input type="text" inputmode="decimal" data-f="pct" class="${cls}" value="${esc(val)}" placeholder="0" autocomplete="off"></div><button type="button" class="icon-btn" data-f="rm" title="Remover">✕</button></div>`;
   }).join('');
   divAtualizarValores();
 }
@@ -1556,7 +1614,7 @@ function divLigar() {
     const row = e.target.closest('.div-row'); if (!row) return;
     const p = divParts[+row.dataset.i]; if (!p) return;
     const f = e.target.dataset.f;
-    if (f === 'nome') { p.nome = e.target.value; return; }
+    if (f === 'nome') { p.nome = e.target.value; const g = generoConhecido(p.nome); if (g && !p.genero) { p.genero = g; const s = row.querySelector('[data-f="gen"]'); if (s) s.value = g; } return; }
     if (f === 'pct') {
       const v = parseFloat(String(e.target.value).replace(',', '.'));
       p.pct = isFinite(v) ? Math.max(0, Math.min(100, v)) : 0;
@@ -1565,6 +1623,7 @@ function divLigar() {
     }
   });
   box.addEventListener('change', e => {
+    if (e.target.dataset.f === 'gen') { const r = e.target.closest('.div-row'); const q = r && divParts[+r.dataset.i]; if (q) q.genero = e.target.value; return; }
     if (e.target.dataset.f !== 'inc') return;
     const row = e.target.closest('.div-row'); const p = row && divParts[+row.dataset.i]; if (!p) return;
     p.incluir = e.target.checked; p.manual = false;
@@ -1597,13 +1656,14 @@ function divValidar(lista) {
   for (const e of ext) {
     if (!e.nome.trim()) return f('Informe o nome de todas as pessoas de fora.');
     if (!(e.pct > 0)) return f(`Informe o percentual de ${e.nome.trim()}.`);
+    if (!normGenero(e.genero) && !generoConhecido(e.nome)) return f(`Escolha o gênero (masculino ou feminino) de ${e.nome.trim()}.`);
   }
   const nomes = ext.map(e => normalizarNome(e.nome));
   if (new Set(nomes).size !== nomes.length) return f('Há duas pessoas de fora com o mesmo nome.');
   if (nomes.some(n => membrosGrupo.some(m => normalizarNome(m.nome) === n))) return f('Uma pessoa de fora tem o mesmo nome de alguém da casa. Use a lista da casa para ela.');
   const soma = lista.filter(p => p.incluir).reduce((s, p) => s + p.pct, 0);
   if (Math.abs(soma - 100) > 0.011) return f(`A divisão soma ${fmtPct(soma)}%. Ajuste para fechar 100%.`);
-  const externos = ext.map(e => ({ nome: capNome(e.nome.replace(/\s+/g, ' ').trim()), pct: e.pct }));
+  const externos = ext.map(e => ({ nome: capNome(e.nome.replace(/\s+/g, ' ').trim()), pct: e.pct, genero: normGenero(e.genero) || generoConhecido(e.nome) }));
   if (mem.length === 1 && !externos.length) return { responsavel: mem[0].nome, divisao: null, externos: [], erro: '' };
   const divisao = {}; mem.forEach(m => { divisao[m.nome] = m.pct; });
   return { responsavel: mem.length > 1 ? 'Ambos' : mem[0].nome, divisao, externos, erro: '' };
@@ -1653,10 +1713,15 @@ async function sincronizarDevedores(idCompra, nome, total, externos) {
   const porNome = {}; antigos.forEach(a => { porNome[normalizarNome(a.pessoa)] = a; });
   const rows = externos.map(e => {
     const a = porNome[normalizarNome(e.nome)];
-    return { grupo_id: grupoId(), id_compra: idCompra, nome_compra: nome, pessoa: e.nome, percentual: e.pct, valor_total: Math.round(total * e.pct) / 100, recebimentos: a ? devRecebimentos(a) : [], criado_por: a ? a.criado_por : currentUser.nome };
+    const gen = normGenero(e.genero) || normGenero(a && a.genero) || generoConhecido(e.nome);
+    return { grupo_id: grupoId(), id_compra: idCompra, nome_compra: nome, pessoa: e.nome, percentual: e.pct, valor_total: Math.round(total * e.pct) / 100, recebimentos: a ? devRecebimentos(a) : [], criado_por: a ? a.criado_por : currentUser.nome, genero: gen || null };
   });
   if (antigos.length) { const { error } = await db.from('devedores').delete().eq('id_compra', idCompra).eq('grupo_id', grupoId()); if (error) throw error; }
-  if (rows.length) { const { error } = await db.from('devedores').insert(rows); if (error) throw error; }
+  if (rows.length) {
+    let { error } = await db.from('devedores').insert(rows);
+    if (error && /genero/i.test(error.message || '')) ({ error } = await db.from('devedores').insert(rows.map(({ genero, ...r }) => r))); // coluna ainda não criada
+    if (error) throw error;
+  }
 }
 
 function renderReceber() {
@@ -1696,13 +1761,13 @@ function renderReceber() {
     let destaque = '';
     if (!quit && prox) {
       const venc = prox.venc ? dataBR(prox.venc) : formatarMes(prox.mes);
-      destaque = `<div class="rec-prox ${prox.atrasada ? 'atraso' : ''} sensivel">${prox.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <b>parcela ${esc(prox.ref)}</b> · vence ${esc(venc)}<br>Valor da parcela: <b>${formatarMoeda(prox.falta)}</b>${prox.pago > 0.004 ? ` <span style="color:var(--muted);">(de ${formatarMoeda(prox.valor)}, já pago ${formatarMoeda(prox.pago)})</span>` : ''}${atrasadas.length > 1 ? `<br>${atrasadas.length} parcelas vencidas somando ${formatarMoeda(atrasadas.reduce((t, p) => t + p.falta, 0))}` : ''}</div>`;
+      destaque = `<div class="rec-prox ${prox.atrasada ? 'atraso' : ''} sensivel">${prox.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <b>parcela ${esc(prox.ref)}</b> · vence ${esc(venc)}<span class="rec-valor">🟡 ${formatarMoeda(prox.falta)}<small>valor da parcela ${esc(prox.ref)}${prox.pago > 0.004 ? ` (de ${formatarMoeda(prox.valor)}, já pago ${formatarMoeda(prox.pago)})` : ''}</small></span>${atrasadas.length > 1 ? `<br>${atrasadas.length} parcelas vencidas somando ${formatarMoeda(atrasadas.reduce((t, p) => t + p.falta, 0))}` : ''}</div>`;
     }
     const lista = ps.length > 1 ? `<details class="rec-parcs"><summary>Ver as ${ps.length} parcelas</summary>${ps.map(p => `<div class="rec-parc ${p.quitada ? 'paga' : p.atrasada ? 'atr' : ''}"><b>${esc(p.ref)}</b><div>${esc(p.venc ? dataBR(p.venc) : formatarMes(p.mes))}<div class="st">${p.quitada ? '✅ Paga' : p.atrasada ? 'Vencida' : p.pago > 0.004 ? 'Parcial · pago ' + formatarMoeda(p.pago) : 'A vencer'}</div></div><span class="vv sensivel">${formatarMoeda(p.quitada ? p.valor : p.falta)}</span></div>`).join('')}</details>` : '';
     return `<div class="rec-item">
       <div class="rec-item-top"><span>${esc(capIni(d.nome_compra))}</span><span class="v sensivel">${quit ? '' : formatarMoeda(rest)}</span></div>
       ${destaque}
-      <div class="rec-meta sensivel">Parte dela: ${esc(fmtPct(d.percentual))}% · total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}<br>Recebido ${formatarMoeda(rec)} · <b>Falta no total ${formatarMoeda(rest)}</b></div>
+      <div class="rec-meta sensivel">Parte ${pronDe(d.genero)}: ${esc(fmtPct(d.percentual))}% · total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}<br>Recebido ${formatarMoeda(rec)} · <b>Falta no total ${formatarMoeda(rest)}</b></div>
       <div class="rec-bar"><div style="width:${pct}%"></div></div>
       ${lista}
       <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Quitado</span>' : ''}<button class="btn-action primary" data-act="rec-abrir" data-id="${esc(d.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button></div>
@@ -1722,17 +1787,22 @@ function textoCobranca(chave) {
   const itens = state.devedores.filter(d => normalizarNome(d.pessoa) === chave && devRestante(d) > 0.004 && compraAtivaId(d.id_compra));
   if (!itens.length) return '';
   const primeiro = capNome(itens[0].pessoa).split(' ')[0];
+  const LINHA = '━━━━━━━━━━━━━━';
+  // WhatsApp não tem cor nem tamanho de letra: o valor da parcela cobrada vai em negrito, em MAIÚSCULAS, com 🟡 e numa linha só dele,
+  // bem separado da lista de "Parcelas em aberto"
   const blocos = itens.map(d => {
     const ps = devParcelas(d), abertas = ps.filter(p => !p.quitada), rest = devRestante(d), rec = devRecebido(d);
-    const l = [`*${capIni(d.nome_compra)}*`];
+    const l = [LINHA, `🛒 *${capIni(d.nome_compra)}*`, ''];
     const prox = abertas[0];
     if (prox) {
-      l.push(`${prox.atrasada ? '⚠️ Parcela vencida' : '▶ Parcela'} ${prox.ref} · vence ${dataBR(prox.venc) || formatarMes(prox.mes)}`);
-      l.push(`Valor da parcela: ${formatarMoeda(prox.falta)}` + (prox.pago > 0.004 ? ` (de ${formatarMoeda(prox.valor)})` : ''));
+      l.push(`🟡 *VALOR DA PARCELA ${prox.ref}: ${formatarMoeda(prox.falta).toUpperCase()}*` + (prox.pago > 0.004 ? ` _(de ${formatarMoeda(prox.valor)})_` : ''));
+      l.push(prox.atrasada ? `⚠️ *VENCIDA* desde ${dataBR(prox.venc) || formatarMes(prox.mes)}` : `📅 Vence em ${dataBR(prox.venc) || formatarMes(prox.mes)}`);
+      l.push('');
     }
     if (abertas.length > 1) {
-      l.push('Parcelas em aberto:');
+      l.push('📋 Parcelas em aberto:');
       abertas.forEach(p => l.push(`   • ${p.ref} · ${dataBR(p.venc) || formatarMes(p.mes)} · ${formatarMoeda(p.falta)}${p.atrasada ? ' (vencida)' : ''}`));
+      l.push('');
     }
     l.push(`Total da sua parte: ${formatarMoeda(d.valor_total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}`);
     if (rec > 0.004) l.push(`Já pago: ${formatarMoeda(rec)}`);
@@ -1742,8 +1812,24 @@ function textoCobranca(chave) {
   const total = itens.reduce((t, d) => t + devRestante(d), 0);
   const proxima = itens.map(devProxima).filter(Boolean);
   const devidoAgora = proxima.reduce((t, p) => t + (p.atrasada ? p.falta : 0), 0);
-  return `${saudacaoHora()}, ${primeiro}! Tudo bem? Espero que esteja tudo certo por aí 😊\n\nPassando pra lembrar do que ficou pendente das compras que dividimos:\n\n${blocos.join('\n\n')}\n\n${itens.length > 1 ? `💰 Falta no total (tudo): ${formatarMoeda(total)}\n` : ''}${devidoAgora > 0.004 ? `⚠️ Vencido até hoje: ${formatarMoeda(devidoAgora)}\n` : ''}\nQuando puder, me manda por Pix. Obrigado!\n\n_Mensagem automática via app ${NOME_APP}_`;
+  const pagarAgora = proxima.reduce((t, p) => t + p.falta, 0);
+  const resumo = [];
+  if (itens.length > 1) {
+    resumo.push(`🟡 *TOTAL DAS PARCELAS COBRADAS AGORA: ${formatarMoeda(pagarAgora).toUpperCase()}*`);
+    resumo.push(`💰 Falta no total (tudo): ${formatarMoeda(total)}`);
+  }
+  if (devidoAgora > 0.004) resumo.push(`⚠️ Vencido até hoje: ${formatarMoeda(devidoAgora)}`);
+  return `${saudacaoHora()}, ${primeiro}! Tudo bem? Espero que esteja tudo certo por aí 😊\n\nPassando pra lembrar do que ficou pendente das compras que dividimos:\n\n${blocos.join('\n\n')}\n${LINHA}\n\n${resumo.length ? resumo.join('\n') + '\n\n' : ''}Quando puder, me manda por Pix. ${obrigadoDe(currentUser && currentUser.genero)}!\n\n_Mensagem automática via app ${NOME_APP}_`;
 }
+/* ---- gênero (masculino/feminino) para os pronomes dos textos ---- */
+const GENEROS = ['Masculino', 'Feminino'];
+// gênero já cadastrado para a mesma pessoa de fora em outra cobrança
+const generoConhecido = nome => { const k = normalizarNome(nome); const d = (state.devedores || []).find(x => normalizarNome(x.pessoa) === k && normGenero(x.genero)); return d ? normGenero(d.genero) : ''; };
+const normGenero = g => { const n = String(g || '').trim().toLowerCase(); return n.startsWith('f') ? 'feminino' : n.startsWith('m') ? 'masculino' : ''; };
+// "dela" / "dele"; sem gênero cadastrado usa "da pessoa" para não errar
+const pronDe = g => ({ feminino: 'dela', masculino: 'dele' }[normGenero(g)] || 'da pessoa');
+const obrigadoDe = g => ({ feminino: 'Obrigada', masculino: 'Obrigado' }[normGenero(g)] || 'Obrigado(a)');
+const optsGenero = (atual, vazio) => (vazio ? `<option value=""${atual ? '' : ' selected'}>${vazio}</option>` : '') + GENEROS.map(g => `<option value="${g.toLowerCase()}"${normGenero(atual) === g.toLowerCase() ? ' selected' : ''}>${g}</option>`).join('');
 // "Bom dia" até 11:59, "Boa tarde" até 17:59 e "Boa noite" depois (hora do aparelho)
 const NOME_APP = 'TTR Gestão Financeira';
 function saudacaoHora(d = new Date()) {
@@ -1774,7 +1860,8 @@ function abrirReceber(id) {
 function renderReceberModal() {
   const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (!d) return;
   const ps = devParcelas(d), pr = ps.find(p => !p.quitada);
-  $('recInfo').innerHTML = (pr ? `${pr.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <strong>parcela ${esc(pr.ref)}</strong> · vence ${esc(dataBR(pr.venc) || formatarMes(pr.mes))} · <strong>${formatarMoeda(pr.falta)}</strong><br>` : '') + `Total da parte dela: <strong>${formatarMoeda(d.valor_total)}</strong> (${esc(fmtPct(d.percentual))}% da compra${ps.length > 1 ? `, ${ps.length}x` : ''})<br>Recebido: <strong>${formatarMoeda(devRecebido(d))}</strong> · Falta no total: <strong>${formatarMoeda(devRestante(d))}</strong>`;
+  $('recInfo').innerHTML = (pr ? `${pr.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <strong>parcela ${esc(pr.ref)}</strong> · vence ${esc(dataBR(pr.venc) || formatarMes(pr.mes))}<span class="rec-valor">🟡 ${formatarMoeda(pr.falta)}<small>valor da parcela</small></span>` : '') + `Total da parte ${pronDe(d.genero)}: <strong>${formatarMoeda(d.valor_total)}</strong> (${esc(fmtPct(d.percentual))}% da compra${ps.length > 1 ? `, ${ps.length}x` : ''})<br>Recebido: <strong>${formatarMoeda(devRecebido(d))}</strong> · Falta no total: <strong>${formatarMoeda(devRestante(d))}</strong>`;
+  $('recGeneroNome').textContent = capNome(d.pessoa); $('recGenero').innerHTML = optsGenero(d.genero, 'Selecione…');
   const rs = devRecebimentos(d).map((r, i) => [r, i]).reverse();
   $('recLista').innerHTML = rs.length ? rs.map(([r, i]) => `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">💵 Recebido${r.obs ? ' · ' + esc(r.obs) : ''}</div><div class="meta" style="font-size:11px;"><div>${esc(dataBR(r.data))}${r.por ? ' · registrado por ' + esc(capNome(r.por)) : ''}</div></div></div><div class="valor" style="font-size:15px;color:var(--success-text);">+ ${formatarMoeda(r.valor)}</div><button class="icon-btn" data-act="rec-delmov" data-idx="${i}" title="Excluir">🗑️</button></div>`).join('')
     : '<p style="text-align:center;color:var(--muted);padding:16px;font-size:13px;">Nenhum recebimento ainda.</p>';
@@ -1805,7 +1892,7 @@ async function excluirRecebimento(idx) {
 }
 async function removerDevedor() {
   const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (!d) return;
-  if (!await confirmar({ titulo: 'Remover cobrança', mensagem: `Remover a cobrança de ${capNome(d.pessoa)} em "${d.nome_compra}"?\n\nA parte dela continuará fora dos seus gastos. Para mudar a divisão, edite a compra.`, confirmarTexto: 'Remover', tipo: 'perigo' })) return;
+  if (!await confirmar({ titulo: 'Remover cobrança', mensagem: `Remover a cobrança de ${capNome(d.pessoa)} em "${d.nome_compra}"?\n\nA parte ${pronDe(d.genero)} continuará fora dos seus gastos. Para mudar a divisão, edite a compra.`, confirmarTexto: 'Remover', tipo: 'perigo' })) return;
   const { error } = await db.from('devedores').delete().eq('id', d.id).eq('grupo_id', grupoId());
   if (error) return alert('Erro ao remover: ' + error.message);
   state.devedores = state.devedores.filter(x => x.id !== d.id);
@@ -2071,7 +2158,8 @@ const chBio = uid => 'ttr_bio_cred_' + uid, chModo = uid => 'ttr_modo_acesso_' +
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} };
 const bufParaB64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-const modoAcesso = uid => (lsGet(chModo(uid)) === 'bio' && lsGet(chBio(uid))) ? 'bio' : 'conectado';
+// 'bio' = biometria/Face ID · 'senha' = pede a senha · 'conectado' = abre direto
+const modoAcesso = uid => { const m = lsGet(chModo(uid)); return (m === 'bio' && lsGet(chBio(uid))) ? 'bio' : m === 'senha' ? 'senha' : 'conectado'; };
 let _bloqueado = false, _ocultoEm = 0;
 
 async function bioDisponivel() {
@@ -2108,22 +2196,33 @@ async function bioVerificar(uid) {
   return true;
 }
 // mostra a tela de bloqueio e só devolve quando a pessoa confirmar (ou escolher entrar com senha, que sai da conta)
-function bloquearApp(uid) {
+function bloquearApp(uid, email) {
   return new Promise(resolve => {
     _bloqueado = true;
-    const tela = $('lockScreen'), btn = $('btnDesbloquear'), msg = $('lockMsg');
-    msg.textContent = `Confirme com ${bioNome()} para abrir o app.`;
+    const porSenha = modoAcesso(uid) === 'senha';
+    const tela = $('lockScreen'), btn = $('btnDesbloquear'), msg = $('lockMsg'), campo = $('lockSenha');
+    const liberar = () => { _bloqueado = false; tela.classList.remove('open'); campo.value = ''; resolve(true); };
+    campo.style.display = porSenha ? 'block' : 'none'; campo.value = '';
+    msg.textContent = porSenha ? 'Digite a sua senha para abrir o app.' : `Confirme com ${bioNome()} para abrir o app.`;
+    $('btnLockSenha').textContent = porSenha ? 'Sair da conta' : 'Entrar com senha';
     tela.classList.add('open');
     let tentando = false;
     const tentar = async () => {
       if (tentando) return; tentando = true; btn.disabled = true;
-      try { await bioVerificar(uid); _bloqueado = false; tela.classList.remove('open'); resolve(true); }
-      catch (e) { msg.textContent = 'Não foi possível confirmar. Toque em Desbloquear para tentar de novo.'; }
+      try {
+        if (porSenha) {
+          if (!campo.value) { msg.textContent = 'Digite a sua senha.'; return; }
+          const { error } = await db.auth.signInWithPassword({ email, password: campo.value });
+          if (error) { msg.textContent = 'Senha incorreta. Tente de novo.'; campo.value = ''; return; }
+        } else await bioVerificar(uid);
+        liberar();
+      } catch (e) { msg.textContent = porSenha ? 'Não foi possível confirmar a senha. Tente de novo.' : 'Não foi possível confirmar. Toque em Desbloquear para tentar de novo.'; }
       finally { tentando = false; btn.disabled = false; }
     };
     btn.onclick = tentar;
+    campo.onkeydown = e => { if (e.key === 'Enter') tentar(); };
     $('btnLockSenha').onclick = async () => { await db.auth.signOut(); location.reload(); };
-    tentar(); // tenta já ao abrir; se o aparelho exigir um toque, o botão resolve
+    if (porSenha) setTimeout(() => campo.focus(), 50); else tentar(); // biometria: tenta já ao abrir; se o aparelho exigir um toque, o botão resolve
   });
 }
 function renderAcesso() {
@@ -2133,11 +2232,14 @@ function renderAcesso() {
   document.querySelectorAll('#cfgAcesso [data-acesso]').forEach(b => b.classList.toggle('sel', b.dataset.acesso === modo));
   $('cfgAcessoHint').textContent = modo === 'bio'
     ? `O app pede ${bioNome()} sempre que for aberto e quando você voltar a ele depois de mais de ${BIO_MIN_BLOQUEIO} minutos minimizado.`
-    : 'O app abre direto e continua conectado neste aparelho.';
+    : modo === 'senha'
+      ? `O app pede a sua senha sempre que for aberto e quando você voltar a ele depois de mais de ${BIO_MIN_BLOQUEIO} minutos minimizado.`
+      : 'O app abre direto e continua conectado neste aparelho.';
 }
 async function escolherAcesso(modo) {
   const u = currentUser; if (!u) return;
   if (modo === 'conectado') { lsSet(chModo(u.id), 'conectado'); notificar('Você vai permanecer conectado neste aparelho.', 'sucesso'); return renderAcesso(); }
+  if (modo === 'senha') { lsSet(chModo(u.id), 'senha'); notificar('O app vai pedir a sua senha ao abrir.', 'sucesso'); return renderAcesso(); }
   if (!(await bioDisponivel())) return alert(`Este aparelho não tem ${bioNome()} disponível, ou o app não está em um endereço seguro (https).`);
   if (!lsGet(chBio(u.id))) {
     try { await bioCadastrar(u); } catch (e) { renderAcesso(); return alert('Não foi possível cadastrar: ' + bioErroTexto(e)); }
@@ -2153,7 +2255,7 @@ function ligarAcesso() {
     if (document.visibilityState === 'hidden') { if (!_bloqueado) _ocultoEm = Date.now(); return; }
     if (!currentUser || _bloqueado || !_ocultoEm) return;
     const min = (Date.now() - _ocultoEm) / 60000; _ocultoEm = 0;
-    if (min >= BIO_MIN_BLOQUEIO && modoAcesso(currentUser.id) === 'bio') bloquearApp(currentUser.id);
+    if (min >= BIO_MIN_BLOQUEIO && modoAcesso(currentUser.id) !== 'conectado') bloquearApp(currentUser.id, currentUser.email);
   });
   // toque numa notificação com o app aberto: vai direto para a aba do aviso (ex.: A Receber)
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
@@ -2509,12 +2611,18 @@ async function carregarPerfil(userId) {
   $('nomeUsuario').textContent = currentUser.nome;
   aplicarPrivacidade(lerPrivacidade());
 
-  const [{ data: membros }, { data: cats }] = await Promise.all([
+  // 1º login do grupo: copia categorias/motivos/tipos padrão do admin para as tabelas do usuário (uma única vez; sem SQL novo, só ignora)
+  try { await db.rpc('aplicar_padroes_grupo'); } catch (e) {}
+  const [{ data: membros }, { data: cats }, rMot, rTip] = await Promise.all([
     db.from('profiles').select('*').eq('grupo_id', grupoId()).order('nome'),
-    db.from('categorias_orcamento').select('*').eq('grupo_id', grupoId()).order('nome')
+    db.from('categorias_orcamento').select('*').eq('grupo_id', grupoId()).order('nome'),
+    db.from('motivos_grupo').select('*').eq('grupo_id', grupoId()).order('nome'),
+    db.from('tipos_grupo').select('*').eq('grupo_id', grupoId()).order('nome')
   ]);
   membrosGrupo = membros && membros.length ? membros : [currentUser];
   categoriasOrcamento = cats || [];
+  motivosGrupo = (rMot && !rMot.error && rMot.data) || [];
+  tiposGrupo = (rTip && !rTip.error && rTip.data) || [];
 
   let opts = membrosGrupo.map(m => `<option value="${esc(m.nome)}">${esc(capNome(m.nome))}</option>`).join('');
   opcoesResp = [...membrosGrupo.map(m => m.nome), ...(membrosGrupo.length > 1 ? ['Ambos'] : [])];
@@ -2523,13 +2631,30 @@ async function carregarPerfil(userId) {
   atualizarSelectCategorias();
 
   $('filtros').innerHTML = `<button class="active" data-filter="all">Todas</button><button data-filter="pago">Pagas</button><button data-filter="aberto">Não pagas</button><button data-filter="vencida">Vencidas</button>` +
-    membrosGrupo.map(m => `<button data-filter="${esc(m.nome)}">${esc(capNome(m.nome))}</button>`).join('');
+    membrosGrupo.map(m => `<button data-filter="${esc(m.nome)}">${esc(capNome(m.nome))}</button>`).join('') +
+    `<button data-filter="terceiros">Terceiros</button>`;
   renderFiltroPessoa();
 
   await carregarDados();
   mostrarAlertaVencimentos();
   abrirAbaDoLink();
   iniciarPrimeiroAcesso();
+  if (!normGenero(currentUser.genero)) perguntarGenero(); // sem await: não pode travar a abertura do app
+}
+// quem já tinha cadastro e ainda não tem gênero escolhe uma vez (usado nos textos de cobrança)
+function perguntarGenero() {
+  if (document.getElementById('modalGenero')) return;
+  const ov = document.createElement('div');
+  ov.className = 'modal-overlay open'; ov.id = 'modalGenero';
+  ov.innerHTML = `<div class="modal"><div class="modal-header"><h3>Complete seu cadastro</h3></div><p style="font-size:14px;color:var(--muted);margin:0 0 14px;line-height:1.5;">Informe seu gênero para que as mensagens do app (como a de cobrança) usem os termos certos.</p><div class="input-group"><label>Gênero</label><select id="genPerfil">${optsGenero('', 'Selecione…')}</select></div><button class="btn" id="btnGenPerfil" type="button">Salvar</button><button class="btn ghost" id="btnGenDepois" type="button">Agora não</button></div>`;
+  document.body.appendChild(ov);
+  $('btnGenDepois').addEventListener('click', () => ov.remove());
+  $('btnGenPerfil').addEventListener('click', async () => {
+    const g = $('genPerfil').value; if (!g) return alert('Escolha masculino ou feminino.');
+    const { error } = await db.from('profiles').update({ genero: g }).eq('id', currentUser.id);
+    if (error) { currentUser.genero = g; ov.remove(); return alert('Não foi possível gravar no banco (rode o SQL novo no Supabase). O app vai usar sua escolha só nesta sessão.'); }
+    currentUser.genero = g; ov.remove(); notificar('Cadastro atualizado!', 'sucesso');
+  });
 }
 
 function renderFiltroPessoa() {
@@ -2571,7 +2696,34 @@ async function carregarDados() {
 function preencherDatalists() {
   const uniq = campo => [...new Set(state.compras.map(c => (c[campo] || '').trim()).filter(Boolean))].map(capIni);
   const ord = arr => uniqNorm(arr).sort((a, b) => a.localeCompare(b));
-  opcoesCompra = { motivo: ord(uniq('motivo')), tipo: ord(uniq('tipo')), pagto: ord([...TIPOS_PAGTO_PADRAO, ...uniq('tipo_pagamento')]) };
+  opcoesCompra = { motivo: ord([...motivosGrupo.map(m => capIni(m.nome)), ...uniq('motivo')]), tipo: ord([...tiposGrupo.map(t => capIni(t.nome)), ...uniq('tipo')]), pagto: ord([...TIPOS_PAGTO_PADRAO, ...uniq('tipo_pagamento')]) };
+}
+
+/* ---- Motivos e tipos do grupo (cópia dos padrões do admin; o usuário inclui e exclui) ---- */
+function renderListasMT() {
+  const lin = (arr, tab) => arr.length ? arr.map(r => `<div class="item" style="padding:10px 12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">${esc(capIni(r.nome))}</div></div><button class="icon-btn" data-lista="${tab}" data-id="${esc(r.id)}" title="Excluir">🗑️</button></div>`).join('') : '<p class="hint">Nenhum cadastrado ainda.</p>';
+  $('listaMotivos').innerHTML = lin(motivosGrupo, 'motivos_grupo');
+  $('listaTipos').innerHTML = lin(tiposGrupo, 'tipos_grupo');
+}
+async function adicionarListaMT() {
+  const nome = capIni($('listaNovoNome').value.replace(/\s+/g, ' ').trim()); if (!nome) return;
+  const tab = $('listaNovoTipo').value === 'tipo' ? 'tipos_grupo' : 'motivos_grupo';
+  const arr = tab === 'tipos_grupo' ? tiposGrupo : motivosGrupo;
+  if (arr.some(r => normalizarNome(r.nome) === normalizarNome(nome))) return notificar('Esse já existe.', 'aviso');
+  const { data, error } = await db.from(tab).insert([{ grupo_id: grupoId(), nome }]).select().single();
+  if (error) return alert('Não foi possível salvar (rode o SQL novo no Supabase): ' + error.message);
+  arr.push(data);
+  if ($('listaPadrao').checked && currentUser.is_admin) {
+    const { error: e2 } = await db.from('catalogo_padrao').insert([{ tipo: tab === 'tipos_grupo' ? 'tipo' : 'motivo', nome }]);
+    if (e2 && e2.code !== '23505') alert('Salvo para você, mas não foi possível torná-lo padrão: ' + e2.message);
+  }
+  $('listaNovoNome').value = ''; preencherDatalists(); renderListasMT();
+}
+async function excluirListaMT(tab, id) {
+  const { error } = await db.from(tab).delete().eq('id', id).eq('grupo_id', grupoId());
+  if (error) return alert('Erro ao excluir: ' + error.message);
+  if (tab === 'tipos_grupo') tiposGrupo = tiposGrupo.filter(r => String(r.id) !== String(id)); else motivosGrupo = motivosGrupo.filter(r => String(r.id) !== String(id));
+  preencherDatalists(); renderListasMT();
 }
 
 function refresh() {
@@ -2925,6 +3077,9 @@ async function carregarOrcamento() {
   setTxt('pizzaGasto', formatarMoeda(Math.max(0, gasto - pagoGasto)));
   setTxt('pizzaGastoSub', pagoGasto > 0.004 ? `Pago ${formatarMoeda(pagoGasto)} de ${formatarMoeda(gasto)}` : `Total do mês ${formatarMoeda(gasto)}`);
   setTxt('pizzaPorq', formatarMoeda(guardado));
+  const terceiros = somaTerceiros(comprasDoMesPessoa(mes));
+  $('statTerceiros').style.display = terceiros > 0.004 ? '' : 'none';
+  setTxt('pizzaTerc', formatarMoeda(terceiros));
   setTxt('pizzaSobra', formatarMoeda(sobra), sobra < 0 ? 'var(--danger)' : 'var(--success)');
   setTxt('pizzaPctOrcado', `${pct}%`, cor);
   setTxt('semaforoIcone', icone);
@@ -2968,8 +3123,18 @@ function renderPlanejamento() {
   gaugeCharts = {};
   const grid = $('listaGauges');
   grid.innerHTML = '';
+  // categoria "virtual": tudo o que ainda não foi categorizado (ex.: importação parcial da fatura) aparece aqui com o valor pendente
+  const semCat = () => {
+    const v = somaPessoa(pendentes, pessoa);
+    const card = document.createElement('div');
+    card.className = 'gauge-card sem-cat';
+    card.dataset.act = 'categorizar';
+    card.innerHTML = `<h4>Sem categorização</h4><div class="gauge-canvas-wrap" style="display:flex;align-items:center;justify-content:center;font-size:34px;">🗂️</div><div class="gauge-info"><strong>${formatarMoeda(v)}</strong><span>${nCompras} compra(s) · toque para categorizar</span></div>`;
+    grid.appendChild(card);
+  };
+  if (pendentes.length) semCat();
   if (!categoriasOrcamento.length) {
-    grid.innerHTML = '<div class="empty-msg">Nenhuma categoria ainda. Crie a primeira em "+ Nova Categoria".</div>';
+    if (!pendentes.length) grid.innerHTML = '<div class="empty-msg">Nenhuma categoria ainda. Crie a primeira em "+ Nova Categoria".</div>';
     return;
   }
 
@@ -3368,6 +3533,9 @@ function renderInclusao() {
     const va = somaPessoa(ant, m.nome);
     html += `<div class="kpi-card clickable" data-act="fpessoa" data-id="${esc(m.nome)}"><div class="label">${esc(capNome(m.nome))}</div><div class="value">${formatarMoeda(v)}${trend(v, va)}</div><div class="subtext">${total > 0 ? Math.round((v / total) * 100) : 0}% do total</div></div>`;
   });
+  // Terceiros: parte das compras que é de pessoas de fora (A Receber); sem ela, as partes da casa não fecham com o total
+  const terc = somaTerceiros(doMes);
+  if (terc > 0.004) html += `<div class="kpi-card clickable" data-act="fpessoa" data-id="terceiros"><div class="label">Terceiros</div><div class="value">${formatarMoeda(terc)}${trend(terc, somaTerceiros(ant))}</div><div class="subtext">${total > 0 ? Math.round((terc / total) * 100) : 0}% do total</div></div>`;
   let tp = '';
   if (total > 0) { const d = ((totalProx - total) / total) * 100; if (Math.abs(d) >= 0.5) tp = `<span class="trend ${d > 0 ? 'up' : 'down'}">${d > 0 ? '↑' : '↓'} ${Math.abs(d).toFixed(0)}%</span>`; }
   html += `<div class="kpi-card"><div class="label">Próximo Mês (${MESES_ABR[parseInt(prox.split('-')[1]) - 1]})</div><div class="value">${formatarMoeda(totalProx)}${tp}</div><div class="subtext">Já comprometido</div></div>`;
@@ -3445,6 +3613,7 @@ function comprasFiltradas() {
   if (f === 'pago') l = l.filter(c => c.pagamento);
   else if (f === 'aberto') l = l.filter(c => !c.pagamento);
   else if (f === 'vencida') l = l.filter(c => parcelaVencida(c) || parcelaVenceHoje(c));
+  else if (f === 'terceiros') l = l.filter(c => valorTerceiros(c) > 0.004);
   else if (f !== 'all') l = l.filter(c => daPessoa(c, f));
   const termo = ($('buscaCompra').value || '').toLowerCase().trim();
   if (termo) l = l.filter(c => (c.nome_compra || '').toLowerCase().includes(termo));
@@ -3754,9 +3923,9 @@ async function impAnalisar() {
   // nomes lembrados: do mais antigo ao mais novo (o mais recente vence)
   const apelidos = {}, porNome = {};
   [...imp.existentes].sort((a, b) => String(a.mes_referencia).localeCompare(String(b.mes_referencia))).forEach(c => {
-    const d = { nome: c.nome_compra, motivo: c.motivo, tipo: c.tipo, cat: c.categoria_orcamento, resp: c.responsavel };
-    if (c.nome_original) apelidos[normalizarNome(c.nome_original)] = d;
-    if (c.nome_compra) porNome[normalizarNome(c.nome_compra)] = d;
+    const mescla = (mapa, k) => { const a = mapa[k] || {}; mapa[k] = { nome: c.nome_compra, motivo: c.motivo || a.motivo || '', tipo: c.tipo || a.tipo || '', cat: c.categoria_orcamento || a.cat || '', resp: c.responsavel || a.resp }; };
+    if (c.nome_original) mescla(apelidos, normalizarNome(c.nome_original));
+    if (c.nome_compra) mescla(porNome, normalizarNome(c.nome_compra));
   });
 
   // lê as linhas
@@ -3800,7 +3969,16 @@ async function impAnalisar() {
     itens.push({ desc: b.desc, nomeBase, valor, cur, total, dataCompra, status, motivo, achou: achou ? { nome: achou.nome_compra, valor: achou.valor_parcela } : null,
       incluir: status === 'nova', lembrado: !!ap, nome: ap ? ap.nome : bonitoNome(nomeBase), resp: ap && ap.resp ? ap.resp : respPadrao, respAuto: !(ap && ap.resp),
       cat: ap && ap.cat ? ap.cat : '', motivoC: ap && ap.motivo ? ap.motivo : '', tipoC: ap && ap.tipo ? ap.tipo : '',
+      puxou: ap && (ap.cat || ap.motivo || ap.tipo) ? ap.nome : '', // aviso no cartão: dados trazidos da compra de mesmo nome (editáveis)
       dividir: false, partes: null }); // "dividir com outras pessoas" começa sempre desmarcado
+  });
+  // refazer a análise (trocar mês ou cartão) não pode apagar o que a pessoa já editou: devolve nome, responsável, categoria e divisão
+  const chaveItem = x => [x.desc, x.valor, x.cur, x.total].join('|');
+  const editados = {}; (imp.itens || []).forEach(x => { editados[chaveItem(x)] = x; });
+  itens.forEach(x => {
+    const a = editados[chaveItem(x)]; if (!a) return;
+    Object.assign(x, { nome: a.nome, resp: a.resp, respAuto: a.respAuto, cat: a.cat, motivoC: a.motivoC, tipoC: a.tipoC, dividir: a.dividir, partes: a.partes });
+    if (x.status === a.status) x.incluir = a.incluir;
   });
   imp.itens = itens;
   impRender();
@@ -3821,7 +3999,7 @@ function impDivisaoHTML(x) {
     const val = p.incluir ? fmtPct(p.pct) : '', cls = p.manual ? '' : 'auto';
     const vl = p.incluir ? `≈ ${fm(x.valor * p.pct / 100)} por parcela` : 'Fora desta compra';
     if (p.tipo === 'membro') return `<div class="div-row" data-k="${k}"><label class="div-quem"><input type="checkbox" data-d="inc"${p.incluir ? ' checked' : ''}><span class="cx"><span class="nm">${esc(capNome(p.nome))}</span><span class="vl" data-vl>${vl}</span></span></label><div class="div-pct"><input type="text" inputmode="decimal" data-d="pct" class="${cls}" value="${esc(val)}"${p.incluir ? '' : ' disabled'} placeholder="0" autocomplete="off"></div></div>`;
-    return `<div class="div-row ext" data-k="${k}"><div class="div-quem" style="cursor:default;"><span class="cx"><input type="text" class="div-nome" data-d="nome" value="${esc(p.nome)}" placeholder="Nome de quem vai pagar" maxlength="40" autocomplete="off"><span class="vl" data-vl>${vl}</span></span></div><div class="div-pct"><input type="text" inputmode="decimal" data-d="pct" class="${cls}" value="${esc(val)}" placeholder="0" autocomplete="off"></div><button type="button" class="icon-btn" data-d="rm" title="Remover">✕</button></div>`;
+    return `<div class="div-row ext" data-k="${k}"><div class="div-quem" style="cursor:default;"><span class="cx"><input type="text" class="div-nome" data-d="nome" value="${esc(p.nome)}" placeholder="Nome de quem vai pagar" maxlength="40" autocomplete="off"><select class="div-gen" data-d="gen" aria-label="Gênero">${optsGenero(p.genero || generoConhecido(p.nome), 'Gênero…')}</select><span class="vl" data-vl>${vl}</span></span></div><div class="div-pct"><input type="text" inputmode="decimal" data-d="pct" class="${cls}" value="${esc(val)}" placeholder="0" autocomplete="off"></div><button type="button" class="icon-btn" data-d="rm" title="Remover">✕</button></div>`;
   }).join('');
   return `<div class="imp-div">${linhas}<div class="div-total" data-dtotal></div>
     <div class="imp-row"><button type="button" class="btn-action" data-d="igual">Dividir igualmente</button><button type="button" class="btn-action" data-d="ext">+ Pessoa de fora</button></div>
@@ -3861,6 +4039,7 @@ function impLigarDivisao() {
     }
   });
   lista.addEventListener('change', e => {
+    const c0 = ctx(e); if (c0 && c0.d === 'gen' && c0.row) { const q = c0.x.partes[+c0.row.dataset.k]; if (q) q.genero = e.target.value; return; }
     const c = ctx(e); if (!c || c.d !== 'inc' || !c.row) return;
     const p = c.x.partes[+c.row.dataset.k]; if (!p) return;
     p.incluir = e.target.checked; p.manual = false;
@@ -3885,17 +4064,19 @@ function impCard(x, i) {
     <div class="imp-meta">${esc(meta)}${data}${x.lembrado ? ' · ✨ nome lembrado' : ''}</div>
     ${x.motivo ? `<div class="imp-alerta">⚠️ ${esc(x.motivo)}${x.achou ? ` (no app: ${esc(capIni(x.achou.nome))} · ${fm(x.achou.valor)})` : ''}</div>` : ''}
     <input class="imp-in" type="text" data-f="nome" value="${esc(x.nome)}" placeholder="Nome da compra" autocomplete="off">
+    ${x.puxou ? `<div class="imp-nota">📌 Categoria, motivo e tipo foram <strong>puxados da compra "${esc(capIni(x.puxou))}"</strong> (mesmo nome). Você pode editar abaixo.</div>` : ''}
+    <div class="imp-pend" data-pend${impCategorizada(x) ? ' style="display:none"' : ''}>⏳ Sem categorização completa — ${x.incluir ? 'vai para "Sem categorização" se não for preenchida' : 'marque para importar'}</div>
     <div class="imp-row"${x.dividir ? ' style="grid-template-columns:1fr;"' : ''}>
       ${x.dividir ? '' : `<select data-f="resp" title="Responsável por esta compra">${impOptsSelect(opcoesResp, x.resp)}</select>`}
-      <select data-f="cat">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Sem categoria')}</select>
+      <select data-f="cat" title="Categoria">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Categoria…')}</select>
     </div>
+    <div class="imp-row"><input class="imp-in" type="text" data-f="motivoC" list="dlImpMotivo" value="${esc(x.motivoC)}" placeholder="Motivo" autocomplete="off"><input class="imp-in" type="text" data-f="tipoC" list="dlImpTipo" value="${esc(x.tipoC)}" placeholder="Tipo" autocomplete="off"></div>
     <label class="check-row imp-flag"><input type="checkbox" data-f="dividir"${x.dividir ? ' checked' : ''}><span>Dividir esta compra com outras pessoas</span></label>
     ${x.dividir ? impDivisaoHTML(x) : ''}
-    <details class="imp-mais"><summary>Mais campos</summary>
-      <div class="imp-row"><input class="imp-in" type="text" data-f="motivoC" list="dlImpMotivo" value="${esc(x.motivoC)}" placeholder="Motivo"><input class="imp-in" type="text" data-f="tipoC" list="dlImpTipo" value="${esc(x.tipoC)}" placeholder="Tipo"></div>
-    </details>
   </div>`;
 }
+// "categorizada" = categoria + motivo + tipo preenchidos
+const impCategorizada = x => !!(x.cat && String(x.motivoC || '').trim() && String(x.tipoC || '').trim());
 function impRender() {
   const it = imp.itens;
   const idx = st => it.map((x, i) => [x, i]).filter(([x]) => x.status === st);
@@ -3908,7 +4089,7 @@ function impRender() {
   if (imp.ignoradas.length) h += `<details class="imp-det"><summary>🚫 Linhas ignoradas (${imp.ignoradas.length})</summary>${imp.ignoradas.map(x => `<div class="imp-ja"><span>${esc(x.desc)}<small>${esc(x.motivo)}</small></span><strong>${fm(Math.abs(x.v))}</strong></div>`).join('')}</details>`;
   $('impLista').innerHTML = h;
   it.forEach((x, i) => { if (x.dividir && x.partes) { const c = $('impLista').querySelector(`.imp-card[data-i="${i}"]`); if (c) impDivAtualizar(c, x); } });
-  const motivos = uniqNorm(state.compras.map(c => capIni(c.motivo || '')).filter(Boolean)), tipos = uniqNorm(state.compras.map(c => capIni(c.tipo || '')).filter(Boolean));
+  const motivos = opcoesCompra.motivo, tipos = opcoesCompra.tipo;
   $('dlImpMotivo').innerHTML = motivos.map(v => `<option value="${esc(v)}">`).join('');
   $('dlImpTipo').innerHTML = tipos.map(v => `<option value="${esc(v)}">`).join('');
   impAtualizarResumo();
@@ -3919,6 +4100,8 @@ function impAtualizarResumo() {
   const noMes = sel.reduce((s, x) => s + x.valor, 0), futuro = sel.reduce((s, x) => s + x.valor * (x.total - x.cur), 0);
   const ja = imp.itens.filter(x => x.status === 'existe').length;
   $('impResumo').innerHTML = imp.itens.length ? `<div class="info-box">Arquivo: <strong>${imp.itens.length}</strong> compra(s) · <strong>${ja}</strong> já no app.<br>Selecionadas: <strong>${sel.length}</strong> compra(s) → <strong>${parcelas}</strong> parcela(s). Em ${esc(formatarMes(imp.mes))}: <strong>${fm(noMes)}</strong>${futuro > 0.004 ? ` · meses seguintes: <strong>${fm(futuro)}</strong>` : ''}</div>` : '';
+  const cats = sel.filter(impCategorizada).length;
+  const info = $('impRodapeInfo'); if (info) info.textContent = sel.length ? `${cats} de ${sel.length} categorizadas · ${sel.length - cats} irão para "Sem categorização"` : '';
   const b = $('btnImpSalvar'); b.disabled = !sel.length; b.textContent = sel.length ? `Importar ${sel.length} compra(s)` : 'Nada selecionado';
 }
 
@@ -3968,6 +4151,11 @@ async function impSalvar() {
     x._div = r;
   }
   if (sel.some(x => x._div && x._div.externos.length) && state.devIndisponivel) return alert('Para cobrar pessoas de fora, falta criar a tabela devedores no banco. Execute o SQL enviado e recarregue a página.');
+  // confirmação: quantas estão categorizadas e quantas irão para "Sem categorização" (ficam pendentes e visíveis no Planejamento)
+  const nCat = sel.filter(impCategorizada).length, nPend = sel.length - nCat;
+  const valPend = sel.filter(x => !impCategorizada(x)).reduce((s, x) => s + x.valor, 0);
+  const msg = `${nCat} de ${sel.length} compra(s) estão categorizadas (categoria, motivo e tipo).` + (nPend ? `\n\n${nPend} compra(s) (${formatarMoeda(valPend)} neste mês) irão para "Sem categorização" e poderão ser categorizadas depois, em Planejamento.` : '\n\nTodas estão categorizadas.');
+  if (!await confirmar({ titulo: 'Confirmar importação', mensagem: msg, confirmarTexto: 'Importar', tipo: nPend ? 'aviso' : 'info' })) return;
   const usarDiv = sel.some(x => x._div && x._div.divisao) || state.compras.some(c => 'divisao' in c);
   const tipoPag = (state.compras.find(c => ehCartaoCredito(c.tipo_pagamento)) || {}).tipo_pagamento || 'Cartão de Crédito';
   const btn = $('btnImpSalvar'); btn.disabled = true; btn.textContent = 'Importando...';
@@ -4038,6 +4226,7 @@ function impLigarEventos() {
       impRedesenharCartao(card, x);
     }
     else { x[f] = e.target.value; if (f === 'resp') x.respAuto = false; }
+    const pend = card.querySelector('[data-pend]'); if (pend) pend.style.display = impCategorizada(x) ? 'none' : '';
     impAtualizarResumo();
   };
   $('impLista').addEventListener('input', editar);
@@ -4057,7 +4246,8 @@ function exportarPDF() {
     const max = arr[0][1] || 1;
     return `<div class="rp-box"><h4>${titulo}</h4>${arr.slice(0, 8).map(([k, v]) => `<div class="rp-bar"><div class="rp-bar-top"><span>${esc(k)}</span><span><strong>${formatarMoeda(v)}</strong> <em>${total > 0 ? Math.round(v / total * 100) : 0}%</em></span></div><div class="rp-track"><div style="width:${(v / max * 100).toFixed(1)}%;background:${cor}"></div></div></div>`).join('')}</div>`;
   };
-  const porResp = membrosGrupo.length > 1 ? membrosGrupo.map(m => [m.nome, somaPessoa(l, m.nome)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]) : [];
+  const tercPdf = somaTerceiros(l);
+  const porResp = (membrosGrupo.length > 1 || tercPdf > 0.004) ? [...membrosGrupo.map(m => [m.nome, somaPessoa(l, m.nome)]), ...(tercPdf > 0.004 ? [['Terceiros', tercPdf]] : [])].filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]) : [];
   const filtros = [];
   if (state.filtroMotivo) filtros.push('Motivo: ' + state.filtroMotivo);
   if (state.filtroPagto) filtros.push('Pagamento: ' + state.filtroPagto);
@@ -4445,6 +4635,7 @@ function abrirModalEditarUsuario(id) {
   $('editCpf').value = u.cpf || '';
   $('editTelefone').value = u.telefone || '';
   $('editEmail').value = u.email || '';
+  $('editGenero').innerHTML = optsGenero(u.genero, 'Selecione…');
   abrirModal('modalEditarUsuario');
 }
 async function salvarEdicaoUsuario() {
@@ -4454,15 +4645,19 @@ async function salvarEdicaoUsuario() {
   const cpf = $('editCpf').value.trim();
   const telefone = $('editTelefone').value.trim();
   const email = $('editEmail').value.trim();
+  const genero = $('editGenero').value;
   if (!nome || !grupo) return alert('Nome e Grupo são obrigatórios.');
+  if (!genero) return alert('Escolha o gênero (masculino ou feminino).');
   if (cpf && !validaCPF(cpf)) return alert('O CPF informado é inválido.');
   const btn = $('btnSalvarEdicaoUsuario'); btn.textContent = 'Salvando...'; btn.disabled = true;
-  const { error } = await db.from('profiles').update({ grupo_id: grupo, nome, cpf: cpf || null, telefone: telefone || null, email }).eq('id', id);
+  const dados = { grupo_id: grupo, nome, cpf: cpf || null, telefone: telefone || null, email, genero };
+  let { error } = await db.from('profiles').update(dados).eq('id', id);
+  if (error && /genero/i.test(error.message || '')) { delete dados.genero; ({ error } = await db.from('profiles').update(dados).eq('id', id)); if (!error) alert('Atenção: a coluna "genero" ainda não existe no banco. Rode o SQL novo (20261108_ttr_atualizacoes.sql); o gênero não foi salvo.'); }
   btn.textContent = 'Salvar Alterações'; btn.disabled = false;
   if (error) return alert('Erro ao editar: ' + error.message);
   alert('Usuário atualizado com sucesso!');
   fecharModal('modalEditarUsuario');
-  if (id === currentUser.id) { currentUser.nome = nome; currentUser.grupo_id = grupo; $('nomeUsuario').textContent = nome; }
+  if (id === currentUser.id) { currentUser.nome = nome; currentUser.grupo_id = grupo; if (dados.genero) currentUser.genero = genero; $('nomeUsuario').textContent = nome; }
   abrirModalGerenciarUsuarios();
 }
 async function enviarResetSenha() {
@@ -4489,6 +4684,7 @@ function abrirModalNovoUsuario(e) {
   db.from('profiles').select('grupo_id').order('grupo_id', { ascending: false }).limit(1).then(({ data }) => {
     $('cadGrupo').value = data && data.length && data[0].grupo_id ? data[0].grupo_id + 1 : 1;
   });
+  $('cadGenero').innerHTML = optsGenero('', 'Selecione…');
   abrirModal('modalNovoUsuario');
 }
 async function cadastrarUsuario() {
@@ -4500,6 +4696,8 @@ async function cadastrarUsuario() {
   const senha = $('cadSenha').value;
   const btn = $('btnCad');
   if (!grupo || !nome || !senha || !cpf) return alert('ID do Grupo, Nome, CPF e Senha são obrigatórios.');
+  const genero = $('cadGenero').value;
+  if (!genero) return alert('Escolha o gênero (masculino ou feminino).');
   if (!validaCPF(cpf)) return alert('O CPF informado é inválido.');
   if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(senha)) return alert('A senha deve ter no mínimo 6 caracteres, incluindo uma letra maiúscula, uma minúscula e um número.');
   btn.textContent = 'Verificando...'; btn.disabled = true;
@@ -4532,7 +4730,9 @@ async function cadastrarUsuario() {
         : 'Não foi possível criar o usuário: esse e-mail já está em uso por outro usuário.');
       return reset();
     }
-    const { error: eProf } = await db.from('profiles').insert([{ id: data.user.id, email: emailReal, nome, cpf, telefone: tel || null, grupo_id: grupo, is_admin: false }]);
+    const novoPerfil = { id: data.user.id, email: emailReal, nome, cpf, telefone: tel || null, grupo_id: grupo, is_admin: false, genero };
+    let { error: eProf } = await db.from('profiles').insert([novoPerfil]);
+    if (eProf && /genero/i.test(eProf.message || '')) { delete novoPerfil.genero; ({ error: eProf } = await db.from('profiles').insert([novoPerfil])); } // coluna ainda não criada
     if (eProf) {
       if (eProf.code === '23503') { await db.rpc('remover_auth_orfao', { p_email: emailReal }); alert('Não foi possível criar o usuário: o login não pôde ser vinculado ao perfil. Tente criar de novo' + (semSql ? ' depois de executar o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase.' : '.')); }
       else alert('Usuário criado na autenticação, mas houve erro ao criar o perfil: ' + eProf.message);
@@ -4552,11 +4752,19 @@ async function cadastrarUsuario() {
 function ligarEventos() {
   iniciarCampos();
   aplicarTema(temaPref, false);
-  if (window.matchMedia) { const mq = matchMedia('(prefers-color-scheme: light)'); const on = () => { if (temaPref === 'auto') aplicarTema('auto', true); }; if (mq.addEventListener) mq.addEventListener('change', on); }
   window.addEventListener('scroll', ocultarTip, { passive: true });
   divLigar();
   ligarAcesso();
   $('btnSalvarRec').addEventListener('click', salvarRecebimento);
+  $('btnRecParcela').addEventListener('click', () => { const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); const pr = d && devParcelas(d).find(p => !p.quitada); if (pr) setMoeda($('recValor'), pr.falta); else if (d) setMoeda($('recValor'), devRestante(d)); });
+  $('recGenero').addEventListener('change', async () => {
+    const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (!d) return;
+    const g = $('recGenero').value; if (!g) return;
+    const k = normalizarNome(d.pessoa), ids = state.devedores.filter(x => normalizarNome(x.pessoa) === k);
+    const { error } = await db.from('devedores').update({ genero: g }).in('id', ids.map(x => x.id)).eq('grupo_id', grupoId());
+    if (error) { alert('Não foi possível salvar o gênero (rode o SQL novo no Supabase): ' + error.message); return; }
+    ids.forEach(x => { x.genero = g; }); renderReceberModal(); renderReceber(); notificar('Gênero salvo!', 'sucesso');
+  });
   $('btnRecQuitar').addEventListener('click', () => { const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (d) setMoeda($('recValor'), devRestante(d)); });
   $('btnRecRemover').addEventListener('click', removerDevedor);
   $('btnLogin').addEventListener('click', fazerLogin);
@@ -4605,6 +4813,10 @@ function ligarEventos() {
   $('btnConfiguracoes').addEventListener('click', abrirConfiguracoes);
   impLigarEventos();
   $('btnCfgNotif').addEventListener('click', () => { fecharModal('modalConfiguracoes'); abrirModalNotificacoes(); });
+  $('btnCfgListas').addEventListener('click', () => { $('listaPadraoLinha').style.display = currentUser && currentUser.is_admin ? 'flex' : 'none'; renderListasMT(); abrirModal('modalListas'); });
+  $('btnListaAdd').addEventListener('click', adicionarListaMT);
+  $('listaNovoNome').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); adicionarListaMT(); } });
+  $('modalListas').addEventListener('click', e => { const b = e.target.closest('[data-lista]'); if (b) excluirListaMT(b.dataset.lista, b.dataset.id); });
   $('btnOlho').addEventListener('click', () => aplicarPrivacidade(!document.body.classList.contains('privado')));
   $('btnAtivarPush').addEventListener('click', alternarPush);
   $('btnSalvarNotif').addEventListener('click', () => salvarNotif());
@@ -4704,7 +4916,7 @@ async function initAuth() {
     const { data: { session } } = await db.auth.getSession();
     if (session) {
       // quem escolheu entrar com biometria/Face ID precisa confirmar antes de ver qualquer dado
-      if (modoAcesso(session.user.id) === 'bio') { esconderLoading(); await bloquearApp(session.user.id); mostrarLoading('Carregando seus dados...'); }
+      if (modoAcesso(session.user.id) !== 'conectado') { esconderLoading(); await bloquearApp(session.user.id, session.user.email); mostrarLoading('Carregando seus dados...'); }
       await carregarPerfil(session.user.id);
     }
     else $('authScreen').style.display = 'flex';
