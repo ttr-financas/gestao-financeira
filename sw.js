@@ -1,8 +1,24 @@
 // Service worker do TTR Gestão Financeira: notificações push + cópia do app para abrir sem internet.
 // Precisa ficar na MESMA pasta do HTML, no mesmo endereço https.
 // Arquivos usados: icon-192.png (ícone grande) e badge-96.png (silhueta da barra de status do Android).
-const CACHE = 'ttr-app-v2';
-self.addEventListener('install', () => self.skipWaiting());
+const CACHE = 'ttr-app-v3';
+// Guarda o app e as bibliotecas externas JÁ NA INSTALAÇÃO (não só nas próximas visitas), para abrir sem internet desde o primeiro uso.
+const LOCAIS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png'];
+const EXTERNOS = [
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0',
+  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
+];
+self.addEventListener('install', e => {
+  e.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    await Promise.allSettled([
+      ...LOCAIS.map(u => fetch(u, { cache: 'reload' }).then(r => { if (r.ok) return cache.put(new URL(u, self.registration.scope).href, r); })),
+      ...EXTERNOS.map(u => fetch(u, { mode: 'no-cors' }).then(r => cache.put(u, r)))
+    ]);
+    await self.skipWaiting();
+  })());
+});
 self.addEventListener('activate', e => e.waitUntil(
   caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('ttr-app-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())
 ));
