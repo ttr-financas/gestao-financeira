@@ -1,8 +1,36 @@
-// Service worker do TTR Gestão Financeira: recebe e mostra as notificações push.
+// Service worker do TTR Gestão Financeira: notificações push + cópia do app para abrir sem internet.
 // Precisa ficar na MESMA pasta do HTML, no mesmo endereço https.
 // Arquivos usados: icon-192.png (ícone grande) e badge-96.png (silhueta da barra de status do Android).
+const CACHE = 'ttr-app-v2';
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+self.addEventListener('activate', e => e.waitUntil(
+  caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('ttr-app-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())
+));
+
+// Abrir o app sem internet: tenta a rede primeiro (sempre a versão mais nova) e, se falhar, usa a cópia guardada da última vez.
+// Não mexe nos dados do Supabase nem em nada que não seja GET.
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET' || !/^https?:/.test(req.url)) return;
+  const url = new URL(req.url);
+  if (/\.supabase\.(co|in)$/.test(url.hostname)) return;
+  e.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    try {
+      const res = await fetch(req);
+      if (res && (res.ok || res.type === 'opaque')) {
+        cache.put(req, res.clone()).catch(() => {});
+        if (req.mode === 'navigate') cache.put(self.registration.scope, res.clone()).catch(() => {});
+      }
+      return res;
+    } catch (err) {
+      const guardado = await cache.match(req, { ignoreSearch: req.mode === 'navigate' })
+        || (req.mode === 'navigate' && (await cache.match(self.registration.scope) || await cache.match(self.registration.scope + 'index.html')));
+      if (guardado) return guardado;
+      throw err;
+    }
+  })());
+});
 
 self.addEventListener('push', e => {
   let d = {};
