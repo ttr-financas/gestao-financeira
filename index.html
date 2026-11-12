@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0a0f1e">
 <script>(function(){try{var t=localStorage.getItem("ttr_tema")||"dark";if(["dark","light","amethyst","esmeralda"].indexOf(t)<0)t="dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -15,8 +15,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="vendor/supabase.min.js"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0"><\/script>')</script>
+<script src="vendor/chart.umd.min.js"></script>
+<script>window.Chart||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"><\/script>')</script>
 <style>
   :root, :root[data-theme="dark"] {
     --bg: #0a0f1e; --card: rgba(255,255,255,.04); --card-solid: #121a2e; --card2: rgba(255,255,255,.07); --card3: #1b2644;
@@ -97,7 +99,7 @@
   .header-logo h1 { font-size: 16px; font-weight: 700; color: var(--text); margin-left: 4px; letter-spacing: -.2px; }
 
   /* AUTH */
-  .auth-screen { position: fixed; inset: 0; background: radial-gradient(700px 420px at 50% 0%, rgba(var(--pr),.2), transparent 60%), var(--bg); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+  .auth-screen { position: fixed; inset: 0; background: radial-gradient(700px 420px at 50% 0%, rgba(var(--pr),.2), transparent 60%), var(--bg); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: max(16px, env(safe-area-inset-top)) 16px 24px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .auth-box { background: var(--auth-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 32px 28px; border-radius: 24px; width: 100%; max-width: 410px; border: 1px solid var(--border-strong); box-shadow: var(--shadow); }
   .input-group { margin-bottom: 15px; }
   .input-group label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
@@ -106,7 +108,8 @@
   .password-wrapper input { padding-right: 44px; }
   .input-group input:focus, .input-group select:focus, .password-wrapper input:focus, .search-bar input:focus, .gerenciar-filtros input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--pr),.25); background: rgba(var(--w),.07); }
   .input-group select option { background: var(--card-solid); color: var(--text); }
-  .toggle-password { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; padding: 6px; }
+  .toggle-password { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+  .toggle-password:hover { color: var(--text); }
   .btn { width: 100%; padding: 14px; background: var(--grad); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 8px 20px rgba(var(--pr),.28); transition: transform .12s, box-shadow .15s, filter .15s; }
   .btn:hover { filter: brightness(1.08); }
   .btn:active { transform: scale(.98); }
@@ -278,6 +281,15 @@
   .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .action-row .btn { margin-top: 0; }
 
+  .alert-orc { margin-bottom: 14px; padding: 10px 12px; border-radius: 14px; background: rgba(245,179,1,.10); border: 1px solid rgba(245,179,1,.4); font-size: 13px; }
+  .alert-orc-item { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; padding: 3px 0; color: var(--warn-text); }
+  .alert-orc-item.estourou { color: var(--danger-text); }
+  .rel-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 420px; }
+  .rel-table th, .rel-table td { padding: 7px 6px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .rel-table th:first-child, .rel-table td:first-child { text-align: left; position: sticky; left: 0; background: var(--card-solid); }
+  .rel-total td { font-weight: 800; }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   .alert-pendentes { background: rgba(245,179,1,.12); border: 1px solid rgba(245,179,1,.4); color: var(--warn-text); padding: 13px 16px; border-radius: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; font-weight: 500; transition: background .15s; }
   .alert-pendentes:hover { background: rgba(245,179,1,.2); }
   .alert-pendentes strong { color: var(--text); }
@@ -453,6 +465,8 @@
   /* ---- criar conta / assinatura / PIX ---- */
   .auth-screen { overflow-y: auto; }
   .auth-box { margin: auto; }
+  @media (max-width: 480px) { .auth-box { padding: 22px 18px; border-radius: 20px; } .auth-box .input-group { margin-bottom: 12px; } }
+  .msg-erro { position: sticky; top: 0; z-index: 5; }
   .auth-voltar { margin-top: 8px; }
   #cadContaForm .hint, #recSenhaForm .hint { margin-bottom: 14px; }
   .banner-assin { display: none; align-items: center; justify-content: space-between; gap: 10px; margin: 10px 14px 0; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.35; background: rgba(245,179,1,.14); border: 1px solid rgba(245,179,1,.4); color: var(--warn-text); }
@@ -910,7 +924,7 @@
   <div class="loading-ver">v1.0.0</div>
 </div>
 
-<div class="toast-box" id="toastBox"></div>
+<div class="toast-box" id="toastBox" role="status" aria-live="polite"></div>
 
 <div class="app-dialog-overlay" id="appDialog">
   <div class="app-dialog" id="appDialogBox" role="alertdialog" aria-modal="true" aria-labelledby="appDialogTitulo" aria-describedby="appDialogMsg">
@@ -933,64 +947,65 @@
     <div id="msgErro" class="msg-erro"></div>
     <div id="loginForm">
       <div class="input-group"><label>E-mail, Nome ou CPF</label><input type="text" id="loginUser" placeholder="Digite seus dados de acesso" autocomplete="username"></div>
-      <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="loginSenha" placeholder="Digite sua senha" autocomplete="current-password"><button type="button" class="toggle-password" data-toggle="loginSenha">👁️</button></div></div>
+      <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="loginSenha" placeholder="Digite sua senha" autocomplete="current-password"><button type="button" class="toggle-password" data-toggle="loginSenha" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
       <button class="btn" id="btnLogin">Entrar</button>
       <button class="btn secondary" id="btnCriarConta" type="button" style="margin-top:8px;">Criar conta</button>
       <button class="btn ghost" id="btnEsqueci" type="button">Esqueci minha senha</button>
+      <button class="btn secondary" type="button" data-instalar data-instalar-btn style="display:none;margin-top:8px;">📲 Instalar o app</button>
       <div class="ttr-def" data-ttr="nome" style="margin-top:14px;"></div>
     </div>
     <div id="recSenhaForm" style="display:none;">
       <h3 style="margin:0 0 6px;font-size:17px;">Recuperar acesso</h3>
-      <p class="hint" id="recSenhaDica" style="margin-top:0;">Para sua segurança, informe os dados do seu cadastro exatamente como foram cadastrados. Se tudo estiver correto, você define uma nova senha.</p>
+      <p class="hint" id="recSenhaDica" style="margin-top:0;">Informe pelo menos 2 dos 3 dados. Se conferirem, enviamos um código por e-mail.</p>
       <div id="recSenhaPasso1">
         <div class="input-group"><label>Nome de usuário</label><input type="text" id="rsNome" autocomplete="off"></div>
         <div class="input-group"><label>CPF</label><input type="text" id="rsCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
-        <div class="input-group"><label>Telefone</label><input type="text" id="rsTel" maxlength="15" inputmode="tel" autocomplete="off"></div>
         <div class="input-group"><label>E-mail</label><input type="email" id="rsEmail" autocomplete="off"></div>
         <button class="btn" id="btnRsVerificar" type="button">Enviar código por e-mail</button>
       </div>
       <div id="recSenhaPasso2" style="display:none;">
-        <p class="aviso-spam">📬 Não chegou? Veja também a pasta de <b>Spam</b> (ou Lixo eletrônico) e marque como “Não é spam”.</p>
+        <p class="aviso-spam">📬 Não chegou? Veja a pasta de <b>Spam</b> e marque “Não é spam”.</p>
         <div class="input-group"><label>Código recebido por e-mail</label><input type="text" id="rsCodigo" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:6px;font-size:20px;text-align:center;"></div>
         <button class="btn ghost" id="btnRsReenviar" type="button" style="margin:-4px 0 12px;">Não recebi · enviar de novo</button>
-        <div class="input-group"><label>Nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha">👁️</button></div></div>
-        <div class="input-group"><label>Repita a nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha2">👁️</button></div></div>
-        <p class="hint">Mínimo de 6 caracteres, com uma letra maiúscula, uma minúscula e um número.</p>
+        <div class="input-group"><label>Nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <div class="input-group"><label>Repita a nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha2" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <p class="hint">Mínimo 6 caracteres, com maiúscula, minúscula e número.</p>
         <button class="btn" id="btnRsSalvar" type="button">Salvar nova senha</button>
       </div>
+      <div id="rsCaptcha" style="display:none;margin:4px 0 8px;"></div>
       <button class="btn ghost" id="btnRsVoltar" type="button">Voltar ao login</button>
     </div>
     <div id="cadContaForm" style="display:none;">
-      <h3 style="margin:0 0 6px;font-size:17px;">Criar conta</h3>
+      <h3 id="ccTitulo" style="margin:0 0 10px;font-size:17px;">Criar conta</h3>
       <div id="ccAcesso">
-        <p class="hint" id="ccIntro" style="margin-top:0;">Tem um código de <b>teste grátis</b> ou de <b>convite</b>? Digite abaixo junto com o seu CPF. Se não tiver código, deixe em branco: você escolhe o plano e paga por PIX.</p>
-        <div class="input-group"><label id="ccCodigoLbl">Código de teste ou de convite (opcional)</label><input type="text" id="ccCodigo" placeholder="TTR-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" maxlength="20"></div>
+        <p class="hint" id="ccIntro" style="margin-top:0;">Tem código de teste ou convite? Digite com seu CPF. Sem código, você escolhe o plano e paga por PIX.</p>
+        <div class="input-group"><label id="ccCodigoLbl">Código de teste ou convite (opcional)</label><input type="text" id="ccCodigo" placeholder="TTR-XXXX-XXXX" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="18"></div>
         <div class="input-group"><label>CPF</label><input type="text" id="ccCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
       </div>
       <div id="ccInfo" class="info-box" style="display:none;margin-bottom:12px;"></div>
       <div id="ccPlano" style="display:none;margin-bottom:12px;">
-        <label style="font-size:13px;color:var(--muted);">Quantas pessoas vão usar a conta?</label>
-        <label class="plano-op"><input type="radio" name="ccVagas" value="1" checked><span><b>1 pessoa</b> · R$ 9,90 por mês</span></label>
-        <label class="plano-op"><input type="radio" name="ccVagas" value="2"><span><b>2 pessoas</b> · R$ 13,90 por mês <small>(paga uma vez só, vale para as duas)</small></span></label>
+        <label style="font-size:13px;color:var(--muted);">Quantas pessoas vão usar?</label>
+        <label class="plano-op"><input type="radio" name="ccVagas" value="1" checked><span><b>1 pessoa</b> · R$ 9,90/mês</span></label>
+        <label class="plano-op"><input type="radio" name="ccVagas" value="2"><span><b>2 pessoas</b> · R$ 13,90/mês <small>(um só pagamento)</small></span></label>
       </div>
       <div id="ccResto" style="display:none;">
         <div class="input-group"><label>Nome de usuário</label><input type="text" id="ccNome" autocomplete="off" maxlength="30" placeholder="como você quer ser chamado"></div>
         <div class="input-group"><label>Gênero</label><select id="ccGenero"></select></div>
         <div class="input-group"><label>Telefone</label><input type="text" id="ccTel" maxlength="15" inputmode="tel" placeholder="(00) 00000-0000" autocomplete="off"></div>
         <div class="input-group"><label>E-mail</label><input type="email" id="ccEmail" placeholder="nome@exemplo.com" autocomplete="off"></div>
-        <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="ccSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha">👁️</button></div></div>
-        <div class="input-group"><label>Repita a senha</label><div class="password-wrapper"><input type="password" id="ccSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha2">👁️</button></div></div>
-        <p class="hint">Mínimo de 6 caracteres, com uma letra maiúscula, uma minúscula e um número.</p>
+        <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="ccSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <div class="input-group"><label>Repita a senha</label><div class="password-wrapper"><input type="password" id="ccSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha2" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <p class="hint">Mínimo 6 caracteres, com maiúscula, minúscula e número.</p>
         <label class="check-row"><input type="checkbox" id="ccAceite"><span>Li e aceito os <a href="#" data-legal="termos" style="color:var(--accent-text);text-decoration:underline;">Termos de uso</a> e a <a href="#" data-legal="privacidade" style="color:var(--accent-text);text-decoration:underline;">Política de privacidade</a>.</span></label>
       </div>
       <div id="ccPasso2" style="display:none;">
         <div class="input-group"><label>Código enviado para o seu e-mail</label><input type="text" id="ccCodEmail" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:6px;font-size:20px;text-align:center;"></div>
-        <p class="aviso-spam">📬 Não chegou? Veja também a pasta de <b>Spam</b> (ou Lixo eletrônico) e marque como “Não é spam”.</p>
+        <p class="aviso-spam">📬 Não chegou? Veja a pasta de <b>Spam</b> e marque “Não é spam”.</p>
         <div style="display:flex;gap:8px;margin:-4px 0 12px;"><button class="btn ghost" id="btnCcReenviar" type="button">Enviar de novo</button><button class="btn ghost" id="btnCcEditar" type="button">Corrigir dados</button></div>
       </div>
+      <div id="ccCaptcha" style="display:none;margin:4px 0 8px;"></div>
       <button class="btn" id="btnCcAcesso" type="button">Continuar</button>
       <button class="btn" id="btnCcCriar" type="button" style="display:none;">Continuar</button>
-      <button class="btn ghost" id="btnCcTrocar" type="button" style="display:none;">Trocar código ou CPF</button>
       <button class="btn ghost auth-voltar" id="btnCcVoltar" type="button">Já tenho conta · Entrar</button>
     </div>
   </div>
@@ -1055,6 +1070,8 @@
       </div>
     </section>
 
+    <div id="alertaOrcamentoContainer"></div>
+    <div id="resumoSaldoContainer"></div>
     <div id="alertaPendentesContainer"></div>
 
     <section class="gxo-card" id="gxoCard" aria-label="Gasto comparado com o orçado">
@@ -1117,7 +1134,7 @@
   </div>
   <div class="page" id="pageReceber">
     <div class="section-head"><h3>Compras Divididas</h3><button class="chip-btn" id="btnRecHistorico" type="button">📜 Histórico</button></div>
-    <p class="hint">Compras que você dividiu com amigos e outras pessoas de fora da casa. A parte delas fica aqui até quitarem o que devem.</p>
+    <p class="hint">Compras divididas com pessoas de fora. A parte delas fica aqui até pagarem.</p>
     <div class="rec-resumo" id="recResumo"></div>
     <div class="filtro-pessoa" id="recFiltro">
       <button class="active" data-recf="aberto">A receber</button>
@@ -1134,7 +1151,7 @@
     </div>
     <div id="vdPainel"></div>
     <div id="vdLanc">
-      <p class="hint">Cobrança de clientes que compraram algo seu ou contrataram um serviço. É um controle separado das compras divididas e não entra no seu planejamento de gastos.</p>
+      <p class="hint">Cobranças de clientes. Fica separado das compras divididas e do seu planejamento.</p>
       <div class="rec-resumo" id="vdResumo"></div>
       <div class="filtro-pessoa" id="vdFiltro">
         <button class="active" data-vdf="aberto">A receber</button>
@@ -1174,8 +1191,8 @@
 
 <!-- MODAL COMPRA -->
 <div class="modal-overlay" id="modalCompra">
-  <div class="modal">
-    <div class="modal-header"><h3 id="tituloModalCompra">Nova Compra</h3><button class="close-btn" data-close="modalCompra">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="tituloModalCompra">Nova Compra</h3><button class="close-btn" aria-label="Fechar" data-close="modalCompra">×</button></div>
     <input type="hidden" id="editIdCompra">
     <div class="form-grid">
       <div class="input-group full"><label>Nome da Compra</label><input type="text" id="cNome" placeholder="Ex: Supermercado..."></div>
@@ -1209,8 +1226,8 @@
 
 <!-- MODAL GERENCIAR COMPRAS -->
 <div class="modal-overlay" id="modalGerenciarCompras">
-  <div class="modal">
-    <div class="modal-header"><h3>Gerenciar Compras</h3><button class="close-btn" data-close="modalGerenciarCompras">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Gerenciar Compras</h3><button class="close-btn" aria-label="Fechar" data-close="modalGerenciarCompras">×</button></div>
     <div class="tab-buttons">
       <button class="active" data-gtab="ativas">Compras Ativas</button>
       <button data-gtab="historico">Histórico de Compras</button>
@@ -1231,8 +1248,8 @@
 
 <!-- MODAL DETALHES CATEGORIA -->
 <div class="modal-overlay" id="modalDetalhesCategoria">
-  <div class="modal">
-    <div class="modal-header"><h3 id="detalhesCatNome">Categoria</h3><button class="close-btn" data-close="modalDetalhesCategoria">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="detalhesCatNome">Categoria</h3><button class="close-btn" aria-label="Fechar" data-close="modalDetalhesCategoria">×</button></div>
     <div style="display:flex;justify-content:space-between;margin-bottom:15px;font-size:13px;color:var(--muted);">
       <span id="detalhesCatResumo"></span>
       <span style="cursor:pointer;color:var(--primary);text-decoration:underline;" id="btnAlterarTeto">Alterar Teto</span>
@@ -1243,8 +1260,8 @@
 
 <!-- MODAL CATEGORIZAR -->
 <div class="modal-overlay" id="modalCategorizar">
-  <div class="modal">
-    <div class="modal-header"><h3>Categorizar Gastos</h3><button class="close-btn" data-close="modalCategorizar">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Categorizar Gastos</h3><button class="close-btn" aria-label="Fechar" data-close="modalCategorizar">×</button></div>
     <p style="font-size:13px;color:var(--muted);margin-bottom:15px;">Selecione a categoria para cada compra abaixo:</p>
     <div id="listaPendentes" style="max-height:60vh;overflow-y:auto;margin-bottom:15px;"></div>
     <button class="btn" id="btnSalvarCategorizacao">Salvar Categorias</button>
@@ -1253,8 +1270,8 @@
 
 <!-- MODAL RENDA -->
 <div class="modal-overlay" id="modalRenda">
-  <div class="modal">
-    <div class="modal-header"><h3>Definir Renda</h3><button class="close-btn" data-close="modalRenda">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Definir Renda</h3><button class="close-btn" aria-label="Fechar" data-close="modalRenda">×</button></div>
     <div class="input-group"><label>De quem é esta renda?</label><select id="rendaResponsavel"></select></div>
     <p class="hint">O valor vale para este mês e para todos os meses seguintes.</p>
     <div class="input-group"><label>Renda Bruta</label><input type="text" class="money" id="rendaBruta" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
@@ -1265,8 +1282,8 @@
 
 <!-- MODAL TETOS -->
 <div class="modal-overlay" id="modalOrcamentoPadrao">
-  <div class="modal">
-    <div class="modal-header"><h3>Editar Tetos</h3><button class="close-btn" data-close="modalOrcamentoPadrao">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Editar Tetos</h3><button class="close-btn" aria-label="Fechar" data-close="modalOrcamentoPadrao">×</button></div>
     <div class="input-group"><label>De quem é este teto?</label><select id="orcamentoResponsavel"></select></div>
     <p id="tetoAviso" style="font-size:12px;color:var(--warn);margin-bottom:10px;display:none;"></p>
     <p class="hint">Os tetos valem para este mês e para todos os meses seguintes.</p>
@@ -1281,8 +1298,8 @@
 
 <!-- MODAL EDITAR TETO INDIVIDUAL -->
 <div class="modal-overlay modal-nivel-2" id="modalEditarOrcamento">
-  <div class="modal">
-    <div class="modal-header"><h3>Editar Teto</h3><button class="close-btn" data-close="modalEditarOrcamento">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Editar Teto</h3><button class="close-btn" aria-label="Fechar" data-close="modalEditarOrcamento">×</button></div>
     <input type="hidden" id="editOrcamentoCategoriaId">
     <div class="input-group"><label>Valor do Teto</label><input type="text" class="money" id="editOrcamentoValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
     <button class="btn" id="btnSalvarEdicaoOrc">Salvar Alteração</button>
@@ -1291,8 +1308,8 @@
 
 <!-- MODAL NOVA CATEGORIA -->
 <div class="modal-overlay modal-nivel-2" id="modalNovaCategoria">
-  <div class="modal">
-    <div class="modal-header"><h3>Nova Categoria</h3><button class="close-btn" data-close="modalNovaCategoria">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Nova Categoria</h3><button class="close-btn" aria-label="Fechar" data-close="modalNovaCategoria">×</button></div>
     <div class="input-group"><label>Nome da Categoria</label><input type="text" id="novaCatNome" placeholder="Ex: Viagens, Pets..."></div>
     <button class="btn" id="btnSalvarNovaCat">Criar Categoria</button>
   </div>
@@ -1300,8 +1317,8 @@
 
 <!-- MODAL HISTÓRICO -->
 <div class="modal-overlay" id="modalHistorico">
-  <div class="modal">
-    <div class="modal-header"><h3>Histórico de Alterações</h3><button class="close-btn" data-close="modalHistorico">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Histórico de Alterações</h3><button class="close-btn" aria-label="Fechar" data-close="modalHistorico">×</button></div>
     <div class="tab-buttons">
       <button class="active" data-htab="orcamento">Orçamento (Tetos)</button>
       <button data-htab="renda">Renda</button>
@@ -1313,30 +1330,30 @@
 
 <!-- MODAIS DE USUÁRIO -->
 <div class="modal-overlay modal-nivel-2" id="modalNovoUsuario">
-  <div class="modal">
-    <div class="modal-header"><h3>Novo Usuário</h3><button class="close-btn" data-close="modalNovoUsuario">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Novo Usuário</h3><button class="close-btn" aria-label="Fechar" data-close="modalNovoUsuario">×</button></div>
     <div class="input-group"><label>ID do Grupo</label><input type="number" id="cadGrupo" min="1"></div>
     <div class="input-group"><label>Nome de Usuário</label><input type="text" id="cadNome"></div>
     <div class="input-group"><label>CPF</label><input type="text" id="cadCpf" maxlength="14" inputmode="numeric"></div>
     <div class="input-group"><label>Gênero</label><select id="cadGenero"></select></div>
     <div class="input-group"><label>Telefone</label><input type="text" id="cadTelefone" maxlength="15" inputmode="tel" placeholder="(00) 00000-0000"></div>
     <div class="input-group"><label>E-mail</label><input type="email" id="cadEmail" placeholder="nome@exemplo.com"></div>
-    <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="cadSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="cadSenha">👁️</button></div></div>
+    <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="cadSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="cadSenha" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <button class="btn" id="btnCad">Criar Conta</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="modalGerenciarUsuarios">
-  <div class="modal">
-    <div class="modal-header"><h3>Gerenciar Usuários</h3><button class="close-btn" data-close="modalGerenciarUsuarios">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Gerenciar Usuários</h3><button class="close-btn" aria-label="Fechar" data-close="modalGerenciarUsuarios">×</button></div>
     <div style="margin-bottom:15px;"><button class="btn" id="btnNovoUsuario" style="background:var(--success);">+ Novo Usuário</button></div>
     <div id="listaUsuariosAdmin"></div>
   </div>
 </div>
 
 <div class="modal-overlay modal-nivel-2" id="modalEditarUsuario">
-  <div class="modal">
-    <div class="modal-header"><h3>Editar Usuário</h3><button class="close-btn" data-close="modalEditarUsuario">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Editar Usuário</h3><button class="close-btn" aria-label="Fechar" data-close="modalEditarUsuario">×</button></div>
     <input type="hidden" id="editUserId">
     <div class="input-group"><label>ID do Grupo</label><input type="number" id="editGrupo" min="1"></div>
     <div class="input-group"><label>Nome de Usuário</label><input type="text" id="editNome"></div>
@@ -1351,8 +1368,8 @@
 
 <!-- MODAL PORQUINHO -->
 <div class="modal-overlay" id="modalPorquinho">
-  <div class="modal">
-    <div class="modal-header"><h3 id="tituloModalPorquinho">Novo Porquinho</h3><button class="close-btn" data-close="modalPorquinho">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="tituloModalPorquinho">Novo Porquinho</h3><button class="close-btn" aria-label="Fechar" data-close="modalPorquinho">×</button></div>
     <input type="hidden" id="porqId">
     <div class="input-group"><label>Nome</label><input type="text" id="porqNome" maxlength="40" placeholder="Ex: Viagem, Reserva de emergência..."></div>
     <div class="input-group"><label>Quem Pode Ver</label><input type="text" id="porqVisib"></div>
@@ -1360,15 +1377,15 @@
     <div class="input-group"><label>Ícone</label><div class="emoji-picker" id="porqEmojis"></div><input type="hidden" id="porqEmoji" value="🐷"></div>
     <div class="input-group"><label>Meta total (opcional)</label><input type="text" class="money" id="porqMeta" inputmode="numeric" autocomplete="off" placeholder="Ex: R$ 3.000,00"></div>
     <div class="input-group"><label>Objetivo mensal (opcional)</label><input type="text" class="money" id="porqObjetivo" inputmode="numeric" autocomplete="off" placeholder="Ex: R$ 300,00"></div>
-    <p class="hint">O objetivo mensal é quanto você quer guardar neste porquinho por mês. O app compara com o que foi guardado em cada mês.</p>
+    <p class="hint">Quanto você quer guardar por mês. O app compara com o guardado.</p>
     <button class="btn" id="btnSalvarPorquinho">Salvar</button>
   </div>
 </div>
 
 <!-- MODAL MOVIMENTO PORQUINHO -->
 <div class="modal-overlay" id="modalMovPorquinho">
-  <div class="modal">
-    <div class="modal-header"><h3 id="tituloModalMov">Guardar</h3><button class="close-btn" data-close="modalMovPorquinho">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="tituloModalMov">Guardar</h3><button class="close-btn" aria-label="Fechar" data-close="modalMovPorquinho">×</button></div>
     <input type="hidden" id="movPorqId"><input type="hidden" id="movTipo">
     <div id="movSaldoInfo" style="font-size:13px;color:var(--muted);margin-bottom:14px;"></div>
     <div class="input-group"><label>Valor</label><input type="text" class="money" id="movValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
@@ -1381,8 +1398,8 @@
 
 <!-- MODAL EXTRATO PORQUINHO -->
 <div class="modal-overlay" id="modalExtratoPorquinho">
-  <div class="modal">
-    <div class="modal-header"><h3 id="extratoTitulo">Extrato</h3><button class="close-btn" data-close="modalExtratoPorquinho">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="extratoTitulo">Extrato</h3><button class="close-btn" aria-label="Fechar" data-close="modalExtratoPorquinho">×</button></div>
     <div id="extratoResumo" style="font-size:13px;color:var(--muted);margin-bottom:14px;"></div>
     <div id="listaExtrato" style="max-height:55vh;overflow-y:auto;"></div>
   </div>
@@ -1390,8 +1407,8 @@
 
 <!-- MODAL RENDA EXTRA -->
 <div class="modal-overlay" id="modalRendaExtra">
-  <div class="modal">
-    <div class="modal-header"><h3>Renda Variável/Extra do Mês</h3><button class="close-btn" data-close="modalRendaExtra">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Renda Variável/Extra do Mês</h3><button class="close-btn" aria-label="Fechar" data-close="modalRendaExtra">×</button></div>
     <p class="hint" id="extraMesInfo"></p>
     <div class="input-group"><label>Descrição</label><input type="text" id="extraDesc" maxlength="60" placeholder="Ex: Freelance, Bônus, Venda"></div>
     <div class="form-grid">
@@ -1406,8 +1423,8 @@
 
 <!-- MODAL IMPORTAR FATURA -->
 <div class="modal-overlay" id="modalImportar">
-  <div class="modal">
-    <div class="modal-header"><h3>Importar fatura (CSV)</h3><button class="close-btn" data-close="modalImportar">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Importar fatura (CSV)</h3><button class="close-btn" aria-label="Fechar" data-close="modalImportar">×</button></div>
     <div class="form-grid">
       <div class="input-group"><label>Cartão</label><input type="text" id="impCartao" placeholder="Ex.: Nubank"></div>
       <div class="input-group"><label>Responsável</label><input type="text" id="impResp" placeholder="Selecione"></div>
@@ -1426,8 +1443,8 @@
 </div>
 
 <div class="modal-overlay" id="modalExtrato">
-  <div class="modal">
-    <div class="modal-header"><h3>Importar extrato da conta</h3><button class="close-btn" data-close="modalExtrato">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Importar extrato da conta</h3><button class="close-btn" aria-label="Fechar" data-close="modalExtrato">×</button></div>
     <div class="form-grid">
       <div class="input-group"><label>Conta</label><input type="text" id="exConta" placeholder="Ex.: Nubank"></div>
       <div class="input-group"><label>Responsável</label><input type="text" id="exResp" placeholder="Selecione"></div>
@@ -1442,10 +1459,86 @@
   </div>
 </div>
 
+<!-- CONTAS FIXAS -->
+<div class="modal-overlay" id="modalContasFixas"><div class="modal" role="dialog" aria-modal="true">
+  <div class="modal-header"><h3>Contas fixas</h3><button class="close-btn" aria-label="Fechar" data-close="modalContasFixas" aria-label="Fechar">×</button></div>
+  <p class="hint" style="margin-top:0;">Entram sozinhas todo mês, até o mês que vem. Mudar o valor vale para os próximos meses.</p>
+  <div id="cfLista"></div>
+  <div id="cfForm"><div class="cfg-titulo" id="cfTitulo">Nova conta fixa</div>
+    <div class="form-grid">
+      <div class="input-group"><label>Nome</label><input type="text" id="cfNome" placeholder="Ex.: Aluguel" autocomplete="off"></div>
+      <div class="input-group"><label>Valor (R$)</label><input type="text" id="cfValor" inputmode="decimal" placeholder="0,00"></div>
+      <div class="input-group"><label>Dia do venc.</label><input type="text" id="cfDia" inputmode="numeric" maxlength="2" placeholder="10"></div>
+      <div class="input-group"><label>Responsável</label><select id="cfResp"></select></div>
+      <div class="input-group"><label>Categoria</label><select id="cfCat"></select></div>
+      <div class="input-group"><label>Pagamento</label><select id="cfPagto"></select></div>
+      <div class="input-group"><label>Motivo</label><input type="text" id="cfMotivo" autocomplete="off"></div>
+      <div class="input-group"><label>Tipo</label><input type="text" id="cfTipo" autocomplete="off"></div>
+      <div class="input-group"><label>Nome (conta/cartão)</label><input type="text" id="cfNomePagto" autocomplete="off"></div>
+    </div>
+    <button class="btn" id="btnCfSalvar" type="button">Adicionar</button></div>
+</div></div>
+<!-- REGRAS DE CATEGORIA -->
+<div class="modal-overlay" id="modalRegras"><div class="modal" role="dialog" aria-modal="true">
+  <div class="modal-header"><h3>Regras de categoria</h3><button class="close-btn" aria-label="Fechar" data-close="modalRegras" aria-label="Fechar">×</button></div>
+  <p class="hint" style="margin-top:0;">Quando o nome da compra tiver a palavra, o app sugere categoria, motivo e tipo (importação de fatura e extrato). Você sempre pode mudar na hora.</p>
+  <label class="check-row"><input type="checkbox" id="rgPadrao"><span>Usar sugestões padrão (Uber, iFood, Netflix, mercado…)</span></label>
+  <div id="rgLista"></div>
+  <div class="cfg-titulo">Nova regra</div>
+  <div class="form-grid">
+    <div class="input-group"><label>Palavra</label><input type="text" id="rgPalavra" placeholder="Ex.: padaria" autocomplete="off"></div>
+    <div class="input-group"><label>Categoria</label><select id="rgCat"></select></div>
+    <div class="input-group"><label>Motivo</label><input type="text" id="rgMotivo" autocomplete="off"></div>
+    <div class="input-group"><label>Tipo</label><input type="text" id="rgTipo" autocomplete="off"></div>
+  </div>
+  <button class="btn" id="btnRgSalvar" type="button">Adicionar regra</button>
+</div></div>
+<!-- CARTÕES -->
+<div class="modal-overlay" id="modalCartoes"><div class="modal" role="dialog" aria-modal="true">
+  <div class="modal-header"><h3>Cartões e limite</h3><button class="close-btn" aria-label="Fechar" data-close="modalCartoes" aria-label="Fechar">×</button></div>
+  <p class="hint" style="margin-top:0;">O disponível desconta as parcelas em aberto. O melhor dia de compra é o dia seguinte ao fechamento.</p>
+  <div id="ctLista"></div>
+  <button class="btn" id="btnCtSalvar" type="button">Salvar</button>
+</div></div>
+<!-- SALDOS -->
+<div class="modal-overlay" id="modalSaldos"><div class="modal" role="dialog" aria-modal="true">
+  <div class="modal-header"><h3>Contas e saldos</h3><button class="close-btn" aria-label="Fechar" data-close="modalSaldos" aria-label="Fechar">×</button></div>
+  <div id="sdResumo"></div><div id="sdLista"></div>
+  <div class="cfg-titulo">Adicionar conta</div>
+  <div class="form-grid"><div class="input-group"><label>Nome</label><input type="text" id="sdNome" placeholder="Ex.: Nubank" autocomplete="off"></div><div class="input-group"><label>Saldo (R$)</label><input type="text" id="sdSaldoNovo" inputmode="decimal" placeholder="0,00"></div></div>
+  <button class="btn" id="btnSdAdd" type="button">Adicionar</button>
+</div></div>
+<!-- RELATÓRIOS -->
+<div class="modal-overlay" id="modalRelatorios"><div class="modal" role="dialog" aria-modal="true">
+  <div class="modal-header"><h3>Relatórios</h3><button class="close-btn" aria-label="Fechar" data-close="modalRelatorios" aria-label="Fechar">×</button></div>
+  <div class="filtros" id="relPeriodo" style="margin-bottom:12px;"><button data-p="3">3 meses</button><button data-p="6" class="active">6 meses</button><button data-p="12">12 meses</button></div>
+  <div id="relResumo"></div>
+  <div style="height:180px;margin:10px 0;"><canvas id="relChart"></canvas></div>
+  <div id="relTabela"></div>
+  <div class="imp-row" style="grid-template-columns:1fr 1fr;"><button class="btn secondary" id="btnRelCsv" type="button">📄 Excel (CSV)</button><button class="btn secondary" id="btnRelPdf" type="button">🖨️ PDF</button></div>
+</div></div>
+<!-- GUIA -->
+<div class="modal-overlay modal-nivel-2" id="modalGuia"><div class="modal" role="dialog" aria-modal="true">
+  <div class="onb-corpo" id="guiaCorpo"></div>
+  <button class="btn" id="guiaOk" type="button">Próximo</button><button class="btn ghost" id="guiaPular" type="button">Pular</button>
+</div></div>
+<!-- EXCLUIR CONTA -->
+<div class="modal-overlay" id="modalExcluirConta"><div class="modal" role="dialog" aria-modal="true">
+  <div class="modal-header"><h3>Excluir minha conta</h3><button class="close-btn" aria-label="Fechar" data-close="modalExcluirConta" aria-label="Fechar">×</button></div>
+  <div class="info-box" id="exAviso"></div>
+  <p class="hint">Antes, baixe uma cópia dos seus dados.</p>
+  <button class="btn secondary" id="btnExBaixar" type="button" style="margin-top:0;">📥 Baixar meus dados</button>
+  <label class="check-row"><input type="checkbox" id="exNaoBaixar"><span>Não quero baixar meus dados</span></label>
+  <div class="input-group"><label>Digite EXCLUIR para confirmar</label><input type="text" id="exConfirma" autocomplete="off" autocapitalize="characters"></div>
+  <button class="btn" id="btnExcluirConta" type="button" style="background:var(--danger);" disabled>Excluir minha conta</button>
+</div></div>
+
 <!-- MODAL CONFIGURAÇÕES -->
 <div class="modal-overlay" id="modalConfiguracoes">
-  <div class="modal">
-    <div class="modal-header"><h3>Configurações</h3><button class="close-btn" data-close="modalConfiguracoes">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Configurações</h3><button class="close-btn" aria-label="Fechar" data-close="modalConfiguracoes">×</button></div>
+    <div data-instalar style="display:none;"><div class="cfg-titulo">Aplicativo</div>
+    <button class="cfg-item" type="button" data-instalar-btn><span class="cfg-ic">📲</span><span class="cfg-tx"><strong>Instalar o app no celular</strong><small>Ícone na tela inicial, abre em tela cheia</small></span><span class="cfg-seta">›</span></button></div>
     <div class="cfg-titulo">Avisos</div>
     <button class="cfg-item" id="btnCfgNotif" type="button"><span class="cfg-ic">🔔</span><span class="cfg-tx"><strong>Notificações</strong><small id="cfgNotifResumo">Avisos e lembretes do app</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Aparência</div>
@@ -1458,6 +1551,13 @@
     <div class="cfg-titulo">Cadastros</div>
     <button class="cfg-item" id="btnCfgListas" type="button"><span class="cfg-ic">🏷️</span><span class="cfg-tx"><strong>Motivos e tipos</strong><small>Veja, inclua ou exclua as opções das suas compras</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnCfgSugestoes" type="button"><span class="cfg-ic">💡</span><span class="cfg-tx"><strong>Sugestões e problemas</strong><small>Envie um bug, melhoria ou dúvida</small></span><span class="cfg-seta">›</span></button>
+    <div class="cfg-titulo">Ferramentas</div>
+    <button class="cfg-item" id="btnCfgFixas" type="button"><span class="cfg-ic">🔁</span><span class="cfg-tx"><strong>Contas fixas</strong><small>Lançadas sozinhas todo mês</small></span><span class="cfg-seta">›</span></button>
+    <button class="cfg-item" id="btnCfgRegras" type="button"><span class="cfg-ic">🧠</span><span class="cfg-tx"><strong>Regras de categoria</strong><small>Palavra no nome vira categoria</small></span><span class="cfg-seta">›</span></button>
+    <button class="cfg-item" id="btnCfgCartoes" type="button"><span class="cfg-ic">💳</span><span class="cfg-tx"><strong>Cartões e limite</strong><small>Limite, disponível e melhor dia</small></span><span class="cfg-seta">›</span></button>
+    <button class="cfg-item" id="btnCfgSaldos" type="button"><span class="cfg-ic">💰</span><span class="cfg-tx"><strong>Contas e saldos</strong><small>Saldo, projeção e patrimônio</small></span><span class="cfg-seta">›</span></button>
+    <button class="cfg-item" id="btnCfgRelatorios" type="button"><span class="cfg-ic">📊</span><span class="cfg-tx"><strong>Relatórios</strong><small>Comparativo por mês, Excel e PDF</small></span><span class="cfg-seta">›</span></button>
+    <button class="cfg-item" id="btnCfgGuia" type="button"><span class="cfg-ic">🧭</span><span class="cfg-tx"><strong>Guia rápido</strong><small>Como usar o app</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAssin" style="display:none;">Assinatura</div>
     <button class="cfg-item" id="btnCfgAssin" type="button" style="display:none;"><span class="cfg-ic">💳</span><span class="cfg-tx"><strong>Minha assinatura</strong><small id="cfgAssinResumo">Vencimento, valor e PIX</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAdmin" style="display:none;">Administração</div>
@@ -1466,6 +1566,7 @@
     <button class="cfg-item" id="btnGerenciarUsuarios" type="button" style="display:none;"><span class="cfg-ic">👥</span><span class="cfg-tx"><strong>Gerenciar usuários</strong><small>Acessos e permissões do grupo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Conta</div>
     <div class="info-box" id="cfgConta"></div>
+    <button class="cfg-item" id="btnCfgExcluir" type="button"><span class="cfg-ic">🗑️</span><span class="cfg-tx"><strong>Excluir minha conta</strong><small>Apaga seus dados para sempre</small></span><span class="cfg-seta">›</span></button>
     <p class="hint"><a href="#" data-legal="termos" style="color:var(--accent-text);">Termos de uso</a> · <a href="#" data-legal="privacidade" style="color:var(--accent-text);">Política de privacidade</a></p>
     <div class="cfg-titulo">Sobre o TTR</div>
     <div class="info-box" style="text-align:center;"><div class="ttr-def" data-ttr="nome" style="font-size:14px;margin:0 0 8px;"></div><div class="ttr-lema" data-ttr="lema" style="margin:0;"></div></div>
@@ -1477,7 +1578,7 @@
   <div class="auth-box">
     <div style="font-size:42px;" id="suspensoIc">🔒</div>
     <h2 id="suspensoTit">Conta suspensa</h2>
-    <p class="hint" id="suspensoTxt" style="font-size:13.5px;">Sua mensalidade não foi paga e a conta foi suspensa. Pague o PIX abaixo: assim que o pagamento for confirmado, o acesso é liberado.</p>
+    <p class="hint" id="suspensoTxt" style="font-size:13.5px;">Mensalidade não paga. Pague o PIX abaixo e o acesso volta na hora.</p>
     <div id="suspensoPix"></div>
     <button class="btn secondary" id="btnSuspensoExportar" type="button" style="margin-bottom:8px;">📥 Baixar meus dados</button>
     <button class="btn ghost" id="btnSuspensoSair" type="button">Sair da conta</button>
@@ -1486,8 +1587,8 @@
 
 <!-- TERMOS / PRIVACIDADE -->
 <div class="modal-overlay modal-nivel-2" id="modalLegal">
-  <div class="modal">
-    <div class="modal-header"><h3 id="legalTitulo">Termos de uso</h3><button class="close-btn" data-close="modalLegal">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="legalTitulo">Termos de uso</h3><button class="close-btn" aria-label="Fechar" data-close="modalLegal">×</button></div>
     <div id="legalTexto" class="legal-txt"></div>
     <button class="btn secondary" type="button" data-close="modalLegal">Fechar</button>
   </div>
@@ -1495,20 +1596,20 @@
 
 <!-- MINHA ASSINATURA -->
 <div class="modal-overlay" id="modalAssinatura">
-  <div class="modal">
-    <div class="modal-header"><h3>Minha assinatura</h3><button class="close-btn" data-close="modalAssinatura">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Minha assinatura</h3><button class="close-btn" aria-label="Fechar" data-close="modalAssinatura">×</button></div>
     <div id="assinConteudo"></div>
   </div>
 </div>
 
 <!-- LÍDER: ADICIONAR 2º USUÁRIO -->
 <div class="modal-overlay modal-nivel-2" id="modalNovoMembro">
-  <div class="modal">
-    <div class="modal-header"><h3>Convidar usuário para o grupo</h3><button class="close-btn" data-close="modalNovoMembro">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Convidar usuário para o grupo</h3><button class="close-btn" aria-label="Fechar" data-close="modalNovoMembro">×</button></div>
     <p class="hint" id="nmHint" style="margin-top:0;"></p>
     <div id="nmForm">
       <div class="input-group"><label>CPF da pessoa</label><input type="text" id="nmCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
-      <p class="hint">A pessoa cria o próprio acesso e a própria senha. Para isso ela digita o código e este CPF na tela “Criar conta”.</p>
+      <p class="hint">A pessoa usa o código e este CPF em “Criar conta”.</p>
       <button class="btn" id="btnNmCriar" type="button">Gerar código de convite</button>
     </div>
     <div id="nmPix"></div>
@@ -1523,26 +1624,26 @@
 
 <!-- ADMIN: ENVIAR CÓDIGO (WhatsApp / e-mail) -->
 <div class="modal-overlay modal-nivel-2" id="modalEnviarCodigo">
-  <div class="modal">
-    <div class="modal-header"><h3>Enviar código</h3><button class="close-btn" data-close="modalEnviarCodigo">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Enviar código</h3><button class="close-btn" aria-label="Fechar" data-close="modalEnviarCodigo">×</button></div>
     <div class="info-box" style="text-align:center;"><code id="envCodigoTxt" style="font-size:18px;font-weight:700;"></code><br><small id="envCodigoDias"></small></div>
     <div class="input-group"><label>WhatsApp (com DDD) ou e-mail da pessoa</label><input type="text" id="envContato" placeholder="(11) 90000-0000 ou nome@exemplo.com" autocomplete="off"></div>
     <button class="btn" id="btnEnvWpp" type="button" style="background:#16a34a;">💬 Enviar pelo WhatsApp</button>
     <button class="btn secondary" id="btnEnvEmail" type="button" style="margin-top:8px;">✉️ Enviar por e-mail</button>
-    <p class="hint" style="margin-top:10px;">O WhatsApp abre com a mensagem pronta; é só tocar em enviar. Sem número, você escolhe o contato dentro do WhatsApp.</p>
+    <p class="hint" style="margin-top:10px;">O WhatsApp abre com a mensagem pronta. Escolha o contato e envie.</p>
   </div>
 </div>
 
 <!-- ADMIN: TESTES GRÁTIS E ASSINATURAS -->
 <div class="modal-overlay" id="modalAdminAssin">
-  <div class="modal">
-    <div class="modal-header"><h3>Testes grátis e assinaturas</h3><button class="close-btn" data-close="modalAdminAssin">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Testes grátis e assinaturas</h3><button class="close-btn" aria-label="Fechar" data-close="modalAdminAssin">×</button></div>
     <div class="hist-tabs" style="display:flex;gap:8px;margin-bottom:12px;">
       <button class="btn" id="tabAdmCod" type="button" style="padding:10px;">Códigos</button>
       <button class="btn ghost" id="tabAdmAss" type="button" style="padding:10px;">Assinaturas</button>
     </div>
     <div id="admCodigos">
-      <p class="hint" style="margin-top:0;">Gere códigos e envie para as pessoas: cada código cria uma conta nova com teste grátis e só pode ser usado uma vez.</p>
+      <p class="hint" style="margin-top:0;">Cada código cria uma conta com teste grátis e vale uma vez.</p>
       <div class="form-grid">
         <div class="input-group"><label>Quantidade</label><input type="number" id="admQtd" min="1" max="100" value="1" inputmode="numeric"></div>
         <div class="input-group"><label>Dias de teste</label><input type="number" id="admDias" min="1" max="365" value="30" inputmode="numeric"></div>
@@ -1562,8 +1663,8 @@
 
 <!-- MODAL ACESSO AO APP -->
 <div class="modal-overlay" id="modalAcesso">
-  <div class="modal">
-    <div class="modal-header"><h3>Acesso ao app</h3><button class="close-btn" data-close="modalAcesso">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Acesso ao app</h3><button class="close-btn" aria-label="Fechar" data-close="modalAcesso">×</button></div>
     <div id="cfgAcesso">
       <button class="cfg-item" type="button" data-acesso="bio"><span class="cfg-ic">🔐</span><span class="cfg-tx"><strong id="cfgBioTitulo">Biometria</strong><small>Pede ao abrir e sempre que minimizar, fechar ou bloquear o celular</small></span><span class="cfg-ok">✓</span></button>
       <button class="cfg-item" type="button" data-acesso="senha"><span class="cfg-ic">🔑</span><span class="cfg-tx"><strong>Pedir minha senha</strong><small>Pede a senha ao abrir e sempre que minimizar, fechar ou bloquear o celular</small></span><span class="cfg-ok">✓</span></button>
@@ -1575,8 +1676,8 @@
 
 <!-- MODAL SUGESTÕES -->
 <div class="modal-overlay" id="modalSugestoes">
-  <div class="modal">
-    <div class="modal-header"><h3>Sugestões e problemas</h3><button class="close-btn" data-close="modalSugestoes">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Sugestões e problemas</h3><button class="close-btn" aria-label="Fechar" data-close="modalSugestoes">×</button></div>
     <p class="hint" style="margin-top:0;">Encontrou um erro ou tem uma ideia? Conte aqui. Seu nome e e-mail vão junto com a mensagem.</p>
     <div class="input-group"><label>Tipo</label><select id="sugTipo"><option value="bug">🐞 Bug (algo não funciona)</option><option value="melhoria">✨ Melhoria (uma ideia)</option><option value="duvida">❓ Dúvida</option><option value="outro">💬 Outro</option></select></div>
     <div class="input-group"><label>Mensagem <span id="sugContador" style="float:right;color:var(--muted);font-weight:500;">0/1000</span></label><textarea id="sugTexto" rows="5" maxlength="1000" placeholder="Descreva com detalhes. Se for um bug, diga em qual tela aconteceu e o que você fez."></textarea></div>
@@ -1588,9 +1689,9 @@
 
 <!-- MODAL MOTIVOS E TIPOS -->
 <div class="modal-overlay modal-nivel-2" id="modalListas">
-  <div class="modal">
-    <div class="modal-header"><h3>Motivos e tipos</h3><button class="close-btn" data-close="modalListas">×</button></div>
-    <p class="hint" style="margin-top:0;">Estas opções aparecem ao cadastrar e importar compras. Excluir daqui não apaga compras já lançadas (se ainda houver compra usando a opção, ela continua sugerida). Você também pode digitar um motivo ou tipo novo direto na compra.</p>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Motivos e tipos</h3><button class="close-btn" aria-label="Fechar" data-close="modalListas">×</button></div>
+    <p class="hint" style="margin-top:0;">Opções sugeridas ao cadastrar e importar. Excluir não apaga compras já lançadas.</p>
     <div class="form-grid">
       <div class="input-group"><label>Novo</label><input type="text" id="listaNovoNome" maxlength="40" placeholder="Ex: Mercado, Essencial…" autocomplete="off"></div>
       <div class="input-group"><label>Adicionar como</label><select id="listaNovoTipo"><option value="motivo">Motivo</option><option value="tipo">Tipo</option></select></div>
@@ -1604,8 +1705,8 @@
 
 <!-- MODAL NOTIFICAÇÕES -->
 <div class="modal-overlay" id="modalNotificacoes">
-  <div class="modal">
-    <div class="modal-header"><h3>Notificações</h3><button class="close-btn" data-close="modalNotificacoes">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Notificações</h3><button class="close-btn" aria-label="Fechar" data-close="modalNotificacoes">×</button></div>
     <div class="info-box" id="notifStatus"></div>
     <input type="checkbox" id="notifAtivo" hidden>
     <button class="btn" id="btnAtivarPush" type="button" style="margin-top:0;margin-bottom:14px;">🔔 Ativar notificações</button>
@@ -1614,14 +1715,14 @@
       <div class="input-group"><label>Avisar</label><input type="text" id="notifAntes"></div>
     </div>
     <label class="check-row" style="margin-top:12px;"><input type="checkbox" id="notifAtrasadas"><span>Incluir parcelas atrasadas no aviso</span></label>
-    <p class="hint">O aviso resume quantas parcelas vencem, o valor total e o tipo de pagamento. Você também recebe um aviso 1 dia antes de vencer uma parcela que alguém te deve (Compras Divididas ou Vendas e Serviços). No iPhone, adicione o app à Tela de Início e abra por lá para receber.</p>
+    <p class="hint">Resumo das parcelas que vencem, e também de cobranças a receber (1 dia antes). No iPhone, instale o app na Tela de Início para receber.</p>
     <button class="btn" id="btnSalvarNotif">Salvar Configurações</button>
   </div>
 </div>
 
 <!-- PRIMEIRO ACESSO: biometria / Face ID e notificações -->
 <div class="modal-overlay modal-nivel-2" id="modalOnboarding">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true">
     <div class="onb-corpo" id="onbCorpo"></div>
   </div>
 </div>
@@ -1640,8 +1741,8 @@
 
 <!-- MODAL PARCELAS PAGAS -->
 <div class="modal-overlay" id="modalPagasMes">
-  <div class="modal">
-    <div class="modal-header"><h3 id="tituloPagasMes">Parcelas pagas</h3><button class="close-btn" data-close="modalPagasMes">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="tituloPagasMes">Parcelas pagas</h3><button class="close-btn" aria-label="Fechar" data-close="modalPagasMes">×</button></div>
     <div id="resumoPagasMes" class="hint"></div>
     <div id="listaPagasMes" style="max-height:60vh;overflow-y:auto;"></div>
   </div>
@@ -1649,8 +1750,8 @@
 
 <!-- MODAL ADIANTAMENTO DE FATURA -->
 <div class="modal-overlay" id="modalAdiantamento">
-  <div class="modal">
-    <div class="modal-header"><h3>Adiantar pagamento</h3><button class="close-btn" data-close="modalAdiantamento">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Adiantar pagamento</h3><button class="close-btn" aria-label="Fechar" data-close="modalAdiantamento">×</button></div>
     <div class="input-group"><label>Cartão de Crédito</label><input type="text" id="adTipo" placeholder="Selecione"></div>
     <div class="info-box" id="adInfo"></div>
     <div class="input-group"><label>Valor adiantado</label><input type="text" class="money" id="adValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
@@ -1661,8 +1762,8 @@
 
 <!-- MODAL RECEBER -->
 <div class="modal-overlay" id="modalReceber">
-  <div class="modal">
-    <div class="modal-header"><h3 id="recTitulo">Receber</h3><button class="close-btn" data-close="modalReceber">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="recTitulo">Receber</h3><button class="close-btn" aria-label="Fechar" data-close="modalReceber">×</button></div>
     <div class="info-box" id="recInfo"></div>
     <div class="form-grid">
       <div class="input-group"><label>Valor recebido</label><input type="text" class="money" id="recValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
@@ -1685,8 +1786,8 @@
 
 <!-- MODAL HISTÓRICO A RECEBER -->
 <div class="modal-overlay" id="modalRecHistorico">
-  <div class="modal">
-    <div class="modal-header"><h3>Histórico de compras</h3><button class="close-btn" data-close="modalRecHistorico">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Histórico de compras</h3><button class="close-btn" aria-label="Fechar" data-close="modalRecHistorico">×</button></div>
     <p class="hint" style="margin-top:0;">Tudo o que já foi dividido e cobrado de pessoas de fora, com as datas e os valores de cada pagamento.</p>
     <div id="recHistoricoCorpo"></div>
   </div>
@@ -1694,8 +1795,8 @@
 
 <!-- MODAL NOVA/EDITAR VENDA OU SERVIÇO (separado das outras inclusões) -->
 <div class="modal-overlay" id="modalVenda">
-  <div class="modal">
-    <div class="modal-header"><h3 id="vdTituloModal">Nova venda ou serviço</h3><button class="close-btn" data-close="modalVenda">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="vdTituloModal">Nova venda ou serviço</h3><button class="close-btn" aria-label="Fechar" data-close="modalVenda">×</button></div>
     <input type="hidden" id="vdEditId">
     <div class="form-grid">
       <div class="input-group"><label>Tipo</label><select id="vdTipo"><option value="servico">🛠️ Serviço</option><option value="venda">🛍️ Venda de produto</option></select></div>
@@ -1722,8 +1823,8 @@
 
 <!-- MODAL RECEBER (VENDAS E SERVIÇOS) -->
 <div class="modal-overlay" id="modalVdReceber">
-  <div class="modal">
-    <div class="modal-header"><h3 id="vdRecTitulo">Receber</h3><button class="close-btn" data-close="modalVdReceber">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="vdRecTitulo">Receber</h3><button class="close-btn" aria-label="Fechar" data-close="modalVdReceber">×</button></div>
     <div class="info-box" id="vdRecInfo"></div>
     <div class="form-grid">
       <div class="input-group"><label>Valor recebido</label><input type="text" class="money" id="vdRecValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
@@ -1749,8 +1850,8 @@
 
 <!-- MODAL HISTÓRICO VENDAS E SERVIÇOS -->
 <div class="modal-overlay" id="modalVdHistorico">
-  <div class="modal">
-    <div class="modal-header"><h3>Histórico de vendas e serviços</h3><button class="close-btn" data-close="modalVdHistorico">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Histórico de vendas e serviços</h3><button class="close-btn" aria-label="Fechar" data-close="modalVdHistorico">×</button></div>
     <p class="hint" style="margin-top:0;">Tudo o que já foi cobrado de clientes, com as datas e os valores de cada pagamento.</p>
     <div id="vdHistoricoCorpo"></div>
   </div>
@@ -1758,18 +1859,18 @@
 
 <!-- MODAL MÓDULOS -->
 <div class="modal-overlay" id="modalModulos">
-  <div class="modal">
-    <div class="modal-header"><h3>Módulos do app</h3><button class="close-btn" data-close="modalModulos">×</button></div>
-    <p class="hint" style="margin-top:0;">Planejamento e Inclusão e Gestão de Despesas são a base do app e ficam sempre ativos. Ative abaixo só o que você vai usar: telas, cards e campos de cada módulo só aparecem quando ele está ligado. Desligar não apaga nada, os dados ficam guardados.</p>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Módulos do app</h3><button class="close-btn" aria-label="Fechar" data-close="modalModulos">×</button></div>
+    <p class="hint" style="margin-top:0;">Planejamento, Inclusão e Gestão de Despesas ficam sempre ativos. Ative só o que for usar. Desligar não apaga dados.</p>
     <div id="modulosLista"></div>
   </div>
 </div>
 
 <!-- MODAL CATÁLOGO DE SERVIÇOS E PRODUTOS -->
 <div class="modal-overlay" id="modalVdCatalogo">
-  <div class="modal">
-    <div class="modal-header"><h3>Catálogo de serviços e produtos</h3><button class="close-btn" data-close="modalVdCatalogo">×</button></div>
-    <p class="hint" style="margin-top:0;">Cadastre o que você vende ou presta. Na hora de lançar, é só selecionar e o valor padrão já vem preenchido.</p>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Catálogo de serviços e produtos</h3><button class="close-btn" aria-label="Fechar" data-close="modalVdCatalogo">×</button></div>
+    <p class="hint" style="margin-top:0;">Cadastre o que você vende ou presta. O valor padrão já vem preenchido ao lançar.</p>
     <div class="form-grid">
       <div class="input-group"><label>Tipo</label><select id="vcTipo"><option value="servico">🛠️ Serviço</option><option value="venda">🛍️ Produto</option></select></div>
       <div class="input-group"><label>Valor padrão</label><input type="text" class="money" id="vcValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
@@ -1782,8 +1883,8 @@
 
 <!-- MODAL VENCIMENTOS -->
 <div class="modal-overlay" id="modalVencimentos">
-  <div class="modal">
-    <div class="modal-header"><h3 id="tituloVencimentos">Parcelas vencidas</h3><button class="close-btn" data-close="modalVencimentos">×</button></div>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="tituloVencimentos">Parcelas vencidas</h3><button class="close-btn" aria-label="Fechar" data-close="modalVencimentos">×</button></div>
     <div id="listaVencimentos" style="max-height:52vh;overflow-y:auto;"></div>
     <div class="action-row" style="margin-top:16px;">
       <button class="btn secondary" data-close="modalVencimentos" type="button">Fechar</button>
@@ -1991,6 +2092,21 @@ function criarOffline(deps) {
         const op = fila[0];
         const calls = trocarTemp(op.calls, mapa);
         const tipo = calls[0][0];
+        if (op.tabela === 'compras' && tipo === 'insert') {   // se o envio anterior chegou ao servidor mas a resposta se perdeu, não duplica
+          try {
+            const arg = calls[0][1][0], lista = Array.isArray(arg) ? arg : [arg];
+            const ids = [...new Set(lista.map(r => r && r.id_compra).filter(Boolean))];
+            if (ids.length) {
+              const { data: ex, error: eEx } = await real.from('compras').select('id_compra,parcela_referencia').in('id_compra', ids);
+              if (!eEx && ex && ex.length) {
+                const tem = new Set(ex.map(x => x.id_compra + '|' + x.parcela_referencia));
+                const novas = lista.filter(r => !tem.has(r.id_compra + '|' + r.parcela_referencia));
+                if (!novas.length) { fila.shift(); salvarFila(); feitos++; render(); continue; }
+                calls[0][1][0] = Array.isArray(arg) ? novas : novas[0];
+              }
+            }
+          } catch (e) { if (erroRede(e)) { estarOffline(); break; } }
+        }
         const precisaSelect = tipo === 'insert' && op.tempIds && !calls.some(([m]) => m === 'select');
         let res;
         try {
@@ -2042,15 +2158,15 @@ function criarOffline(deps) {
     let el = document.getElementById('offBar');
     if (!el) {
       el = document.createElement('div'); el.id = 'offBar';
-      el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:9990;padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.4;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.35);display:none;';
+      el.style.cssText = 'position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:99990;pointer-events:none;padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.4;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.35);display:none;';
       document.body.appendChild(el);
-      el.addEventListener('click', e => { if (e.target.closest('[data-off-enviar]')) enviar(); });
+      el.style.pointerEvents = 'auto'; el.addEventListener('click', e => { if (e.target.closest('[data-off-enviar]')) enviar(); });
     }
     const n = fila.length, semNet = offline || !online();
     let txt = '', fundo = '#7c2d12', cor = '#fff';
-    if (semNet) txt = n ? `📴 Sem internet · ${n} ${n === 1 ? 'alteração guardada' : 'alterações guardadas'} neste aparelho. O envio é automático quando a conexão voltar.` : '📴 Sem internet. Você pode continuar usando: o que mudar fica guardado e é enviado depois.';
+    if (semNet) txt = n ? `📴 Sem internet · ${n} ${n === 1 ? 'alteração guardada' : 'alterações guardadas'}. Enviamos quando voltar.` : '📴 Sem internet. O que você mudar fica guardado e é enviado depois.';
     else if (flushing) { txt = `🔄 Sincronizando ${n} ${n === 1 ? 'alteração' : 'alterações'}…`; fundo = '#1e3a8a'; }
-    else if (n) { txt = semSessao ? `⚠️ ${n} ${n === 1 ? 'alteração aguardando' : 'alterações aguardando'} envio. Entre de novo na conta para enviar.` : `⏳ ${n} ${n === 1 ? 'alteração aguardando' : 'alterações aguardando'} envio. <a href="#" data-off-enviar style="color:#fff;text-decoration:underline;">Enviar agora</a>`; fundo = '#78350f'; }
+    else if (n) { txt = semSessao ? `⚠️ ${n} aguardando envio. Entre de novo na conta para enviar.` : `⏳ ${n} aguardando envio. <a href="#" data-off-enviar style="color:#fff;text-decoration:underline;">Enviar agora</a>`; fundo = '#78350f'; }
     else if (recente) { txt = '✅ Tudo sincronizado'; fundo = '#14532d'; }
     el.style.display = txt ? 'block' : 'none'; el.style.background = fundo; el.style.color = cor; el.innerHTML = txt;
   }
@@ -2076,7 +2192,7 @@ function criarOffline(deps) {
       if (fila.length && online()) enviar();
     },
     async aoSair() {                       // apaga as cópias de leitura (a fila de envio continua guardada)
-      try { localStorage.removeItem('ttr_last_uid'); } catch (e) {}
+      try { localStorage.removeItem('ttr_last_uid'); if (uid) localStorage.removeItem('ttr_pwv_' + uid); } catch (e) {}
       try { const ks = await kv.chaves(); for (const k of ks) if (String(k).startsWith('c|')) await kv.del(k); } catch (e) {}
     },
     async antesDeSair() {                  // devolve false se a pessoa desistir de sair
@@ -2192,7 +2308,8 @@ const somaTerceiros = lista => lista.reduce((s, c) => s + valorTerceiros(c), 0);
 // quanto da parcela já foi pago, na parte que cabe à pessoa (Ambos divide ao meio)
 const pagoPessoa = (c, nome) => { const v = Number(c.valor_parcela) || 0; return v ? valorPagoParcela(c) * (valorPessoa(c, nome) / v) : 0; };
 
-function mostrarErro(msg) { const el = $('msgErro'); el.textContent = msg; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 5000); }
+let _erroT = null;
+function mostrarErro(msg) { const el = $('msgErro'); el.textContent = msg; el.style.display = 'block'; clearTimeout(_erroT); _erroT = setTimeout(() => el.style.display = 'none', 8000); try { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }
 /* popups em pilha: ao fechar (X ou toque fora) um popup aberto a partir de outro, volta para o anterior.
    O "pai" é o popup que estava aberto, ou que acabou de ser fechado para abrir este (ex.: Configurações → Notificações). */
 const _paiModal = {}; let _recemFechado = null;
@@ -3539,7 +3656,7 @@ const TTR_L = t => `<span class="ttr-l">${t}</span>`;
 const TTR_NOME_HTML = `${TTR_L('T')}racking, ${TTR_L('T')}rust &amp; ${TTR_L('R')}esults`;
 const TTR_LEMA_HTML = `${TTR_L('T')}rack Your Finances. ${TTR_L('T')}rust Your Decisions. Achieve ${TTR_L('R')}esults.`;
 function preencherMarca() { document.querySelectorAll('[data-ttr]').forEach(el => { el.innerHTML = el.dataset.ttr === 'lema' ? TTR_LEMA_HTML : TTR_NOME_HTML; }); }
-const AVISO_SPAM = 'Se o e-mail não chegar, veja também a pasta de Spam (ou Lixo eletrônico).';
+const AVISO_SPAM = 'Não chegou? Veja o Spam.';
 // encerra a sessão de verdade: não trava se a internet falhar e apaga o login guardado, para não "voltar" ao carregar os dados
 async function encerrarSessao() {
   try { clearInterval(verifAssinTimer); clearInterval(pixTimer); } catch (e) {}
@@ -3581,6 +3698,16 @@ const bioNome = () => ehIOS() ? 'Face ID' : 'biometria';
 const chBio = uid => 'ttr_bio_cred_' + uid, chModo = uid => 'ttr_modo_acesso_' + uid, chPrimeiro = uid => 'ttr_primeiro_acesso_' + uid;
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} };
+/* senha conferida no aparelho (só um "resumo" com PBKDF2, nunca a senha): permite desbloquear o app sem internet */
+const chPw = uid => 'ttr_pwv_' + uid;
+const hexDe = u8 => [...u8].map(b => b.toString(16).padStart(2, '0')).join('');
+const bytesDe = h => Uint8Array.from((h.match(/../g) || []).map(x => parseInt(x, 16)));
+async function pwDerivar(senha, salt) {
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), 'PBKDF2', false, ['deriveBits']);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 150000 }, k, 256));
+}
+async function guardarVerificadorSenha(uid, senha) { try { const salt = crypto.getRandomValues(new Uint8Array(16)); lsSet(chPw(uid), JSON.stringify({ s: hexDe(salt), h: hexDe(await pwDerivar(senha, salt)) })); } catch (e) {} }
+async function conferirSenhaLocal(uid, senha) { try { const v = JSON.parse(lsGet(chPw(uid)) || 'null'); return !!v && hexDe(await pwDerivar(senha, bytesDe(v.s))) === v.h; } catch (e) { return false; } }
 const bufParaB64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 // 'bio' = biometria/Face ID · 'senha' = pede a senha · 'conectado' = abre direto
 const modoAcesso = uid => { const m = lsGet(chModo(uid)); return (m === 'bio' && lsGet(chBio(uid))) ? 'bio' : m === 'senha' ? 'senha' : 'conectado'; };
@@ -3638,8 +3765,13 @@ function bloquearApp(uid, email) {
       try {
         if (porSenha) {
           if (!campo.value) { msg.textContent = 'Digite a sua senha.'; return; }
-          const { error } = await db.auth.signInWithPassword({ email, password: campo.value });
-          if (error) { msg.textContent = 'Senha incorreta. Tente de novo.'; campo.value = ''; return; }
+          if (!navigator.onLine && lsGet(chPw(uid))) {
+            if (!(await conferirSenhaLocal(uid, campo.value))) { msg.textContent = 'Senha incorreta. Tente de novo.'; campo.value = ''; return; }
+          } else {
+            const { error } = await db.auth.signInWithPassword({ email, password: campo.value });
+            if (error) { msg.textContent = 'Senha incorreta. Tente de novo.'; campo.value = ''; return; }
+            guardarVerificadorSenha(uid, campo.value);
+          }
         } else await bioVerificar(uid);
         liberar();
       } catch (e) { msg.textContent = porSenha ? 'Não foi possível confirmar a senha. Tente de novo.' : 'Não foi possível confirmar. Toque em Desbloquear para tentar de novo.'; }
@@ -3714,11 +3846,11 @@ async function iniciarPrimeiroAcesso() {
   if (await bioDisponivel() && !lsGet(chBio(u.id))) passos.push('bio');
   const sub = pushSuportado() ? await subAtualPush() : null;
   if (!(pushSuportado() && Notification.permission === 'granted' && sub)) passos.push('notif');
-  if (passos.length) onbPasso(passos, 0);
+  if (passos.length) onbPasso(passos, 0); else nvGuiaPrimeira();
 }
 function onbPasso(passos, i) {
   const tipo = passos[i], corpo = $('onbCorpo');
-  const prox = () => { if (i + 1 < passos.length) onbPasso(passos, i + 1); else fecharModal('modalOnboarding'); };
+  const prox = () => { if (i + 1 < passos.length) onbPasso(passos, i + 1); else { fecharModal('modalOnboarding'); nvGuiaPrimeira(); } };
   const cab = `<div class="onb-passos">Passo ${i + 1} de ${passos.length}</div>`;
   if (tipo === 'bio') {
     corpo.innerHTML = `${cab}<div class="onb-ic">🔐</div><h3>Entrar com ${esc(bioNome())}</h3><p>Cadastre agora e, nas próximas vezes, o app pede ${esc(bioNome())} ao abrir e sempre que você voltar a ele depois de minimizar ou bloquear o celular. Você pode mudar isso depois em Configurações.</p><button class="btn" id="onbOk" type="button">Cadastrar ${esc(bioNome())}</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`;
@@ -4032,32 +4164,39 @@ function authTopo() { const a = $('authScreen'); if (a) a.scrollTop = 0; }
 
 /* ---- esqueci minha senha: confere os dados do cadastro, envia um CÓDIGO por e-mail e só então permite a nova senha ---- */
 function recSenhaDados() {
-  return { nome: $('rsNome').value.trim(), cpf: $('rsCpf').value.trim(), telefone: $('rsTel').value.trim(), email: $('rsEmail').value.trim() };
+  return { nome: $('rsNome').value.trim(), cpf: $('rsCpf').value.trim(), email: $('rsEmail').value.trim() };
 }
 function recSenhaMostrar(ativo) {
   $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = ativo ? 'block' : 'none'; $('cadContaForm').style.display = 'none';
   $('recSenhaPasso1').style.display = 'block'; $('recSenhaPasso2').style.display = 'none';
-  $('recSenhaDica').textContent = 'Para sua segurança, informe os dados do seu cadastro. Se estiverem corretos, enviamos um código de 6 números para o seu e-mail.';
-  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsCodigo', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; });
+  $('recSenhaDica').textContent = 'Informe pelo menos 2 dos 3 dados. Se conferirem, enviamos um código por e-mail.';
+  turnstileMostrar('rs', 'rsCaptcha', ativo);
+  ['rsNome', 'rsCpf', 'rsEmail', 'rsCodigo', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; });
 }
 function mascaraEmail(e) { const [u, d] = String(e).split('@'); return (u || '').slice(0, 2) + '•••@' + (d || ''); }
 async function recSenhaVerificar(reenvio) {
   const d = recSenhaDados();
-  if (!d.nome || !d.cpf || !d.telefone || !d.email) return mostrarErro('Preencha todos os campos: nome, CPF, telefone e e-mail.');
-  if (!validaCPF(d.cpf)) return mostrarErro('O CPF informado é inválido.');
+  if ([d.nome, d.cpf, d.email].filter(Boolean).length < 2) return mostrarErro('Preencha pelo menos 2: nome, CPF ou e-mail.');
+  if (d.cpf && !validaCPF(d.cpf)) return mostrarErro('O CPF informado é inválido.');
+  if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return mostrarErro('O e-mail informado é inválido.');
+  if (capExige('rs')) return mostrarErro('Confirme que você não é um robô.');
+  d.captcha = capTok.rs;
   const b = $('btnRsVerificar'); b.disabled = true; b.textContent = 'Enviando código...';
   const r = await invocarConta('reset_solicitar', d);
+  turnstileGasto('rs');
   b.disabled = false; b.textContent = 'Enviar código por e-mail';
   if (r.erro) return mostrarErro(r.mensagem);
-  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail'].forEach(i => { $(i).disabled = true; });
+  ['rsNome', 'rsCpf', 'rsEmail'].forEach(i => { $(i).disabled = true; });
   $('recSenhaPasso1').style.display = 'none'; $('recSenhaPasso2').style.display = 'block';
-  $('recSenhaDica').textContent = 'Enviamos um código de 6 números para ' + mascaraEmail(d.email) + '. Digite o código e escolha a nova senha. O código vale por 15 minutos. ' + AVISO_SPAM;
+  $('recSenhaDica').textContent = 'Código enviado para ' + (r.email_mascarado || 'o seu e-mail') + '. Vale por 15 minutos. ' + AVISO_SPAM;
   if (reenvio === true) notificar('Novo código enviado! ' + AVISO_SPAM, 'sucesso', 8000);
   setTimeout(() => $('rsCodigo').focus(), 50);
 }
 async function recSenhaReenviar() {
+  if (capExige('rs')) return mostrarErro('Confirme que você não é um robô.');
   const b = $('btnRsReenviar'); b.disabled = true;
-  const r = await invocarConta('reset_solicitar', recSenhaDados());
+  const r = await invocarConta('reset_solicitar', { ...recSenhaDados(), captcha: capTok.rs });
+  turnstileGasto('rs');
   setTimeout(() => { b.disabled = false; }, 8000);
   if (r.erro) return mostrarErro(r.mensagem);
   notificar('Novo código enviado para o seu e-mail. ' + AVISO_SPAM, 'sucesso', 8000);
@@ -4098,6 +4237,29 @@ function validarCamposConta(v, senha2) {
   if (senha2 !== undefined && v.senha !== senha2) return 'As senhas não são iguais.';
   return '';
 }
+const ICO_OLHO = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const ICO_OLHO_OFF = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19C5.6 19 2 12 2 12a18.5 18.5 0 0 1 4.1-5.1M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a18.6 18.6 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 0 1-4.2-4.2"/></svg>';
+function formatarCodigo(v) {
+  const raw = String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!raw) return '';
+  if (raw.length <= 3 && 'TTR'.startsWith(raw)) return raw;
+  const corpo = (raw.startsWith('TTR') ? raw.slice(3) : raw).slice(0, 12);
+  return 'TTR' + ((corpo.match(/.{1,4}/g) || []).map(g => '-' + g).join(''));
+}
+/* ---- captcha opcional (Cloudflare Turnstile): só aparece se o site key estiver configurado no Supabase ---- */
+let TS_SITE = ''; const capTok = { cc: '', rs: '' }, capId = {};
+async function turnstilePreparar() {
+  try { const { data } = await db.rpc('config_publica'); TS_SITE = (data && data.turnstile_site) || ''; } catch (e) { TS_SITE = ''; }
+  if (!TS_SITE || window.turnstile) return;
+  await new Promise(r => { const sc = document.createElement('script'); sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; sc.onload = r; sc.onerror = r; document.head.appendChild(sc); });
+}
+function turnstileMostrar(chave, elId, on) {
+  const el = $(elId); if (!el) return; el.style.display = (on && TS_SITE && window.turnstile) ? 'block' : 'none';
+  if (!on || !TS_SITE || !window.turnstile || capId[chave] !== undefined) return;
+  capId[chave] = turnstile.render(el, { sitekey: TS_SITE, theme: 'dark', callback: t => { capTok[chave] = t; }, 'expired-callback': () => { capTok[chave] = ''; } });
+}
+function turnstileGasto(chave) { capTok[chave] = ''; try { if (capId[chave] !== undefined) turnstile.reset(capId[chave]); } catch (e) {} }
+const capExige = chave => TS_SITE && window.turnstile && !capTok[chave];
 let ccEtapa = 0, ccTipo = '', ccTesteLigado = true;
 // etapa 0 = código + CPF · 1 = dados da pessoa · 2 = código recebido por e-mail
 function ccEtapaMostrar(n) {
@@ -4107,18 +4269,22 @@ function ccEtapaMostrar(n) {
   trava(['ccCodigo', 'ccCpf'], n >= 1);
   trava(['ccNome', 'ccTel', 'ccEmail', 'ccSenha', 'ccSenha2', 'ccAceite', 'ccGenero'], n === 2);
   document.querySelectorAll('input[name="ccVagas"]').forEach(r => { r.disabled = n === 2; });
-  mostra('ccResto', n >= 1); mostra('ccPasso2', n === 2); mostra('btnCcAcesso', n === 0); mostra('ccInfo', n >= 1);
-  mostra('ccPlano', n >= 1 && ccTipo === 'pago');
-  mostra('btnCcCriar', n >= 1); mostra('btnCcTrocar', n === 1);
+  mostra('ccResto', n === 1); mostra('ccPasso2', n === 2); mostra('btnCcAcesso', n === 0); mostra('ccInfo', n === 1);
+  mostra('ccAcesso', n === 0);
+  mostra('ccPlano', n === 1 && ccTipo === 'pago');
+  $('ccTitulo').textContent = n === 2 ? 'Confirme seu e-mail' : 'Criar conta';
+  turnstileMostrar('cc', 'ccCaptcha', n >= 1);
+  mostra('btnCcCriar', n >= 1);
   $('btnCcCriar').textContent = n === 2 ? 'Confirmar e criar minha conta' : 'Continuar';
   if (n < 2) $('ccCodEmail').value = '';
 }
 async function ccCarregarConfig() {
+  await turnstilePreparar();
   try { const { data } = await db.rpc('config_publica'); ccTesteLigado = !data || data.teste_gratis !== false; } catch (e) { ccTesteLigado = true; }
-  $('ccCodigoLbl').textContent = ccTesteLigado ? 'Código de teste ou de convite (opcional)' : 'Código de convite (opcional)';
+  $('ccCodigoLbl').textContent = ccTesteLigado ? 'Código de teste ou convite (opcional)' : 'Código de convite (opcional)';
   $('ccIntro').innerHTML = ccTesteLigado
-    ? 'Tem um código de <b>teste grátis</b> ou de <b>convite</b>? Digite abaixo junto com o seu CPF. Se não tiver código, deixe em branco: você escolhe o plano e paga por PIX.'
-    : 'Foi convidado por alguém? Digite o <b>código de convite</b> e o seu CPF. Se não tiver código, deixe em branco: você escolhe o plano e paga por PIX.';
+    ? 'Tem código de teste ou convite? Digite com seu CPF. Sem código, você escolhe o plano e paga por PIX.'
+    : 'Tem código de convite? Digite com seu CPF. Sem código, você escolhe o plano e paga por PIX.';
 }
 function cadContaMostrar(ativo) {
   $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = 'none'; $('cadContaForm').style.display = ativo ? 'block' : 'none';
@@ -4139,9 +4305,9 @@ async function cadContaAcesso() {
   if (r.erro) return falha(r.mensagem);
   ccTipo = r.tipo;
   const info = $('ccInfo');
-  if (r.tipo === 'teste') info.innerHTML = `🎁 <b>Teste grátis de ${r.dias} dias.</b> Depois, a mensalidade é de ${fmtBRL(PRECO_1)} (1 pessoa) ou ${fmtBRL(PRECO_2)} (2 pessoas), por PIX.`;
-  else if (r.tipo === 'membro') info.innerHTML = `🤝 Convite de <b>${esc(capNome(r.lider))}</b>. Você entra no grupo dele(a) e o pagamento é do grupo. Preencha seus dados e crie a sua senha.`;
-  else info.innerHTML = `💳 <b>Conta sem teste grátis.</b> Escolha o plano abaixo; o PIX aparece logo depois de criar a conta e o acesso é liberado assim que o pagamento é confirmado.`;
+  if (r.tipo === 'teste') info.innerHTML = `🎁 <b>Teste grátis de ${r.dias} dias.</b> Depois: ${fmtBRL(PRECO_1)} (1 pessoa) ou ${fmtBRL(PRECO_2)} (2), por PIX.`;
+  else if (r.tipo === 'membro') info.innerHTML = `🤝 Convite de <b>${esc(capNome(r.lider))}</b>. Preencha seus dados e crie sua senha.`;
+  else info.innerHTML = `💳 Escolha o plano. O PIX aparece ao criar a conta.`;
   ccEtapaMostrar(1);
   setTimeout(() => { const el = $('ccNome'); if (el) el.focus(); }, 80);
 }
@@ -4153,11 +4319,13 @@ async function cadContaCriar() {
   if (!v.aceite) return falha('Para criar a conta é preciso aceitar os termos.');
   const b = $('btnCcCriar'); b.disabled = true;
   if (ccEtapa === 1) {                       // confere os dados e manda o código de confirmação para o e-mail
+    if (capExige('cc')) { b.disabled = false; return falha('Confirme que você não é um robô.'); }
+    v.captcha = capTok.cc;
     b.textContent = 'Enviando código...';
     const r = await invocarConta('cadastro_codigo', v);
-    b.disabled = false;
+    turnstileGasto('cc'); b.disabled = false;
     if (r.erro) { b.textContent = 'Continuar'; return falha(r.mensagem); }
-    ccEtapaMostrar(2); notificar('Enviamos um código de 6 números para ' + v.email + '. ' + AVISO_SPAM, 'sucesso', 9000);
+    ccEtapaMostrar(2); authTopo(); notificar('Código enviado para ' + v.email + '. ' + AVISO_SPAM, 'sucesso', 8000);
     setTimeout(() => $('ccCodEmail').focus(), 80);
     return;
   }
@@ -4185,8 +4353,11 @@ async function cadContaCriar() {
 async function cadContaReenviar() {
   const v = lerCamposConta('cc'); v.codigo = $('ccCodigo').value.trim().toUpperCase(); v.aceite = $('ccAceite').checked;
   if (ccTipo === 'pago') { v.codigo = ''; v.vagas = Number((document.querySelector('input[name="ccVagas"]:checked') || {}).value || 1); }
+  if (capExige('cc')) return mostrarErro('Confirme que você não é um robô.');
+  v.captcha = capTok.cc;
   const b = $('btnCcReenviar'); b.disabled = true;
   const r = await invocarConta('cadastro_codigo', v);
+  turnstileGasto('cc');
   setTimeout(() => { b.disabled = false; }, 8000);
   if (r.erro) return mostrarErro(r.mensagem);
   notificar('Novo código enviado para o seu e-mail. ' + AVISO_SPAM, 'sucesso', 8000);
@@ -4273,9 +4444,9 @@ function mostrarSuspenso() {
   const novo = !!(assinatura && assinatura.primeiro_pagamento && !canc);   // conta nova criada sem teste grátis: ainda não pagou
   $('suspensoTit').textContent = canc ? 'Conta cancelada' : novo ? 'Falta só o pagamento' : 'Conta suspensa';
   $('suspensoIc').textContent = canc ? '📦' : novo ? '💳' : '🔒';
-  $('suspensoTxt').textContent = canc ? 'Sua assinatura foi cancelada. Você pode baixar os seus dados abaixo ou reativar a conta pagando o PIX: o acesso volta na hora.'
-    : novo ? 'Sua conta foi criada! Pague o PIX abaixo para liberar o acesso. Assim que o pagamento for confirmado, você entra na hora.'
-    : 'Sua mensalidade não foi paga e a conta foi suspensa. Pague o PIX abaixo: assim que o pagamento for confirmado, o acesso é liberado.';
+  $('suspensoTxt').textContent = canc ? 'Assinatura cancelada. Baixe seus dados ou reative pagando o PIX.'
+    : novo ? 'Conta criada! Pague o PIX abaixo e o acesso é liberado na hora.'
+    : 'Mensalidade não paga. Pague o PIX abaixo e o acesso volta na hora.';
   $('btnSuspensoExportar').style.display = novo ? 'none' : 'block';
   $('suspensoScreen').style.display = 'flex';
   carregarPix('suspensoPix');
@@ -4325,7 +4496,7 @@ function renderAssinatura(a) {
     ${a.cancelada ? 'Acesso até' : 'Vencimento'}: <b>${fmtDataBR(a.vencimento)}</b>${a.teste ? '' : ` · todo dia <b>${a.dia_venc}</b>`}<br>
     Valor mensal: <b>${fmtBRL(a.valor_base || a.valor)}</b>${Math.max(a.membros, a.vagas || 1) >= 2 ? ' <small>(paga uma vez só para os dois)</small>' : ''}
     ${Number(a.ajuste) ? `<br>Ajuste de troca de dia: <b>${sinalBRL(a.ajuste)}</b> <small>(entra na próxima fatura: ${fmtBRL(a.valor)})</small>` : ''}</div>`;
-  if (a.cancelada && a.estado === 'ok') h += '<p class="hint">Você cancelou a assinatura: não haverá novas cobranças. Depois do vencimento a conta é bloqueada, mas você ainda pode baixar os seus dados.</p>';
+  if (a.cancelada && a.estado === 'ok') h += '<p class="hint">Assinatura cancelada: sem novas cobranças. Após o vencimento a conta é bloqueada, mas você pode baixar seus dados.</p>';
   else if (a.estado === 'ok') h += '<p class="hint">O QR Code do PIX aparece aqui 3 dias antes do vencimento. Você também recebe a fatura por e-mail.</p>';
   else h += '<div id="assinPix"></div>';
   if (a.lider && a.membros < 2 && !a.cancelada) h += `<button class="btn ghost" type="button" id="btnAbrirNovoMembro" style="margin-top:8px;">➕ Convidar mais 1 usuário para o meu grupo</button>`;
@@ -4530,6 +4701,7 @@ async function fazerLogin() {
     }
     const { data, error } = await db.auth.signInWithPassword({ email: emailParaLogin, password: pass });
     if (error) throw error;
+    guardarVerificadorSenha(data.user.id, pass);
     mostrarLoading('Carregando seus dados...');
     await carregarPerfil(data.user.id);
   } catch (e) {
@@ -4598,7 +4770,7 @@ function perguntarGenero() {
   if (document.getElementById('modalGenero')) return;
   const ov = document.createElement('div');
   ov.className = 'modal-overlay open'; ov.id = 'modalGenero';
-  ov.innerHTML = `<div class="modal"><div class="modal-header"><h3>Complete seu cadastro</h3></div><p style="font-size:14px;color:var(--muted);margin:0 0 14px;line-height:1.5;">Informe seu gênero para que as mensagens do app (como a de cobrança) usem os termos certos.</p><div class="input-group"><label>Gênero</label><select id="genPerfil">${optsGenero('', 'Selecione…')}</select></div><button class="btn" id="btnGenPerfil" type="button">Salvar</button><button class="btn ghost" id="btnGenDepois" type="button">Agora não</button></div>`;
+  ov.innerHTML = `<div class="modal" role="dialog" aria-modal="true"><div class="modal-header"><h3>Complete seu cadastro</h3></div><p style="font-size:14px;color:var(--muted);margin:0 0 14px;line-height:1.5;">Informe seu gênero para que as mensagens do app (como a de cobrança) usem os termos certos.</p><div class="input-group"><label>Gênero</label><select id="genPerfil">${optsGenero('', 'Selecione…')}</select></div><button class="btn" id="btnGenPerfil" type="button">Salvar</button><button class="btn ghost" id="btnGenDepois" type="button">Agora não</button></div>`;
   document.body.appendChild(ov);
   $('btnGenDepois').addEventListener('click', () => ov.remove());
   $('btnGenPerfil').addEventListener('click', async () => {
@@ -4627,6 +4799,7 @@ async function sair() {
    CARGA DE DADOS
    ========================================= */
 async function carregarDados() {
+  try { await nvCarregar(); await nvGerarRecorrentes(); } catch (e) {}
   let todas = [];
   const pageSize = 1000;
   const emails = emailsGrupo();
@@ -5134,6 +5307,8 @@ function renderGastoOrcado(comprasMes, pessoa) {
 }
 function renderPlanejamento() {
   const mes = state.mesesSelecionados[0];
+  const alertasOrc = [];
+  try { nvRenderResumoSaldo(); nvAlertasOrcamento([]); } catch (e) {}
   const pessoa = state.filtroPessoa;
   const comprasMes = comprasDoMesPessoa(mes);
   renderGastoOrcado(comprasMes, pessoa);
@@ -5168,6 +5343,7 @@ function renderPlanejamento() {
     const gasto = somaPessoa(comprasMes.filter(c => c.categoria_orcamento === cat.nome), pessoa);
     const gastoAnt = somaPessoa(comprasAnt.filter(c => c.categoria_orcamento === cat.nome), pessoa);
     const pct = orcCat > 0 ? Math.round((gasto / orcCat) * 100) : 0;
+    alertasOrc.push({ nome: cat.nome, pct, gasto, orc: orcCat });
     let cor = '#22c55e';
     if (pct >= 70 && pct < 90) cor = '#f5b301';
     if (pct >= 90 || (orcCat === 0 && gasto > 0)) cor = '#f43f5e';
@@ -5208,6 +5384,7 @@ function renderPlanejamento() {
       }]
     });
   });
+  nvAlertasOrcamento(alertasOrc);
 }
 
 async function excluirCategoria(catId) {
@@ -5696,7 +5873,7 @@ function renderPagamentos(lista) {
     const sub = pago ? `<div class="payment-sub">Quitado · ${fm(d.total)}</div>`
       : (d.pago > 0.004 ? `<div class="payment-sub ad">${verbo} ${fm(d.pago)} de ${fm(d.total)}</div>` : '');
     const subV = (!pago && d.venc) ? `<div class="payment-sub venc">⚠️ ${d.venc} parcela(s) vencida(s)</div>` : (!pago && d.hoje ? `<div class="payment-sub hoje">⏰ ${d.hoje} parcela(s) vence(m) hoje</div>` : '');
-    html += `<div class="payment-group clickable${state.filtroPagto === tipo ? ' selecionado' : ''}" data-act="fpagto" data-id="${esc(tipo)}"><div><div class="payment-title">${esc(tipo)}</div><div class="payment-val">${formatarMoeda(falta)}</div>${sub}${subV}</div><div class="payment-btns">${adBtn}${btn}</div></div>`;
+    html += `<div class="payment-group clickable${state.filtroPagto === tipo ? ' selecionado' : ''}" data-act="fpagto" data-id="${esc(tipo)}"><div><div class="payment-title">${esc(tipo)}</div><div class="payment-val">${formatarMoeda(falta)}</div>${sub}${subV}${d.cartao ? nvInfoCartao(tipo) : ''}</div><div class="payment-btns">${adBtn}${btn}</div></div>`;
   });
   $('listaPagamentos').innerHTML = html || '<p style="color:var(--muted);font-size:13px;">Nenhum pagamento neste mês.</p>';
 }
@@ -5901,7 +6078,62 @@ function impParcela(desc, colParc) {
 }
 const IMP_IGNORAR = /pagamento (recebido|efetuado|de fatura|on.?line)|pgto|payment|saldo (anterior|restante)|total (da )?fatura|^total\b|encerramento|estorno|credito de|crédito de/i;
 
+
+/* ---- detecção das colunas por proximidade de nome (e, se precisar, pelo conteúdo) ---- */
+const COL_SINONIMOS = {
+  data: ['data', 'date', 'dia', 'data lancamento', 'data da compra', 'data movimentacao', 'data transacao', 'dt', 'quando'],
+  desc: ['descricao', 'historico', 'lancamento', 'estabelecimento', 'titulo', 'title', 'merchant', 'nome', 'detalhe', 'detalhes', 'memo', 'compra', 'favorecido', 'beneficiario', 'transacao'],
+  valor: ['valor', 'amount', 'value', 'montante', 'quantia', 'vlr', 'valor r$', 'valor (r$)', 'importe', 'total'],
+  deb: ['debito', 'saida', 'saidas', 'debit', 'retirada'],
+  cred: ['credito', 'entrada', 'entradas', 'credit', 'deposito'],
+  parcela: ['parcela', 'parcelas', 'installment', 'prestacao', 'parc']
+};
+function levDist(a, b) {
+  const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) { const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; }
+  return prev[n];
+}
+function pontuaCabecalho(h, sins) {
+  h = normalizarNome(h).replace(/[^a-z0-9$() ]/g, ' ').replace(/\s+/g, ' ').trim(); if (!h) return 0;
+  let melhor = 0; const toks = h.split(' ');
+  for (const s of sins) {
+    if (h === s) return 1;
+    let p = 0;
+    if (toks.includes(s)) p = 0.9;
+    else if (s.length >= 4 && h.includes(s)) p = 0.8;
+    else if (h.length >= 4 && s.includes(h)) p = 0.7;
+    else for (const t of [h, ...toks]) { if (t.length < 3) continue; const sim = 1 - levDist(t, s) / Math.max(t.length, s.length); if (sim >= 0.72) p = Math.max(p, sim * 0.85); }
+    melhor = Math.max(melhor, p);
+  }
+  return melhor;
+}
+function detectarColunas(cab, linhas, ini) {
+  const out = { data: -1, desc: -1, desc2: -1, valor: -1, deb: -1, cred: -1, parcela: -1 };
+  const usados = new Set();
+  const iDesc = cab.findIndex(h => /descri/.test(normalizarNome(h))), iHist = cab.findIndex(h => /historico/.test(normalizarNome(h)));
+  if (iDesc >= 0 && iHist >= 0 && iDesc !== iHist) { out.desc = iDesc; out.desc2 = iHist; usados.add(iDesc); usados.add(iHist); }
+  const cands = [];
+  Object.keys(COL_SINONIMOS).forEach(campo => cab.forEach((h, i) => { const p = pontuaCabecalho(h, COL_SINONIMOS[campo]); if (p >= 0.6) cands.push({ campo, i, p }); }));
+  cands.sort((a, b) => b.p - a.p).forEach(c => { if (out[c.campo] < 0 && !usados.has(c.i)) { out[c.campo] = c.i; usados.add(c.i); } });
+  // "Histórico" + "Descrição": a segunda vira complemento
+  const hist = cab.findIndex((h, i) => !usados.has(i) && /historico/.test(normalizarNome(h))); if (hist >= 0 && out.desc >= 0) { out.desc2 = hist; usados.add(hist); }
+  // o que faltar, deduz pelo conteúdo das primeiras linhas
+  const amostra = (linhas || []).slice(ini || 0, (ini || 0) + 30);
+  if (amostra.length) {
+    const frac = (i, fn) => amostra.filter(r => fn(String(r[i] ?? '').trim())).length / amostra.length;
+    const livres = cab.map((_, i) => i).filter(i => !usados.has(i));
+    if (out.data < 0) { const c = livres.find(i => frac(i, v => v && !!impData(v, ymLocal())) >= 0.7); if (c !== undefined) { out.data = c; usados.add(c); } }
+    if (out.valor < 0 && out.deb < 0 && out.cred < 0) { const c = livres.filter(i => !usados.has(i)).find(i => frac(i, v => v && isFinite(impNumero(v)) && !impData(v, ymLocal())) >= 0.7); if (c !== undefined) { out.valor = c; usados.add(c); } }
+    if (out.desc < 0) { let melhor = -1, tam = 0; livres.filter(i => !usados.has(i)).forEach(i => { const t = amostra.reduce((s, r) => s + (/[a-zA-ZÀ-ú]{3}/.test(String(r[i] || '')) ? String(r[i]).length : 0), 0) / amostra.length; if (t > tam) { tam = t; melhor = i; } }); if (melhor >= 0 && tam >= 4) out.desc = melhor; }
+  }
+  return out;
+}
 function impDetectar(cab) {
+  const d = detectarColunas(cab, imp.linhas, imp.iniDados); if (d.desc >= 0 && d.valor >= 0) return { data: d.data, desc: d.desc, valor: d.valor, parcela: d.parcela };
+  return impDetectarAntigo(cab);
+}
+function impDetectarAntigo(cab) {
   const f = re => cab.findIndex(h => re.test(normalizarNome(h)));
   let valor = cab.findIndex(h => /r\$|brl/.test(normalizarNome(h)) && /valor|amount/.test(normalizarNome(h)));
   if (valor < 0) valor = f(/valor|amount|value/);
@@ -6000,6 +6232,7 @@ async function impAnalisar() {
     const { cur, total } = pr; const nomeBase = pr.nome.replace(/\s+/g, ' ').trim();
     const chave = normalizarNome(nomeBase);
     const ap = apelidos[chave] || porNome[chave] || null;
+    const rg = ap ? null : sugerirCategoria(nomeBase);
     const tol = Math.max(0.05, valor * 0.01);
     const nomeIgual = c => [c.nome_original, c.nome_compra].some(n => n && normalizarNome(n) === chave) || (ap && c.nome_compra && normalizarNome(c.nome_compra) === normalizarNome(ap.nome));
     const parcIgual = c => total === 1 ? true : c.parcela_referencia === `${cur}/${total}`;
@@ -6015,8 +6248,8 @@ async function impAnalisar() {
     }
     itens.push({ desc: b.desc, nomeBase, valor, cur, total, dataCompra, status, motivo, achou: achou ? { nome: achou.nome_compra, valor: achou.valor_parcela } : null,
       incluir: status === 'nova', lembrado: !!ap, nome: ap ? ap.nome : bonitoNome(nomeBase), resp: ap && ap.resp ? ap.resp : respPadrao, respAuto: !(ap && ap.resp),
-      cat: ap && ap.cat ? ap.cat : '', motivoC: ap && ap.motivo ? ap.motivo : '', tipoC: ap && ap.tipo ? ap.tipo : '',
-      puxou: ap && (ap.cat || ap.motivo || ap.tipo) ? ap.nome : '', // aviso no cartão: dados trazidos da compra de mesmo nome (editáveis)
+      cat: ap && ap.cat ? ap.cat : (rg ? rg.cat : ''), motivoC: ap && ap.motivo ? ap.motivo : (rg ? rg.motivo : ''), tipoC: ap && ap.tipo ? ap.tipo : (rg ? rg.tipo : ''),
+      puxou: ap && (ap.cat || ap.motivo || ap.tipo) ? ap.nome : (rg && (rg.cat || rg.motivo || rg.tipo) ? 'regra “' + rg.palavra + '”' : ''), // aviso no cartão: dados trazidos da compra de mesmo nome (editáveis)
       dividir: false, partes: null }); // "dividir com outras pessoas" começa sempre desmarcado
   });
   // refazer a análise (trocar mês ou cartão) não pode apagar o que a pessoa já editou: devolve nome, responsável, categoria e divisão
@@ -6111,7 +6344,7 @@ function impCard(x, i) {
     <div class="imp-meta">${esc(meta)}${data}${x.lembrado ? ' · ✨ nome lembrado' : ''}</div>
     ${x.motivo ? `<div class="imp-alerta">⚠️ ${esc(x.motivo)}${x.achou ? ` (no app: ${esc(capIni(x.achou.nome))} · ${fm(x.achou.valor)})` : ''}</div>` : ''}
     <input class="imp-in" type="text" data-f="nome" value="${esc(x.nome)}" placeholder="Nome da compra" autocomplete="off">
-    ${x.puxou ? `<div class="imp-nota">📌 Categoria, motivo e tipo foram <strong>puxados da compra "${esc(capIni(x.puxou))}"</strong> (mesmo nome). Você pode editar abaixo.</div>` : ''}
+    ${x.puxou ? `<div class="imp-nota">📌 Sugestão: <strong>${esc(x.puxou.startsWith('regra') ? x.puxou : capIni(x.puxou))}</strong>. Você pode editar abaixo.</div>` : ''}
     <div class="imp-pend" data-pend${impCategorizada(x) ? ' style="display:none"' : ''}>⏳ Sem categorização completa — ${x.incluir ? 'vai para "Sem categorização" se não for preenchida' : 'marque para importar'}</div>
     <div class="imp-row"${x.dividir ? ' style="grid-template-columns:1fr;"' : ''}>
       ${x.dividir ? '' : `<select data-f="resp" title="Responsável por esta compra">${impOptsSelect(opcoesResp, x.resp)}</select>`}
@@ -6302,6 +6535,10 @@ function exAcharCabecalho(rows) {
   return -1;
 }
 function exDetectar(cab) {
+  const d = detectarColunas(cab, ext.linhas, ext.iniDados); if (d.data >= 0 && d.desc >= 0 && (d.valor >= 0 || d.deb >= 0 || d.cred >= 0)) return { data: d.data, desc: d.desc, desc2: d.desc2, valor: d.valor, deb: d.deb, cred: d.cred };
+  return exDetectarAntigo(cab);
+}
+function exDetectarAntigo(cab) {
   const f = re => cab.findIndex(h => re.test(normalizarNome(h)));
   const valor = f(/^(valor|amount|value)|valor \(?r\$/);
   let desc = f(/descri|lancamento|title|estabelec|merchant|nome/), desc2 = f(/historico/);
@@ -6466,6 +6703,7 @@ async function exAnalisar() {
     }
     const chave = normalizarNome(t.desc);
     const ap = apelidos[chave] || null;
+    const rg = ap ? null : sugerirCategoria(exNomeSugerido(t.desc) + ' ' + t.desc);
     const tol = 0.05;
     const nomeIgual = c => [c.nome_original, c.nome_compra].some(x => x && normalizarNome(x) === chave) || (ap && c.nome_compra && normalizarNome(c.nome_compra) === normalizarNome(ap.nome));
     const achou = naoCartao.find(c => !c._usado && Math.abs(Number(c.valor_parcela) - valor) <= tol && exDistMes(c.mes_referencia, mes) <= 1 &&
@@ -6479,8 +6717,8 @@ async function exAnalisar() {
     }
     itens.push({ kind: 'nova', desc: t.desc, valor, data: t.data, incluir: true, lembrado: !!ap,
       nome: ap ? ap.nome : exNomeSugerido(t.desc), resp: ap && ap.resp ? ap.resp : respPadrao, respAuto: !(ap && ap.resp),
-      cat: ap && ap.cat ? ap.cat : '', motivoC: ap && ap.motivo ? ap.motivo : '', tipoC: ap && ap.tipo ? ap.tipo : '',
-      pagto: exTipoPagto(t.desc), puxou: ap && (ap.cat || ap.motivo || ap.tipo) ? ap.nome : '' });
+      cat: ap && ap.cat ? ap.cat : (rg ? rg.cat : ''), motivoC: ap && ap.motivo ? ap.motivo : (rg ? rg.motivo : ''), tipoC: ap && ap.tipo ? ap.tipo : (rg ? rg.tipo : ''),
+      pagto: exTipoPagto(t.desc), puxou: ap && (ap.cat || ap.motivo || ap.tipo) ? ap.nome : (rg && (rg.cat || rg.motivo || rg.tipo) ? 'regra “' + rg.palavra + '”' : '') });
   });
   // refazer a análise (trocar o arquivo/colunas) não apaga o que a pessoa já editou
   const ch = x => [x.kind, x.desc, x.valor, x.data].join('|');
@@ -6516,7 +6754,7 @@ function exCard(x, i) {
     <label class="imp-top"><input type="checkbox" data-f="incluir"${x.incluir ? ' checked' : ''}><span class="imp-orig">${esc(x.desc)}</span><strong>${fm(x.valor)}</strong></label>
     <div class="imp-meta">Saída da conta${data}${x.lembrado ? ' · ✨ nome lembrado' : ''}</div>
     <input class="imp-in" type="text" data-f="nome" value="${esc(x.nome)}" placeholder="Nome da compra" autocomplete="off">
-    ${x.puxou ? `<div class="imp-nota">📌 Categoria, motivo e tipo foram <strong>puxados de "${esc(capIni(x.puxou))}"</strong> (mesmo nome). Você pode editar abaixo.</div>` : ''}
+    ${x.puxou ? `<div class="imp-nota">📌 Sugestão: <strong>${esc(x.puxou.startsWith('regra') ? x.puxou : capIni(x.puxou))}</strong>. Você pode editar abaixo.</div>` : ''}
     <div class="imp-pend" data-pend${impCategorizada(x) ? ' style="display:none"' : ''}>⏳ Sem categorização completa — ${x.incluir ? 'vai para "Sem categorização" se não for preenchida' : 'marque para importar'}</div>
     <div class="imp-row">
       <select data-f="resp" title="Responsável">${impOptsSelect(opcoesResp, x.resp)}</select>
@@ -6642,6 +6880,297 @@ function exLigarEventos() {
   };
   $('exLista').addEventListener('input', editar);
   $('exLista').addEventListener('change', editar);
+}
+
+/* =========================================
+   NOVIDADES: contas fixas, regras de categoria, cartões e limite, saldos, relatórios, alertas, guia, excluir conta
+   ========================================= */
+const NV = { rec: [], regras: [], cartoes: [], saldos: [], semTabelas: false };
+const nvNum = v => { const n = impNumero(String(v ?? '')); return isFinite(n) ? n : 0; };
+const nvMoedaIn = v => (Number(v) || 0).toFixed(2).replace('.', ',');
+async function nvUuid(txt) {
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt))).slice(0, 16);
+  const x = [...h].map(b => b.toString(16).padStart(2, '0')).join('');
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20, 32)}`;
+}
+async function nvCarregar() {
+  const g = grupoId();
+  const ler = async t => { try { const { data, error } = await db.from(t).select('*').eq('grupo_id', g).order('id', { ascending: true }); return error ? null : (data || []); } catch (e) { return null; } };
+  const [r, rg, c, s] = await Promise.all([ler('recorrentes'), ler('regras_categoria'), ler('cartoes_config'), ler('contas_saldo')]);
+  NV.semTabelas = r === null;
+  NV.rec = r || []; NV.regras = rg || []; NV.cartoes = c || []; NV.saldos = s || [];
+}
+/* ---- contas fixas: gera a compra de cada mês (do início até o mês que vem), uma única vez por mês ---- */
+async function nvGerarRecorrentes() {
+  const ativos = NV.rec.filter(r => r.ativo !== false && Number(r.valor) > 0); if (!ativos.length) return;
+  const hoje = ymLocal(), ate = addMes(hoje, 1), minimo = addMes(hoje, -12);
+  const alvo = [];
+  ativos.forEach(r => {
+    let ini = String(r.inicio || hoje).slice(0, 7); if (ini < minimo) ini = minimo;
+    if (r.gerado_ate && addMes(String(r.gerado_ate).slice(0, 7), 1) > ini) ini = addMes(String(r.gerado_ate).slice(0, 7), 1);
+    for (let ym = ini; ym <= ate; ym = addMes(ym, 1)) { if (r.fim && ym > String(r.fim).slice(0, 7)) break; alvo.push({ r, ym }); }
+  });
+  if (!alvo.length) return;
+  for (const a of alvo) a.id = await nvUuid(`rec-${a.r.id}-${a.ym}`);
+  const { data, error } = await db.from('compras').select('id_compra').in('id_compra', alvo.map(a => a.id));
+  if (error) return;
+  const tem = new Set((data || []).map(x => x.id_compra));
+  const rows = alvo.filter(a => !tem.has(a.id)).map(({ r, ym, id }) => {
+    const [y, mo] = ym.split('-').map(Number), dia = pad2(Math.min(Number(r.dia) || 1, new Date(y, mo, 0).getDate()));
+    return { id_compra: id, nome_compra: capIni(r.nome), valor_parcela: Number(r.valor), responsavel: r.responsavel, motivo: r.motivo || null, tipo: r.tipo || null, categoria_orcamento: r.categoria || null,
+      tipo_pagamento: r.tipo_pagamento || 'Boleto', nome_pagamento: r.nome_pagamento || null, data_compra: `${ym}-${dia}`, mes_referencia: ym, data_parcela: `${ym}-${dia}`,
+      parcela_referencia: '1/1', status: 'Ativo', pagamento: false, data_pagamento: null, criado_por: currentUser.email };
+  });
+  if (rows.length) { const { error: e2 } = await db.from('compras').insert(rows); if (e2) return; }
+  await Promise.all(ativos.map(r => db.from('recorrentes').update({ gerado_ate: ate }).eq('id', r.id)));
+  ativos.forEach(r => { r.gerado_ate = ate; });
+}
+function nvOptsResp(sel) { return opcoesResp.filter(o => o !== 'Ambos' || membrosGrupo.length > 1).map(o => `<option value="${esc(o)}"${o === sel ? ' selected' : ''}>${esc(capNome(o))}</option>`).join(''); }
+function nvOptsCat(sel) { return `<option value="">Sem categoria</option>` + categoriasOrcamento.map(c => `<option value="${esc(c.nome)}"${normalizarNome(c.nome) === normalizarNome(sel || '') ? ' selected' : ''}>${esc(capIni(c.nome))}</option>`).join(''); }
+
+/* ---- contas fixas ---- */
+let nvRecEdit = null;
+function abrirContasFixas() { nvRecEdit = null; nvRenderRec(); abrirModal('modalContasFixas'); }
+function nvRenderRec() {
+  const box = $('cfLista');
+  if (NV.semTabelas) { box.innerHTML = '<p class="hint">Falta rodar o SQL novo no Supabase.</p>'; $('cfForm').style.display = 'none'; return; }
+  $('cfForm').style.display = '';
+  box.innerHTML = NV.rec.length ? NV.rec.map(r => `<div class="imp-card" data-id="${r.id}"><div class="imp-top" style="cursor:default;"><span class="imp-orig">${esc(capIni(r.nome))}${r.ativo === false ? ' <small>(pausada)</small>' : ''}</span><strong>${fm(r.valor)}</strong></div>
+    <div class="imp-meta">Todo dia ${r.dia} · ${esc(capNome(r.responsavel || ''))}${r.categoria ? ' · ' + esc(capIni(r.categoria)) : ''}</div>
+    <div class="imp-row" style="grid-template-columns:repeat(3,1fr);"><button class="btn-action" data-cf="editar">Editar</button><button class="btn-action" data-cf="pausar">${r.ativo === false ? 'Retomar' : 'Pausar'}</button><button class="btn-action" data-cf="excluir">Excluir</button></div></div>`).join('')
+    : '<p class="hint">Nenhuma conta fixa. Cadastre aluguel, internet, assinaturas…</p>';
+  const r = nvRecEdit || {};
+  $('cfTitulo').textContent = nvRecEdit ? 'Editar conta fixa' : 'Nova conta fixa';
+  $('cfNome').value = r.nome ? capIni(r.nome) : ''; $('cfValor').value = r.valor ? nvMoedaIn(r.valor) : ''; $('cfDia').value = r.dia || '';
+  $('cfResp').innerHTML = nvOptsResp(r.responsavel || (opcoesResp.includes(currentUser.nome) ? currentUser.nome : opcoesResp[0]));
+  $('cfCat').innerHTML = nvOptsCat(r.categoria); $('cfMotivo').value = r.motivo || ''; $('cfTipo').value = r.tipo || '';
+  $('cfPagto').innerHTML = TIPOS_PAGTO_PADRAO.map(t => `<option${t === (r.tipo_pagamento || 'Boleto') ? ' selected' : ''}>${esc(t)}</option>`).join(''); $('cfNomePagto').value = r.nome_pagamento || '';
+  $('btnCfSalvar').textContent = nvRecEdit ? 'Salvar alterações' : 'Adicionar';
+}
+async function nvSalvarRec() {
+  const nome = $('cfNome').value.trim(), valor = nvNum($('cfValor').value), dia = parseInt($('cfDia').value);
+  if (!nome) return alert('Informe o nome.'); if (!(valor > 0)) return alert('Informe o valor.'); if (!(dia >= 1 && dia <= 31)) return alert('Dia do vencimento de 1 a 31.');
+  const dados = { nome: nome.toLowerCase(), valor, dia, responsavel: $('cfResp').value, categoria: $('cfCat').value || null, motivo: $('cfMotivo').value.trim() || null, tipo: $('cfTipo').value.trim() || null, tipo_pagamento: $('cfPagto').value, nome_pagamento: $('cfNomePagto').value.trim() || null };
+  const b = $('btnCfSalvar'); b.disabled = true;
+  let error;
+  if (nvRecEdit) ({ error } = await db.from('recorrentes').update(dados).eq('id', nvRecEdit.id));
+  else ({ error } = await db.from('recorrentes').insert([{ ...dados, grupo_id: grupoId(), inicio: ymLocal() + '-01', ativo: true }]));
+  b.disabled = false; if (error) return alert('Não foi possível salvar: ' + error.message);
+  nvRecEdit = null; await nvCarregar(); await nvGerarRecorrentes(); nvRenderRec(); notificar('Conta fixa salva. Ela entra sozinha todo mês.', 'sucesso'); await carregarDados();
+}
+async function nvAcaoRec(acao, id) {
+  const r = NV.rec.find(x => String(x.id) === String(id)); if (!r) return;
+  if (acao === 'editar') { nvRecEdit = r; nvRenderRec(); $('cfForm').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  if (acao === 'pausar') { await db.from('recorrentes').update({ ativo: r.ativo === false }).eq('id', r.id); await nvCarregar(); nvRenderRec(); return; }
+  if (acao === 'excluir') {
+    if (!await confirmar({ titulo: 'Excluir conta fixa', mensagem: `Parar de lançar "${capIni(r.nome)}" todo mês? O que já foi lançado continua.`, confirmarTexto: 'Excluir', tipo: 'aviso' })) return;
+    await db.from('recorrentes').delete().eq('id', r.id); await nvCarregar(); nvRenderRec();
+  }
+}
+
+/* ---- regras de categorização (palavra no nome → categoria, motivo e tipo) ---- */
+const NV_PADROES = [
+  [['uber', '99 pop', '99pop', 'cabify'], 'transporte', 'Aplicativo de transporte', ''], [['posto', 'shell', 'ipiranga', 'combustivel'], 'transporte', 'Combustível', ''],
+  [['ifood', 'rappi', 'delivery'], 'alimentacao', 'Delivery', ''], [['mercado', 'supermercado', 'atacadao', 'carrefour', 'assai'], 'alimentacao', 'Supermercado', 'Essencial'],
+  [['restaurante', 'lanchonete', 'padaria', 'pizzaria'], 'alimentacao', 'Restaurante', ''], [['farmacia', 'drogaria', 'drogasil', 'raia'], 'saude', 'Farmácia', 'Essencial'],
+  [['netflix', 'spotify', 'disney', 'prime video', 'hbo', 'youtube premium'], 'assinaturas', 'Streaming', 'Fixo'], [['aluguel', 'condominio'], 'moradia', '', 'Fixo'],
+  [['energia', 'enel', 'cemig', 'luz'], 'moradia', '', 'Fixo'], [['agua', 'sabesp', 'saneamento'], 'moradia', '', 'Fixo'], [['internet', 'vivo fibra', 'claro', 'tim '], 'moradia', '', 'Fixo']
+];
+const nvUsaPadroes = () => { try { return localStorage.getItem('ttr_regras_padrao') !== '0'; } catch (e) { return true; } };
+function sugerirCategoria(texto) {
+  const n = ' ' + normalizarNome(texto) + ' ';
+  const mCat = nome => { const c = categoriasOrcamento.find(x => normalizarNome(x.nome) === normalizarNome(nome)); return c ? c.nome : ''; };
+  const minhas = NV.regras.filter(r => r.ativo !== false && r.palavra).sort((a, b) => String(b.palavra).length - String(a.palavra).length);
+  for (const r of minhas) if (n.includes(normalizarNome(r.palavra))) return { palavra: r.palavra, cat: r.categoria ? mCat(r.categoria) || r.categoria : '', motivo: r.motivo || '', tipo: r.tipo || '' };
+  if (nvUsaPadroes()) for (const [ps, cat, motivo, tipo] of NV_PADROES) {
+    const p = ps.find(x => n.includes(' ' + normalizarNome(x) + ' ') || n.includes(normalizarNome(x)));
+    if (p) { const c = mCat(cat); if (c || motivo || tipo) return { palavra: p, cat: c, motivo, tipo }; }
+  }
+  return null;
+}
+function abrirRegras() { nvRenderRegras(); abrirModal('modalRegras'); }
+function nvRenderRegras() {
+  if (NV.semTabelas) { $('rgLista').innerHTML = '<p class="hint">Falta rodar o SQL novo no Supabase.</p>'; return; }
+  $('rgPadrao').checked = nvUsaPadroes();
+  $('rgLista').innerHTML = NV.regras.length ? NV.regras.map(r => `<div class="imp-card" data-id="${r.id}"><div class="imp-top" style="cursor:default;"><span class="imp-orig">“${esc(r.palavra)}”</span><button class="btn-action" data-rg="excluir">Excluir</button></div>
+    <div class="imp-meta">${esc(capIni(r.categoria || 'Sem categoria'))}${r.motivo ? ' · ' + esc(capIni(r.motivo)) : ''}${r.tipo ? ' · ' + esc(capIni(r.tipo)) : ''}</div></div>`).join('') : '<p class="hint">Nenhuma regra sua. As sugestões padrão (Uber, iFood, Netflix…) valem se estiverem ligadas.</p>';
+  $('rgCat').innerHTML = nvOptsCat('');
+}
+async function nvSalvarRegra() {
+  const palavra = $('rgPalavra').value.trim(); if (palavra.length < 2) return alert('Digite a palavra (ex.: padaria).');
+  if (!$('rgCat').value && !$('rgMotivo').value.trim() && !$('rgTipo').value.trim()) return alert('Escolha a categoria, o motivo ou o tipo.');
+  const { error } = await db.from('regras_categoria').insert([{ grupo_id: grupoId(), palavra: palavra.toLowerCase(), categoria: $('rgCat').value || null, motivo: $('rgMotivo').value.trim() || null, tipo: $('rgTipo').value.trim() || null, ativo: true }]);
+  if (error) return alert('Não foi possível salvar: ' + error.message);
+  ['rgPalavra', 'rgMotivo', 'rgTipo'].forEach(i => { $(i).value = ''; }); await nvCarregar(); nvRenderRegras();
+}
+
+/* ---- cartões: limite, disponível e melhor dia de compra ---- */
+const nvCartoesCredito = () => uniqNorm(state.compras.filter(c => ehCartaoCredito(c.tipo_pagamento)).map(c => rotuloPagto(c)));
+const nvCfgCartao = rot => NV.cartoes.find(c => normalizarNome(c.rotulo) === normalizarNome(rot));
+function nvUsadoCartao(rot) { return state.compras.filter(c => isAtiva(c) && ehCartaoCredito(c.tipo_pagamento) && !c.pagamento && rotuloPagto(c) === rot).reduce((s, c) => s + Math.max(0, (Number(c.valor_parcela) || 0) - valorPagoParcela(c)), 0); }
+function nvInfoCartao(rot) {
+  const c = nvCfgCartao(rot); if (!c || !(Number(c.limite) > 0)) return '';
+  const usado = nvUsadoCartao(rot), disp = Number(c.limite) - usado, pct = Math.min(100, Math.round(usado / c.limite * 100));
+  const melhor = Number(c.fechamento) ? (Number(c.fechamento) >= 31 ? 1 : Number(c.fechamento) + 1) : 0;
+  return `<div class="payment-sub">Limite ${fm(c.limite)} · <b style="color:${disp < 0 ? 'var(--danger-text)' : 'var(--success-text)'}">disponível ${fm(disp)}</b> (${pct}% usado)${melhor ? ' · melhor dia de compra: ' + melhor : ''}</div>`;
+}
+function abrirCartoes() {
+  const lista = nvCartoesCredito();
+  $('ctLista').innerHTML = NV.semTabelas ? '<p class="hint">Falta rodar o SQL novo no Supabase.</p>' : lista.length ? lista.map((rot, i) => { const c = nvCfgCartao(rot) || {};
+    return `<div class="imp-card" data-rot="${esc(rot)}"><div class="imp-top" style="cursor:default;"><span class="imp-orig">${esc(rot)}</span><small>usado ${fm(nvUsadoCartao(rot))}</small></div>
+      <div class="imp-row"><div class="input-group" style="margin:0;"><label>Limite (R$)</label><input type="text" inputmode="decimal" data-ct="limite" value="${c.limite ? nvMoedaIn(c.limite) : ''}" placeholder="0,00"></div>
+      <div class="input-group" style="margin:0;"><label>Dia do fechamento</label><input type="text" inputmode="numeric" maxlength="2" data-ct="fechamento" value="${c.fechamento || ''}" placeholder="Ex.: 5"></div></div></div>`; }).join('')
+    : '<p class="hint">Nenhum cartão de crédito lançado ainda.</p>';
+  abrirModal('modalCartoes');
+}
+async function nvSalvarCartoes() {
+  const cards = [...$('ctLista').querySelectorAll('.imp-card[data-rot]')]; const b = $('btnCtSalvar'); b.disabled = true;
+  for (const el of cards) {
+    const rot = el.dataset.rot, limite = nvNum(el.querySelector('[data-ct="limite"]').value), fech = parseInt(el.querySelector('[data-ct="fechamento"]').value) || null;
+    const ex = nvCfgCartao(rot);
+    if (!limite && !fech && !ex) continue;
+    const { error } = await db.from('cartoes_config').upsert([{ ...(ex ? { id: ex.id } : {}), grupo_id: grupoId(), rotulo: rot, limite: limite || null, fechamento: fech && fech >= 1 && fech <= 31 ? fech : null }], { onConflict: 'grupo_id,rotulo' });
+    if (error) { b.disabled = false; return alert('Não foi possível salvar: ' + error.message); }
+  }
+  b.disabled = false; await nvCarregar(); fecharModal('modalCartoes'); renderInclusao(); notificar('Cartões atualizados.', 'sucesso');
+}
+
+/* ---- contas e saldos / projeção do mês ---- */
+const nvTotalSaldos = () => NV.saldos.reduce((s, c) => s + (Number(c.saldo) || 0), 0);
+const nvGuardadoPorq = () => moduloAtivo('porquinhos') ? (state.porquinhos || []).reduce((s, p) => s + saldoPorquinho(p.id), 0) : 0;
+function nvAPagarMes(mes) { return state.compras.filter(c => c.mes_referencia === mes && isAtiva(c) && !c.pagamento && !ehCartaoCredito(c.tipo_pagamento)).reduce((s, c) => s + Math.max(0, (Number(c.valor_parcela) || 0) - valorPagoParcela(c)), 0)
+  + state.compras.filter(c => c.mes_referencia === mes && isAtiva(c) && ehCartaoCredito(c.tipo_pagamento) && !c.pagamento).reduce((s, c) => s + Math.max(0, (Number(c.valor_parcela) || 0) - valorPagoParcela(c)), 0); }
+function abrirSaldos() { nvRenderSaldos(); abrirModal('modalSaldos'); }
+function nvRenderSaldos() {
+  const mes = state.mesesSelecionados[0], tot = nvTotalSaldos(), pagar = nvAPagarMes(mes), guard = nvGuardadoPorq();
+  $('sdLista').innerHTML = NV.semTabelas ? '<p class="hint">Falta rodar o SQL novo no Supabase.</p>' : NV.saldos.map(c => `<div class="imp-card" data-id="${c.id}"><div class="imp-row" style="grid-template-columns:1fr 1fr auto;align-items:end;">
+    <div class="input-group" style="margin:0;"><label>Conta</label><input type="text" data-sd="nome" value="${esc(capNome(c.nome))}"></div>
+    <div class="input-group" style="margin:0;"><label>Saldo (R$)</label><input type="text" inputmode="decimal" data-sd="saldo" value="${nvMoedaIn(c.saldo)}"></div>
+    <button class="btn-action" data-sd="excluir" aria-label="Excluir conta">🗑️</button></div></div>`).join('') || '<p class="hint">Adicione suas contas (ex.: Nubank, Carteira) para ver o saldo e a projeção.</p>';
+  $('sdResumo').innerHTML = `<div class="info-box">Saldo nas contas: <b>${fm(tot)}</b><br>A pagar em ${esc(formatarMes(mes))}: <b>${fm(pagar)}</b><br>Projeção após pagar o mês: <b style="color:${tot - pagar < 0 ? 'var(--danger-text)' : 'var(--success-text)'}">${fm(tot - pagar)}</b>${moduloAtivo('porquinhos') ? `<br>Guardado nos porquinhos: <b>${fm(guard)}</b><br>Patrimônio (contas + porquinhos): <b>${fm(tot + guard)}</b>` : ''}</div>`;
+}
+async function nvAddConta() {
+  const nome = $('sdNome').value.trim(), saldo = nvNum($('sdSaldoNovo').value); if (!nome) return alert('Informe o nome da conta.');
+  const { error } = await db.from('contas_saldo').insert([{ grupo_id: grupoId(), nome: nome.toLowerCase(), saldo }]); if (error) return alert('Não foi possível salvar: ' + error.message);
+  $('sdNome').value = ''; $('sdSaldoNovo').value = ''; await nvCarregar(); nvRenderSaldos(); nvRenderResumoSaldo();
+}
+async function nvEditaConta(el) {
+  const card = el.closest('.imp-card'); if (!card) return; const id = card.dataset.id;
+  const nome = card.querySelector('[data-sd="nome"]').value.trim().toLowerCase(), saldo = nvNum(card.querySelector('[data-sd="saldo"]').value);
+  await db.from('contas_saldo').update({ nome, saldo, atualizado_em: new Date().toISOString() }).eq('id', id); await nvCarregar(); nvRenderResumoSaldo();
+}
+function nvRenderResumoSaldo() {
+  const box = $('resumoSaldoContainer'); if (!box) return;
+  if (!NV.saldos.length) { box.innerHTML = ''; return; }
+  const mes = state.mesesSelecionados[0], tot = nvTotalSaldos(), proj = tot - nvAPagarMes(mes);
+  box.innerHTML = `<div class="alert-pendentes" data-act="saldos" style="background:rgba(var(--pr),.12);border-color:rgba(var(--pr),.35);color:var(--text);"><span>💰 Saldo <strong>${fm(tot)}</strong> · projeção após o mês <strong style="color:${proj < 0 ? 'var(--danger-text)' : 'var(--success-text)'}">${fm(proj)}</strong></span><span style="white-space:nowrap;font-weight:700;">Ver →</span></div>`;
+}
+
+/* ---- alertas de orçamento (80% e 100%) ---- */
+function nvAlertasOrcamento(lista) {
+  const box = $('alertaOrcamentoContainer'); if (!box) return;
+  const aten = lista.filter(a => a.orc > 0 && a.pct >= 80).sort((a, b) => b.pct - a.pct);
+  box.innerHTML = aten.length ? `<div class="alert-orc">${aten.slice(0, 4).map(a => `<div class="alert-orc-item ${a.pct >= 100 ? 'estourou' : ''}"><span>${a.pct >= 100 ? '🚨' : '⚠️'} <b>${esc(capIni(a.nome))}</b>: ${a.pct}% do orçamento</span><span>${fm(a.gasto)} de ${fm(a.orc)}</span></div>`).join('')}${aten.length > 4 ? `<div class="hint" style="margin:4px 0 0;">e mais ${aten.length - 4}…</div>` : ''}</div>` : '';
+  if (state.mesesSelecionados[0] !== ymLocal()) return;
+  try {
+    const chave = 'ttr_alerta_orc_' + currentUser.id + '_' + ymLocal(); const vistos = JSON.parse(localStorage.getItem(chave) || '{}'); const novos = [];
+    aten.forEach(a => { const nivel = a.pct >= 100 ? 100 : 80; if ((vistos[a.nome] || 0) < nivel) { vistos[a.nome] = nivel; novos.push(`${capIni(a.nome)} ${a.pct}%`); } });
+    if (novos.length) { localStorage.setItem(chave, JSON.stringify(vistos)); notificar('Orçamento: ' + novos.slice(0, 3).join(' · ') + (novos.length > 3 ? '…' : ''), 'aviso', 7000); }
+  } catch (e) {}
+}
+
+/* ---- relatórios e exportação ---- */
+let nvRelPeriodo = 6, nvRelChart = null;
+function nvRelDados() {
+  const fim = state.mesesSelecionados[state.mesesSelecionados.length - 1] || ymLocal(), pessoa = state.filtroPessoa;
+  const meses = []; for (let i = nvRelPeriodo - 1; i >= 0; i--) meses.push(addMes(fim, -i));
+  const nomes = categoriasOrcamento.map(c => c.nome); const cats = [...nomes, '__sem'];
+  const linhas = cats.map(cn => ({ nome: cn === '__sem' ? 'Sem categoria' : capIni(cn), vals: meses.map(m => somaPessoa(state.compras.filter(c => c.mes_referencia === m && isAtiva(c) && (cn === '__sem' ? !c.categoria_orcamento : c.categoria_orcamento === cn)), pessoa)) }))
+    .filter(l => l.vals.some(v => v > 0.004));
+  const totais = meses.map((m, i) => linhas.reduce((s, l) => s + l.vals[i], 0));
+  return { meses, linhas, totais, pessoa };
+}
+function abrirRelatorios() { nvRenderRel(); abrirModal('modalRelatorios'); }
+function nvRenderRel() {
+  document.querySelectorAll('#relPeriodo button').forEach(b => b.classList.toggle('active', Number(b.dataset.p) === nvRelPeriodo));
+  const d = nvRelDados();
+  $('relTabela').innerHTML = d.linhas.length ? `<div style="overflow-x:auto;"><table class="rel-table"><thead><tr><th>Categoria</th>${d.meses.map(m => `<th>${esc(formatarMes(m).replace(' / ', '/'))}</th>`).join('')}<th>Média</th></tr></thead><tbody>${d.linhas.map(l => `<tr><td>${esc(l.nome)}</td>${l.vals.map(v => `<td>${v > 0.004 ? fm(v) : '–'}</td>`).join('')}<td><b>${fm(l.vals.reduce((s, v) => s + v, 0) / l.vals.length)}</b></td></tr>`).join('')}
+    <tr class="rel-total"><td>Total</td>${d.totais.map(v => `<td>${fm(v)}</td>`).join('')}<td>${fm(d.totais.reduce((s, v) => s + v, 0) / d.totais.length)}</td></tr></tbody></table></div>` : '<p class="hint">Sem gastos no período.</p>';
+  const wrap = $('relTabela').firstElementChild; if (wrap) wrap.scrollLeft = wrap.scrollWidth;
+  const ult = d.totais[d.totais.length - 1] || 0, ant = d.totais[d.totais.length - 2] || 0;
+  $('relResumo').innerHTML = ant > 0 ? `<div class="info-box">${esc(formatarMes(d.meses[d.meses.length - 1]))} vs mês anterior: <b style="color:${ult > ant ? 'var(--danger-text)' : 'var(--success-text)'}">${ult > ant ? '↑' : '↓'} ${Math.abs(Math.round((ult - ant) / ant * 100))}%</b> (${fm(ult)} contra ${fm(ant)})</div>` : '';
+  if (nvRelChart) { nvRelChart.destroy(); nvRelChart = null; }
+  if (typeof Chart !== 'undefined' && d.linhas.length) nvRelChart = new Chart($('relChart'), { type: 'bar', data: { labels: d.meses.map(m => formatarMes(m).replace(' / ', '/')), datasets: [{ data: d.totais, backgroundColor: '#4f8cff', borderRadius: 6 }] },
+    options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: corTema('--muted') }, grid: { display: false } }, y: { ticks: { color: corTema('--muted') }, grid: { color: corTema('--track') } } } } });
+}
+function nvExportarRel() {
+  const d = nvRelDados(); if (!d.linhas.length) return alert('Sem dados no período.');
+  const q = v => '"' + String(v).replace(/"/g, '""') + '"', n = v => v.toFixed(2).replace('.', ',');
+  const linhas = [['Categoria', ...d.meses.map(formatarMes), 'Média'], ...d.linhas.map(l => [l.nome, ...l.vals.map(n), n(l.vals.reduce((s, v) => s + v, 0) / l.vals.length)]), ['Total', ...d.totais.map(n), n(d.totais.reduce((s, v) => s + v, 0) / d.totais.length)]];
+  const csv = '﻿' + linhas.map(r => r.map(q).join(';')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'ttr-relatorio-' + d.meses[d.meses.length - 1] + '.csv';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function nvPdfRel() {
+  const d = nvRelDados(); if (!d.linhas.length) return alert('Sem dados no período.');
+  $('printArea').innerHTML = `<div class="rp-head"><div class="rp-brand"><div><div class="rp-title">Relatório por categoria</div><div class="rp-sub">${esc(formatarMes(d.meses[0]))} a ${esc(formatarMes(d.meses[d.meses.length - 1]))} · ${esc(d.pessoa === 'Geral' ? 'Geral' : capNome(d.pessoa))}</div></div></div></div>
+    <table class="rp-table"><thead><tr><th>Categoria</th>${d.meses.map(m => `<th class="num">${esc(formatarMes(m))}</th>`).join('')}<th class="num">Média</th></tr></thead><tbody>${d.linhas.map(l => `<tr><td>${esc(l.nome)}</td>${l.vals.map(v => `<td class="num">${v > 0.004 ? fm(v) : '–'}</td>`).join('')}<td class="num">${fm(l.vals.reduce((s, v) => s + v, 0) / l.vals.length)}</td></tr>`).join('')}
+    <tr class="rp-total"><td>Total</td>${d.totais.map(v => `<td class="num">${fm(v)}</td>`).join('')}<td class="num">${fm(d.totais.reduce((s, v) => s + v, 0) / d.totais.length)}</td></tr></tbody></table><div class="rp-foot">${NOME_APP} · Documento gerado automaticamente</div>`;
+  const nome = 'TTR-Relatorio-' + d.meses[d.meses.length - 1];
+  if (ehIOS()) return gerarPdfIOS(nome);
+  const t = document.title; document.title = nome; window.addEventListener('afterprint', () => { document.title = t; }, { once: true }); setTimeout(() => window.print(), 80);
+}
+
+/* ---- guia rápido (1ª vez e em Configurações) ---- */
+const NV_GUIA = [
+  ['📋', 'Lance seus gastos', 'Use o + para registrar compras. Parcelou? O app cria todas as parcelas.'],
+  ['🎯', 'Defina o orçamento', 'Crie categorias e um teto por mês. Os alertas avisam aos 80% e 100%.'],
+  ['📥', 'Importe fatura e extrato', 'Em Faturas, importe o CSV do cartão ou o extrato da conta (CSV ou OFX).'],
+  ['🔁', 'Contas fixas', 'Aluguel, internet, assinaturas: cadastre uma vez em Configurações e entram todo mês.']
+];
+function abrirGuia(i) {
+  i = i || 0; const [ic, tit, txt] = NV_GUIA[i];
+  $('guiaCorpo').innerHTML = `<div class="onb-passos">${i + 1} de ${NV_GUIA.length}</div><div class="onb-ic">${ic}</div><h3>${tit}</h3><p>${txt}</p>`;
+  $('guiaOk').textContent = i + 1 < NV_GUIA.length ? 'Próximo' : 'Começar'; $('guiaOk').onclick = () => { if (i + 1 < NV_GUIA.length) abrirGuia(i + 1); else fecharModal('modalGuia'); };
+  $('guiaPular').style.display = i + 1 < NV_GUIA.length ? '' : 'none'; abrirModal('modalGuia');
+}
+function nvGuiaPrimeira() { try { const k = 'ttr_guia_' + currentUser.id; if (localStorage.getItem(k)) return; localStorage.setItem(k, '1'); setTimeout(() => abrirGuia(0), 900); } catch (e) {} }
+
+/* ---- excluir minha conta ---- */
+let nvBaixou = false;
+function abrirExcluirConta() {
+  const lider = membrosGrupo.length <= 1 || currentUser.lider;
+  $('exAviso').innerHTML = lider ? `Isso apaga <b>todos os dados do grupo</b>${membrosGrupo.length > 1 ? ' e as contas de <b>todas as pessoas</b> dele' : ''}. Não dá para desfazer.` : 'Isso apaga o <b>seu acesso</b>. Os lançamentos do grupo continuam com o líder. Não dá para desfazer.';
+  nvBaixou = false; $('exNaoBaixar').checked = false; $('exConfirma').value = ''; nvAtualizaExcluir(); abrirModal('modalExcluirConta');
+}
+function nvAtualizaExcluir() { $('btnExcluirConta').disabled = !((nvBaixou || $('exNaoBaixar').checked) && $('exConfirma').value.trim().toUpperCase() === 'EXCLUIR'); }
+async function nvExcluirConta() {
+  if (!await confirmar({ titulo: 'Excluir definitivamente?', mensagem: 'Esta ação não pode ser desfeita.', confirmarTexto: 'Excluir', tipo: 'aviso' })) return;
+  const b = $('btnExcluirConta'); b.disabled = true; b.textContent = 'Excluindo…';
+  const r = await invocarConta('excluir_conta', { confirmacao: $('exConfirma').value.trim() });
+  if (r.erro) { b.textContent = 'Excluir minha conta'; nvAtualizaExcluir(); return alert(r.mensagem); }
+  try { Object.keys(localStorage).filter(k => /^(ttr_|sb-)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+  await encerrarSessao(); alert('Conta excluída. Obrigado por ter usado o TTR.'); location.reload();
+}
+function nvLigarEventos() {
+  const ir = (id, fn) => { const el = $(id); if (el) el.addEventListener('click', () => { fecharModal('modalConfiguracoes'); fn(); }); };
+  ir('btnCfgFixas', abrirContasFixas); ir('btnCfgRegras', abrirRegras); ir('btnCfgCartoes', abrirCartoes); ir('btnCfgSaldos', abrirSaldos); ir('btnCfgRelatorios', abrirRelatorios); ir('btnCfgGuia', () => abrirGuia(0)); ir('btnCfgExcluir', abrirExcluirConta);
+  $('btnCfSalvar').addEventListener('click', nvSalvarRec);
+  $('cfLista').addEventListener('click', e => { const b = e.target.closest('[data-cf]'); if (b) nvAcaoRec(b.dataset.cf, b.closest('.imp-card').dataset.id); });
+  $('btnRgSalvar').addEventListener('click', nvSalvarRegra);
+  $('rgPadrao').addEventListener('change', e => { try { localStorage.setItem('ttr_regras_padrao', e.target.checked ? '1' : '0'); } catch (er) {} });
+  $('rgLista').addEventListener('click', async e => { const b = e.target.closest('[data-rg]'); if (!b) return; await db.from('regras_categoria').delete().eq('id', b.closest('.imp-card').dataset.id); await nvCarregar(); nvRenderRegras(); });
+  $('btnCtSalvar').addEventListener('click', nvSalvarCartoes);
+  $('btnSdAdd').addEventListener('click', nvAddConta);
+  $('sdLista').addEventListener('change', e => { if (e.target.dataset.sd === 'nome' || e.target.dataset.sd === 'saldo') nvEditaConta(e.target).then(nvRenderSaldos); });
+  $('sdLista').addEventListener('click', async e => { const b = e.target.closest('[data-sd="excluir"]'); if (!b) return; await db.from('contas_saldo').delete().eq('id', b.closest('.imp-card').dataset.id); await nvCarregar(); nvRenderSaldos(); nvRenderResumoSaldo(); });
+  $('relPeriodo').addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if (!b) return; nvRelPeriodo = Number(b.dataset.p); nvRenderRel(); });
+  $('btnRelCsv').addEventListener('click', nvExportarRel); $('btnRelPdf').addEventListener('click', nvPdfRel);
+  $('guiaPular').addEventListener('click', () => fecharModal('modalGuia'));
+  $('btnExBaixar').addEventListener('click', async () => { await baixarMeusDados(); nvBaixou = true; nvAtualizaExcluir(); });
+  $('exNaoBaixar').addEventListener('change', nvAtualizaExcluir); $('exConfirma').addEventListener('input', nvAtualizaExcluir);
+  $('btnExcluirConta').addEventListener('click', nvExcluirConta);
+  $('resumoSaldoContainer').addEventListener('click', e => { if (e.target.closest('[data-act="saldos"]')) abrirSaldos(); });
 }
 
 /* ---- Exportações ---- */
@@ -7191,10 +7720,21 @@ function ligarEventos() {
   $('btnCcVoltar').addEventListener('click', () => cadContaMostrar(false));
   $('btnCcCriar').addEventListener('click', cadContaCriar);
   $('btnCcAcesso').addEventListener('click', cadContaAcesso);
-  $('btnCcTrocar').addEventListener('click', () => ccEtapaMostrar(0));
   document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('[data-legal]'); if (a) { e.preventDefault(); abrirLegal(a.dataset.legal); } });
   $('btnCcReenviar').addEventListener('click', cadContaReenviar);
   $('btnCcEditar').addEventListener('click', () => ccEtapaMostrar(1));
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('#recSenhaForm input, #cadContaForm input:not([type=checkbox]):not([type=radio])')) return;
+    const form = e.target.closest('#recSenhaForm,#cadContaForm');
+    const ins = [...form.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([disabled])')].filter(x => x.offsetParent);
+    const i = ins.indexOf(e.target);
+    if (i >= 0 && i < ins.length - 1) { e.preventDefault(); ins[i + 1].focus(); return; }
+    const b = [...form.querySelectorAll('button.btn:not(.ghost):not(.secondary)')].find(x => x.offsetParent && !x.disabled);
+    if (b) { e.preventDefault(); b.click(); }
+  });
+  ['loginUser', 'rsNome', 'rsCpf', 'ccCodigo', 'ccCpf', 'ccNome', 'ccTel', 'ccEmail', 'ccSenha', 'rsEmail', 'rsSenha', 'rsCodigo'].forEach(i => { const el = $(i); if (el) el.setAttribute('enterkeyhint', 'next'); });
+  ['loginSenha', 'ccSenha2', 'rsSenha2', 'ccCodEmail'].forEach(i => { const el = $(i); if (el) el.setAttribute('enterkeyhint', 'go'); });
+  $('ccCodigo').addEventListener('input', e => { e.target.value = formatarCodigo(e.target.value); });
   $('ccCodEmail').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
   $('btnEnvWpp').addEventListener('click', enviarCodigoWpp);
   $('btnEnvEmail').addEventListener('click', enviarCodigoEmail);
@@ -7227,7 +7767,6 @@ function ligarEventos() {
   });
   $('btnRsSalvar').addEventListener('click', recSenhaSalvar);
   $('rsCpf').addEventListener('input', e => mascaraCPF(e.target));
-  $('rsTel').addEventListener('input', e => mascaraTelefone(e.target));
   $('loginUser').addEventListener('input', e => formatarLoginInput(e.target));
   [$('loginUser'), $('loginSenha')].forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); }));
   $('btnSair').addEventListener('click', e => { e.preventDefault(); sair(); });
@@ -7273,6 +7812,12 @@ function ligarEventos() {
   $('btnConfiguracoes').addEventListener('click', abrirConfiguracoes);
   impLigarEventos();
   exLigarEventos();
+  nvLigarEventos();
+  $('cNome').addEventListener('blur', () => {
+    if ($('cCategoriaOrcamento').value || $('cMotivo').value || $('cTipo').value || !$('cNome').value.trim()) return;
+    const rg = sugerirCategoria($('cNome').value); if (!rg) return;
+    if (rg.cat) $('cCategoriaOrcamento').value = capIni(rg.cat); if (rg.motivo) $('cMotivo').value = rg.motivo; if (rg.tipo) $('cTipo').value = rg.tipo;
+  });
   $('btnCfgNotif').addEventListener('click', () => { fecharModal('modalConfiguracoes'); abrirModalNotificacoes(); });
   $('btnCfgListas').addEventListener('click', () => { $('listaPadraoLinha').style.display = currentUser && currentUser.is_admin ? 'flex' : 'none'; renderListasMT(); abrirModal('modalListas'); });
   $('btnListaAdd').addEventListener('click', adicionarListaMT);
@@ -7352,7 +7897,7 @@ function ligarEventos() {
   document.addEventListener('click', e => {
     const t = e.target;
     const tog = t.closest('[data-toggle]');
-    if (tog) { const i = $(tog.dataset.toggle); i.type = i.type === 'password' ? 'text' : 'password'; tog.textContent = i.type === 'password' ? '👁️' : '🙈'; return; }
+    if (tog) { const i = $(tog.dataset.toggle); i.type = i.type === 'password' ? 'text' : 'password'; tog.innerHTML = i.type === 'password' ? ICO_OLHO : ICO_OLHO_OFF; tog.setAttribute('aria-label', i.type === 'password' ? 'Mostrar senha' : 'Ocultar senha'); return; }
     const cl = t.closest('[data-close]'); if (cl) return fecharModal(cl.dataset.close, true);
     if (t.classList.contains('modal-overlay') && t.id !== 'modalGenero') return fecharModal(t.id, true);
     const tm = t.closest('[data-tema]'); if (tm) return aplicarTema(tm.dataset.tema, true);
@@ -7409,6 +7954,7 @@ function ligarEventos() {
 
 async function initAuth() {
   preencherMarca();
+  turnstilePreparar();
   ligarEventos();
   OFF.hooks.aviso = (m, t) => notificar(m, t, 6000);
   OFF.hooks.aoSincronizar = async () => { if (currentUser) { await carregarDados(); } };
@@ -7420,7 +7966,7 @@ async function initAuth() {
     try { ({ data: { session } } = await db.auth.getSession()); } catch (e) {}
     if (!session && !navigator.onLine) {   // abriu o app sem internet com o acesso vencido: usa o último usuário deste aparelho (só se não exigir senha)
       let uidOff = null; try { uidOff = localStorage.getItem('ttr_last_uid'); } catch (e) {}
-      if (uidOff && modoAcesso(uidOff) !== 'senha') {
+      if (uidOff && (modoAcesso(uidOff) !== 'senha' || lsGet(chPw(uidOff)))) {
         if (modoAcesso(uidOff) !== 'conectado') { esconderLoading(); await bloquearApp(uidOff, ''); mostrarLoading('Carregando seus dados...'); }
         OFF.marcarOffline();
         await carregarPerfil(uidOff);
@@ -7444,6 +7990,36 @@ async function initAuth() {
   }
 }
 initAuth();
+/* ---- instalar o app direto por um botão (Android/Chrome abre o pedido do sistema; iPhone mostra o passo a passo) ---- */
+let _instPrompt = null;
+const ehInstalado = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+function atualizarInstalar() { const mostrar = !ehInstalado(); document.querySelectorAll('[data-instalar]').forEach(el => { el.style.display = mostrar ? '' : 'none'; }); }
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); _instPrompt = e; atualizarInstalar(); });
+window.addEventListener('appinstalled', () => { _instPrompt = null; atualizarInstalar(); try { notificar('App instalado! Procure o ícone na tela inicial.', 'sucesso'); } catch (er) {} });
+async function instalarApp() {
+  if (_instPrompt) { try { _instPrompt.prompt(); await _instPrompt.userChoice; } catch (e) {} _instPrompt = null; return atualizarInstalar(); }
+  if (ehIOS()) return alert('No iPhone: abra este site no Safari, toque em Compartilhar (o quadrado com a seta) e escolha "Adicionar à Tela de Início".');
+  alert('Abra o menu ⋮ do navegador e escolha "Instalar app" (ou "Adicionar à tela inicial").');
+}
+document.addEventListener('click', e => { if (e.target.closest && e.target.closest('[data-instalar-btn]')) instalarApp(); });
+atualizarInstalar();
+
+/* ---- acessibilidade: rótulo para botões só com ícone e campos sem rótulo ---- */
+function ajustarAcessibilidade(raiz) {
+  (raiz || document).querySelectorAll('button:not([aria-label]), [role="button"]:not([aria-label])').forEach(b => {
+    const txt = (b.textContent || '').replace(/[\s\p{Extended_Pictographic}\uFE0F×✕✖›‹‹→←↑↓+\-•·]/gu, '');
+    if (!txt) { const t = b.getAttribute('title') || b.dataset.act || ''; if (t) b.setAttribute('aria-label', t.replace(/^./, c => c.toUpperCase())); }
+  });
+  (raiz || document).querySelectorAll('input:not([aria-label]):not([type=hidden]), select:not([aria-label])').forEach(i => {
+    if (i.id && document.querySelector('label[for="' + i.id + '"]')) return;
+    const g = i.closest('.input-group'), l = g && g.querySelector('label');
+    const txt = (l && l.textContent.trim()) || i.getAttribute('placeholder') || i.getAttribute('title');
+    if (txt) i.setAttribute('aria-label', txt);
+  });
+}
+let _a11yT = null;
+new MutationObserver(() => { clearTimeout(_a11yT); _a11yT = setTimeout(() => ajustarAcessibilidade(), 400); }).observe(document.body, { childList: true, subtree: true });
+ajustarAcessibilidade();
 registrarSW();
 </script>
 </body>
