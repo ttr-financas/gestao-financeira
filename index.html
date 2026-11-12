@@ -450,6 +450,38 @@
   }
 
   /* ===== v4: campos no visual do app, parcelas, adiantamento, porquinho ===== */
+  /* ---- criar conta / assinatura / PIX ---- */
+  .auth-screen { overflow-y: auto; }
+  .auth-box { margin: auto; }
+  .auth-voltar { margin-top: 8px; }
+  #cadContaForm .hint, #recSenhaForm .hint { margin-bottom: 14px; }
+  .banner-assin { display: none; align-items: center; justify-content: space-between; gap: 10px; margin: 10px 14px 0; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.35; background: rgba(245,179,1,.14); border: 1px solid rgba(245,179,1,.4); color: var(--warn-text); }
+  .banner-assin.urgente { background: rgba(244,63,94,.14); border-color: rgba(244,63,94,.4); color: var(--danger-text); }
+  .banner-assin button { flex: none; border: 0; border-radius: 9px; padding: 8px 12px; font: inherit; font-weight: 700; background: var(--primary); color: #fff; cursor: pointer; }
+  .pix-card { background: var(--card2); border: 1px solid var(--border); border-radius: 16px; padding: 16px; text-align: center; margin: 12px 0; }
+  .pix-val { font-size: 30px; font-weight: 800; color: var(--success-text); margin-bottom: 8px; }
+  .pix-qr { width: 220px; height: 220px; max-width: 70vw; background: #fff; padding: 8px; border-radius: 12px; display: block; margin: 6px auto 12px; }
+  .pix-code { font-size: 11px; word-break: break-all; background: var(--bg); border: 1px dashed var(--border-strong); border-radius: 10px; padding: 10px; margin: 10px 0; max-height: 74px; overflow: hidden; color: var(--muted); text-align: left; }
+  .pix-status { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+  .pix-status.ok { color: var(--success-text); font-weight: 700; font-size: 15px; }
+  .pix-load, .pix-erro { text-align: center; color: var(--muted); padding: 22px 8px; font-size: 14px; }
+  .pix-erro { color: var(--danger-text); }
+  .assin-badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; background: rgba(34,197,94,.16); color: var(--success-text); }
+  .assin-badge.aviso { background: rgba(245,179,1,.16); color: var(--warn-text); }
+  .assin-badge.ruim { background: rgba(244,63,94,.16); color: var(--danger-text); }
+  #suspensoScreen { position: fixed; inset: 0; z-index: 1150; background: radial-gradient(700px 420px at 50% 0%, rgba(244,63,94,.18), transparent 60%), var(--bg); display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+  #suspensoScreen .auth-box { max-width: 430px; text-align: center; }
+  #suspensoScreen h2 { margin: 6px 0 8px; font-size: 22px; }
+  .cod-lista { display: grid; gap: 8px; margin: 10px 0; }
+  .cod-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+  .cod-item code { font-size: 14px; font-weight: 700; letter-spacing: .5px; }
+  .cod-item small { display: block; color: var(--muted); font-size: 11.5px; }
+  .cod-item button { border: 1px solid var(--border-strong); background: transparent; color: var(--text); border-radius: 9px; padding: 6px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+  .assin-card { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; font-size: 13px; line-height: 1.55; }
+  .assin-card .acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .assin-card .acoes button { border: 1px solid var(--border-strong); background: transparent; color: var(--text); border-radius: 9px; padding: 7px 11px; font: inherit; font-size: 12px; cursor: pointer; }
+  .assin-card .acoes button.ok { background: var(--success); border-color: var(--success); color: #fff; font-weight: 700; }
+  .legal-txt { font-size: 13.5px; line-height: 1.6; margin-bottom: 14px; } .legal-txt h4 { margin: 4px 0 2px; font-size: 17px; } .legal-txt p, .legal-txt ul { margin: 0 0 10px; } .legal-txt ul { padding-left: 20px; }
   .hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.45; }
   .info-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13px; margin-bottom: 15px; line-height: 1.65; }
   .section-box h3 { gap: 8px; flex-wrap: wrap; }
@@ -891,6 +923,7 @@
       <div class="input-group"><label>E-mail, Nome ou CPF</label><input type="text" id="loginUser" placeholder="Digite seus dados de acesso" autocomplete="username"></div>
       <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="loginSenha" placeholder="Digite sua senha" autocomplete="current-password"><button type="button" class="toggle-password" data-toggle="loginSenha">👁️</button></div></div>
       <button class="btn" id="btnLogin">Entrar</button>
+      <button class="btn secondary" id="btnCriarConta" type="button" style="margin-top:8px;">Criar conta</button>
       <button class="btn ghost" id="btnEsqueci" type="button">Esqueci minha senha</button>
     </div>
     <div id="recSenhaForm" style="display:none;">
@@ -901,15 +934,37 @@
         <div class="input-group"><label>CPF</label><input type="text" id="rsCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
         <div class="input-group"><label>Telefone</label><input type="text" id="rsTel" maxlength="15" inputmode="tel" autocomplete="off"></div>
         <div class="input-group"><label>E-mail</label><input type="email" id="rsEmail" autocomplete="off"></div>
-        <button class="btn" id="btnRsVerificar" type="button">Verificar dados</button>
+        <button class="btn" id="btnRsVerificar" type="button">Enviar código por e-mail</button>
       </div>
       <div id="recSenhaPasso2" style="display:none;">
+        <div class="input-group"><label>Código recebido por e-mail</label><input type="text" id="rsCodigo" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:6px;font-size:20px;text-align:center;"></div>
+        <button class="btn ghost" id="btnRsReenviar" type="button" style="margin:-4px 0 12px;">Não recebi · enviar de novo</button>
         <div class="input-group"><label>Nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha">👁️</button></div></div>
         <div class="input-group"><label>Repita a nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha2">👁️</button></div></div>
         <p class="hint">Mínimo de 6 caracteres, com uma letra maiúscula, uma minúscula e um número.</p>
         <button class="btn" id="btnRsSalvar" type="button">Salvar nova senha</button>
       </div>
       <button class="btn ghost" id="btnRsVoltar" type="button">Voltar ao login</button>
+    </div>
+    <div id="cadContaForm" style="display:none;">
+      <h3 style="margin:0 0 6px;font-size:17px;">Criar conta</h3>
+      <p class="hint" style="margin-top:0;">Digite o código de teste grátis que você recebeu. O teste dura 30 dias a partir de hoje; depois, a mensalidade é de R$ 14,90 (ou R$ 19,90 para 2 usuários), paga por PIX no próprio app.</p>
+      <div class="input-group"><label>Código de teste</label><input type="text" id="ccCodigo" placeholder="TTR-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" maxlength="20"></div>
+      <div class="input-group"><label>Nome de usuário</label><input type="text" id="ccNome" autocomplete="off" maxlength="30" placeholder="como você quer ser chamado"></div>
+      <div class="input-group"><label>CPF</label><input type="text" id="ccCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
+      <div class="input-group"><label>Gênero</label><select id="ccGenero"></select></div>
+      <div class="input-group"><label>Telefone</label><input type="text" id="ccTel" maxlength="15" inputmode="tel" placeholder="(00) 00000-0000" autocomplete="off"></div>
+      <div class="input-group"><label>E-mail</label><input type="email" id="ccEmail" placeholder="nome@exemplo.com" autocomplete="off"></div>
+      <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="ccSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha">👁️</button></div></div>
+      <div class="input-group"><label>Repita a senha</label><div class="password-wrapper"><input type="password" id="ccSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha2">👁️</button></div></div>
+      <p class="hint">Mínimo de 6 caracteres, com uma letra maiúscula, uma minúscula e um número.</p>
+      <label class="check-row"><input type="checkbox" id="ccAceite"><span>Li e aceito os <a href="#" data-legal="termos" style="color:var(--accent-text);text-decoration:underline;">Termos de uso</a> e a <a href="#" data-legal="privacidade" style="color:var(--accent-text);text-decoration:underline;">Política de privacidade</a>.</span></label>
+      <div id="ccPasso2" style="display:none;">
+        <div class="input-group"><label>Código enviado para o seu e-mail</label><input type="text" id="ccCodEmail" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:6px;font-size:20px;text-align:center;"></div>
+        <div style="display:flex;gap:8px;margin:-4px 0 12px;"><button class="btn ghost" id="btnCcReenviar" type="button">Enviar de novo</button><button class="btn ghost" id="btnCcEditar" type="button">Corrigir dados</button></div>
+      </div>
+      <button class="btn" id="btnCcCriar" type="button">Continuar</button>
+      <button class="btn ghost auth-voltar" id="btnCcVoltar" type="button">Já tenho conta · Entrar</button>
     </div>
   </div>
 </div>
@@ -927,6 +982,7 @@
     </div>
   </div>
 </header>
+<div id="bannerAssinatura" class="banner-assin"></div>
 
 <div class="month-selector" id="monthSelector" style="display:none">
   <button class="btn-olho" id="btnOlho" type="button" aria-label="Ocultar ou mostrar valores" aria-pressed="false" title="Ocultar/mostrar valores">
@@ -1357,10 +1413,98 @@
     <div class="cfg-titulo">Cadastros</div>
     <button class="cfg-item" id="btnCfgListas" type="button"><span class="cfg-ic">🏷️</span><span class="cfg-tx"><strong>Motivos e tipos</strong><small>Veja, inclua ou exclua as opções das suas compras</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnCfgSugestoes" type="button"><span class="cfg-ic">💡</span><span class="cfg-tx"><strong>Sugestões e problemas</strong><small>Envie um bug, melhoria ou dúvida</small></span><span class="cfg-seta">›</span></button>
+    <div class="cfg-titulo" id="cfgTituloAssin" style="display:none;">Assinatura</div>
+    <button class="cfg-item" id="btnCfgAssin" type="button" style="display:none;"><span class="cfg-ic">💳</span><span class="cfg-tx"><strong>Minha assinatura</strong><small id="cfgAssinResumo">Vencimento, valor e PIX</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAdmin" style="display:none;">Administração</div>
+    <button class="cfg-item" id="btnCfgAdminAssin" type="button" style="display:none;"><span class="cfg-ic">🎟️</span><span class="cfg-tx"><strong>Testes grátis e assinaturas</strong><small>Gere códigos e acompanhe pagamentos</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnGerenciarUsuarios" type="button" style="display:none;"><span class="cfg-ic">👥</span><span class="cfg-tx"><strong>Gerenciar usuários</strong><small>Acessos e permissões do grupo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Conta</div>
     <div class="info-box" id="cfgConta"></div>
+    <p class="hint"><a href="#" data-legal="termos" style="color:var(--accent-text);">Termos de uso</a> · <a href="#" data-legal="privacidade" style="color:var(--accent-text);">Política de privacidade</a></p>
+  </div>
+</div>
+
+<!-- CONTA SUSPENSA -->
+<div id="suspensoScreen">
+  <div class="auth-box">
+    <div style="font-size:42px;" id="suspensoIc">🔒</div>
+    <h2 id="suspensoTit">Conta suspensa</h2>
+    <p class="hint" id="suspensoTxt" style="font-size:13.5px;">Sua mensalidade não foi paga e a conta foi suspensa. Pague o PIX abaixo: assim que o pagamento for confirmado, o acesso é liberado.</p>
+    <div id="suspensoPix"></div>
+    <button class="btn secondary" id="btnSuspensoExportar" type="button" style="margin-bottom:8px;">📥 Baixar meus dados</button>
+    <button class="btn ghost" id="btnSuspensoSair" type="button">Sair da conta</button>
+  </div>
+</div>
+
+<!-- TERMOS / PRIVACIDADE -->
+<div class="modal-overlay modal-nivel-2" id="modalLegal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="legalTitulo">Termos de uso</h3><button class="close-btn" data-close="modalLegal">×</button></div>
+    <div id="legalTexto" class="legal-txt"></div>
+    <button class="btn secondary" type="button" data-close="modalLegal">Fechar</button>
+  </div>
+</div>
+
+<!-- MINHA ASSINATURA -->
+<div class="modal-overlay" id="modalAssinatura">
+  <div class="modal">
+    <div class="modal-header"><h3>Minha assinatura</h3><button class="close-btn" data-close="modalAssinatura">×</button></div>
+    <div id="assinConteudo"></div>
+  </div>
+</div>
+
+<!-- LÍDER: ADICIONAR 2º USUÁRIO -->
+<div class="modal-overlay modal-nivel-2" id="modalNovoMembro">
+  <div class="modal">
+    <div class="modal-header"><h3>Adicionar usuário ao grupo</h3><button class="close-btn" data-close="modalNovoMembro">×</button></div>
+    <p class="hint" style="margin-top:0;">Esta pessoa entra no mesmo grupo que você (vê as mesmas contas e divide o orçamento). Com 2 usuários a mensalidade do grupo é de <b>R$ 19,90</b> — paga uma única vez.</p>
+    <div class="input-group"><label>Nome de usuário</label><input type="text" id="nmNome" autocomplete="off" maxlength="30"></div>
+    <div class="input-group"><label>CPF</label><input type="text" id="nmCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
+    <div class="input-group"><label>Gênero</label><select id="nmGenero"></select></div>
+    <div class="input-group"><label>Telefone</label><input type="text" id="nmTel" maxlength="15" inputmode="tel" placeholder="(00) 00000-0000" autocomplete="off"></div>
+    <div class="input-group"><label>E-mail</label><input type="email" id="nmEmail" placeholder="nome@exemplo.com" autocomplete="off"></div>
+    <div class="input-group"><label>Senha inicial</label><div class="password-wrapper"><input type="password" id="nmSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="nmSenha">👁️</button></div></div>
+    <p class="hint">Mínimo de 6 caracteres, com maiúscula, minúscula e número. Avise a pessoa para entrar com este e-mail e esta senha.</p>
+    <button class="btn" id="btnNmCriar" type="button">Adicionar usuário</button>
+  </div>
+</div>
+
+<!-- ADMIN: ENVIAR CÓDIGO (WhatsApp / e-mail) -->
+<div class="modal-overlay modal-nivel-2" id="modalEnviarCodigo">
+  <div class="modal">
+    <div class="modal-header"><h3>Enviar código</h3><button class="close-btn" data-close="modalEnviarCodigo">×</button></div>
+    <div class="info-box" style="text-align:center;"><code id="envCodigoTxt" style="font-size:18px;font-weight:700;"></code><br><small id="envCodigoDias"></small></div>
+    <div class="input-group"><label>WhatsApp (com DDD) ou e-mail da pessoa</label><input type="text" id="envContato" placeholder="(11) 90000-0000 ou nome@exemplo.com" autocomplete="off"></div>
+    <button class="btn" id="btnEnvWpp" type="button" style="background:#16a34a;">💬 Enviar pelo WhatsApp</button>
+    <button class="btn secondary" id="btnEnvEmail" type="button" style="margin-top:8px;">✉️ Enviar por e-mail</button>
+    <p class="hint" style="margin-top:10px;">O WhatsApp abre com a mensagem pronta; é só tocar em enviar. Sem número, você escolhe o contato dentro do WhatsApp.</p>
+  </div>
+</div>
+
+<!-- ADMIN: TESTES GRÁTIS E ASSINATURAS -->
+<div class="modal-overlay" id="modalAdminAssin">
+  <div class="modal">
+    <div class="modal-header"><h3>Testes grátis e assinaturas</h3><button class="close-btn" data-close="modalAdminAssin">×</button></div>
+    <div class="hist-tabs" style="display:flex;gap:8px;margin-bottom:12px;">
+      <button class="btn" id="tabAdmCod" type="button" style="padding:10px;">Códigos</button>
+      <button class="btn ghost" id="tabAdmAss" type="button" style="padding:10px;">Assinaturas</button>
+    </div>
+    <div id="admCodigos">
+      <p class="hint" style="margin-top:0;">Gere códigos e envie para as pessoas: cada código cria uma conta nova com teste grátis e só pode ser usado uma vez.</p>
+      <div class="form-grid">
+        <div class="input-group"><label>Quantidade</label><input type="number" id="admQtd" min="1" max="100" value="1" inputmode="numeric"></div>
+        <div class="input-group"><label>Dias de teste</label><input type="number" id="admDias" min="1" max="365" value="30" inputmode="numeric"></div>
+      </div>
+      <div class="form-grid">
+        <div class="input-group"><label>Código vale por (dias)</label><input type="number" id="admValidade" min="1" max="365" value="60" inputmode="numeric"></div>
+        <div class="input-group"><label>Para quem (opcional)</label><input type="text" id="admObs" maxlength="60" placeholder="Ex.: Maria"></div>
+      </div>
+      <button class="btn" id="btnAdmGerar" type="button">Gerar códigos</button>
+      <div id="admNovos"></div>
+      <h4 style="margin:18px 0 8px;font-size:14px;">Todos os códigos</h4>
+      <div id="admListaCodigos" class="cod-lista"></div>
+    </div>
+    <div id="admAssinaturas" style="display:none;"><div id="admListaAssin"></div></div>
   </div>
 </div>
 
@@ -3278,6 +3422,10 @@ function abrirConfiguracoes(e) {
   const adm = !!(currentUser && currentUser.is_admin);
   $('btnGerenciarUsuarios').style.display = adm ? 'flex' : 'none';
   $('cfgTituloAdmin').style.display = adm ? 'block' : 'none';
+  $('btnCfgAdminAssin').style.display = adm ? 'flex' : 'none';
+  const temAssin = !!(assinatura && assinatura.estado && assinatura.estado !== 'ilimitado');
+  $('cfgTituloAssin').style.display = temAssin ? 'block' : 'none'; $('btnCfgAssin').style.display = temAssin ? 'flex' : 'none';
+  if (temAssin) $('cfgAssinResumo').textContent = (assinatura.teste ? 'Teste grátis' : 'Mensalidade') + ' · vence em ' + fmtDataBR(assinatura.vencimento);
   $('cfgConta').innerHTML = `Conectado como <strong>${esc(capNome(currentUser.nome || ''))}</strong>${currentUser.email ? '<br>' + esc(currentUser.email) : ''}`;
   renderAcesso();
   abrirModal('modalConfiguracoes');
@@ -3494,46 +3642,423 @@ function validaCPF(cpf) {
 /* =========================================
    AUTENTICAÇÃO
    ========================================= */
-/* ---- esqueci minha senha: confere nome, CPF, telefone e e-mail do cadastro e então permite criar nova senha ---- */
+/* ---- chamada às funções do servidor (Edge Function "conta") ---- */
+async function invocarConta(acao, corpo) {
+  try {
+    const { data, error } = await db.functions.invoke('conta', { body: { acao, ...(corpo || {}) } });
+    if (error) {
+      let j = null; try { j = await error.context.json(); } catch (e) {}
+      return { erro: (j && j.erro) || 'falha', mensagem: (j && j.mensagem) || 'Não foi possível completar agora. Verifique a conexão e tente de novo.' };
+    }
+    return data || {};
+  } catch (e) { return { erro: 'falha', mensagem: 'Sem conexão com o servidor. Tente de novo.' }; }
+}
+const SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+const fmtBRL = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');
+const fmtDataBR = d => new Date(d).toLocaleDateString('pt-BR');
+function authTopo() { const a = $('authScreen'); if (a) a.scrollTop = 0; }
+
+/* ---- esqueci minha senha: confere os dados do cadastro, envia um CÓDIGO por e-mail e só então permite a nova senha ---- */
 function recSenhaDados() {
-  return { p_nome: $('rsNome').value.trim(), p_cpf: $('rsCpf').value.trim(), p_telefone: $('rsTel').value.trim(), p_email: $('rsEmail').value.trim() };
+  return { nome: $('rsNome').value.trim(), cpf: $('rsCpf').value.trim(), telefone: $('rsTel').value.trim(), email: $('rsEmail').value.trim() };
 }
 function recSenhaMostrar(ativo) {
-  $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = ativo ? 'block' : 'none';
+  $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = ativo ? 'block' : 'none'; $('cadContaForm').style.display = 'none';
   $('recSenhaPasso1').style.display = 'block'; $('recSenhaPasso2').style.display = 'none';
-  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; });
+  $('recSenhaDica').textContent = 'Para sua segurança, informe os dados do seu cadastro. Se estiverem corretos, enviamos um código de 6 números para o seu e-mail.';
+  ['rsNome', 'rsCpf', 'rsTel', 'rsEmail', 'rsCodigo', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; });
 }
-function recSenhaErro(e) {
-  const m = (e && e.message) || '';
-  if (/tentativas/i.test(m)) return 'Muitas tentativas. Aguarde alguns minutos e tente de novo.';
-  if (/function|schema cache/i.test(m)) return 'Recurso ainda não ativado no banco: execute o SQL novo (20261108_ttr_atualizacoes.sql) no Supabase.';
-  return 'Os dados informados não conferem com o cadastro. Confira e tente de novo.';
-}
-async function recSenhaVerificar() {
+function mascaraEmail(e) { const [u, d] = String(e).split('@'); return (u || '').slice(0, 2) + '•••@' + (d || ''); }
+async function recSenhaVerificar(reenvio) {
   const d = recSenhaDados();
-  if (!d.p_nome || !d.p_cpf || !d.p_telefone || !d.p_email) return mostrarErro('Preencha todos os campos: nome, CPF, telefone e e-mail.');
-  if (!validaCPF(d.p_cpf)) return mostrarErro('O CPF informado é inválido.');
-  const b = $('btnRsVerificar'); b.disabled = true; b.textContent = 'Verificando...';
-  const { data, error } = await db.rpc('verificar_cadastro_recuperacao', d);
-  b.disabled = false; b.textContent = 'Verificar dados';
-  if (error || data !== true) return mostrarErro(recSenhaErro(error));
+  if (!d.nome || !d.cpf || !d.telefone || !d.email) return mostrarErro('Preencha todos os campos: nome, CPF, telefone e e-mail.');
+  if (!validaCPF(d.cpf)) return mostrarErro('O CPF informado é inválido.');
+  const b = $('btnRsVerificar'); b.disabled = true; b.textContent = 'Enviando código...';
+  const r = await invocarConta('reset_solicitar', d);
+  b.disabled = false; b.textContent = 'Enviar código por e-mail';
+  if (r.erro) return mostrarErro(r.mensagem);
   ['rsNome', 'rsCpf', 'rsTel', 'rsEmail'].forEach(i => { $(i).disabled = true; });
   $('recSenhaPasso1').style.display = 'none'; $('recSenhaPasso2').style.display = 'block';
-  $('recSenhaDica').textContent = 'Dados conferidos! Agora defina a sua nova senha.';
-  setTimeout(() => $('rsSenha').focus(), 50);
+  $('recSenhaDica').textContent = 'Enviamos um código de 6 números para ' + mascaraEmail(d.email) + '. Digite o código e escolha a nova senha. O código vale por 15 minutos.';
+  if (reenvio === true) notificar('Novo código enviado!', 'sucesso');
+  setTimeout(() => $('rsCodigo').focus(), 50);
+}
+async function recSenhaReenviar() {
+  const b = $('btnRsReenviar'); b.disabled = true;
+  const r = await invocarConta('reset_solicitar', recSenhaDados());
+  setTimeout(() => { b.disabled = false; }, 8000);
+  if (r.erro) return mostrarErro(r.mensagem);
+  notificar('Novo código enviado para o seu e-mail.', 'sucesso');
 }
 async function recSenhaSalvar() {
-  const s1 = $('rsSenha').value, s2 = $('rsSenha2').value;
-  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(s1)) return mostrarErro('A senha deve ter no mínimo 6 caracteres, com uma maiúscula, uma minúscula e um número.');
+  const cod = $('rsCodigo').value.replace(/\D/g, ''), s1 = $('rsSenha').value, s2 = $('rsSenha2').value;
+  if (cod.length !== 6) return mostrarErro('Digite o código de 6 números enviado por e-mail.');
+  if (!SENHA_FORTE.test(s1)) return mostrarErro('A senha deve ter no mínimo 6 caracteres, com uma maiúscula, uma minúscula e um número.');
   if (s1 !== s2) return mostrarErro('As senhas não são iguais.');
   const b = $('btnRsSalvar'); b.disabled = true; b.textContent = 'Salvando...';
-  const { data, error } = await db.rpc('redefinir_senha_cadastro', { ...recSenhaDados(), p_nova: s1 });
+  const r = await invocarConta('reset_confirmar', { ...recSenhaDados(), codigo: cod, nova: s1 });
   b.disabled = false; b.textContent = 'Salvar nova senha';
-  if (error || data !== true) return mostrarErro(recSenhaErro(error));
+  if (r.erro) return mostrarErro(r.mensagem);
   const nome = $('rsNome').value.trim();
   recSenhaMostrar(false); $('loginUser').value = nome; $('loginSenha').value = '';
   notificar('Senha alterada! Entre com a nova senha.', 'sucesso', 6000);
 }
+
+/* ---- criar conta com código de teste grátis ---- */
+function cadContaMostrar(ativo) {
+  $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = 'none'; $('cadContaForm').style.display = ativo ? 'block' : 'none';
+  if (ativo) {
+    ['ccCodigo', 'ccNome', 'ccCpf', 'ccTel', 'ccEmail', 'ccSenha', 'ccSenha2'].forEach(i => { $(i).value = ''; });
+    $('ccAceite').checked = false; $('ccGenero').innerHTML = optsGenero('', 'Selecione…'); ccEtapaMostrar(1); authTopo();
+  }
+}
+function lerCamposConta(p) {
+  return { nome: $(p + 'Nome').value.trim().toLowerCase(), cpf: $(p + 'Cpf').value.trim(), telefone: $(p + 'Tel').value.trim(), email: $(p + 'Email').value.trim().toLowerCase(), genero: $(p + 'Genero').value, senha: $(p + 'Senha').value };
+}
+function validarCamposConta(v, senha2) {
+  if (!v.nome || v.nome.length < 3) return 'Informe o nome de usuário (mínimo 3 caracteres).';
+  if (!/^[a-z0-9._ -]+$/i.test(v.nome)) return 'Use no nome de usuário apenas letras sem acento, números, ponto, hífen ou espaço.';
+  if (!validaCPF(v.cpf)) return 'O CPF informado é inválido.';
+  if (!v.genero) return 'Escolha o gênero.';
+  if (v.telefone.replace(/\D/g, '').length < 10) return 'Informe um telefone válido, com DDD.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) return 'Informe um e-mail válido.';
+  if (!SENHA_FORTE.test(v.senha)) return 'A senha deve ter no mínimo 6 caracteres, com uma maiúscula, uma minúscula e um número.';
+  if (senha2 !== undefined && v.senha !== senha2) return 'As senhas não são iguais.';
+  return '';
+}
+let ccEtapa = 1;
+function ccEtapaMostrar(n) {
+  ccEtapa = n; const bloq = n === 2;
+  ['ccCodigo', 'ccNome', 'ccCpf', 'ccTel', 'ccEmail', 'ccSenha', 'ccSenha2', 'ccAceite', 'ccGenero'].forEach(i => { $(i).disabled = bloq; });
+  $('ccPasso2').style.display = bloq ? 'block' : 'none';
+  $('btnCcCriar').textContent = bloq ? 'Confirmar e criar minha conta' : 'Continuar';
+  if (!bloq) $('ccCodEmail').value = '';
+}
+async function cadContaCriar() {
+  const v = lerCamposConta('cc'); v.codigo = $('ccCodigo').value.trim().toUpperCase(); v.aceite = $('ccAceite').checked;
+  const falha = (m) => { mostrarErro(m); authTopo(); };
+  if (!v.codigo) return falha('Digite o código de teste grátis.');
+  const e = validarCamposConta(v, $('ccSenha2').value); if (e) return falha(e);
+  if (!v.aceite) return falha('Para criar a conta é preciso aceitar os termos.');
+  const b = $('btnCcCriar'); b.disabled = true;
+  if (ccEtapa === 1) {                       // 1) confere os dados e manda o código de confirmação para o e-mail
+    b.textContent = 'Enviando código...';
+    const r = await invocarConta('cadastro_codigo', v);
+    b.disabled = false;
+    if (r.erro) { b.textContent = 'Continuar'; return falha(r.mensagem); }
+    ccEtapaMostrar(2); notificar('Enviamos um código de 6 números para ' + v.email + '.', 'sucesso', 6000);
+    setTimeout(() => $('ccCodEmail').focus(), 80);
+    return;
+  }
+  const cod = $('ccCodEmail').value.replace(/\D/g, '');   // 2) confirma o e-mail e cria a conta
+  if (cod.length !== 6) { b.disabled = false; return falha('Digite o código de 6 números enviado para o seu e-mail.'); }
+  v.codigo_email = cod;
+  b.textContent = 'Criando sua conta...';
+  const r = await invocarConta('cadastrar', v);
+  b.disabled = false; b.textContent = 'Confirmar e criar minha conta';
+  if (r.erro) return falha(r.mensagem);
+  try {
+    const { data, error } = await db.auth.signInWithPassword({ email: v.email, password: v.senha });
+    if (error) throw error;
+    mostrarLoading('Preparando seu app...');
+    await carregarPerfil(data.user.id);
+    esconderLoading();
+    notificar('Conta criada! Seu teste grátis vai até ' + fmtDataBR(r.vencimento) + '.', 'sucesso', 7000);
+  } catch (err) {
+    esconderLoading(); cadContaMostrar(false); $('loginUser').value = v.email;
+    notificar('Conta criada! Entre com o seu e-mail e a senha.', 'sucesso', 6000);
+  }
+}
+async function cadContaReenviar() {
+  const v = lerCamposConta('cc'); v.codigo = $('ccCodigo').value.trim().toUpperCase(); v.aceite = $('ccAceite').checked;
+  const b = $('btnCcReenviar'); b.disabled = true;
+  const r = await invocarConta('cadastro_codigo', v);
+  setTimeout(() => { b.disabled = false; }, 8000);
+  if (r.erro) return mostrarErro(r.mensagem);
+  notificar('Novo código enviado para o seu e-mail.', 'sucesso');
+}
+
+/* ---- Termos de uso e Política de privacidade (texto genérico: revise com um advogado e ajuste os dados abaixo) ---- */
+const LEGAL = {
+  contato: 'ttrgestaofinanceira@gmail.com',
+  responsavel: 'TTR Gestão Financeira',
+  atualizado: '11/11/2026'
+};
+const LEGAL_TXT = {
+  termos: () => `<h4>Termos de uso</h4><p class="hint">Última atualização: ${LEGAL.atualizado}</p>
+<p><b>1. Sobre o serviço.</b> O TTR Gestão Financeira (“TTR”) é um aplicativo para organizar finanças pessoais e da casa: orçamento, compras e parcelas, divisão de gastos, porquinhos (metas) e, opcionalmente, controle de vendas e serviços. Ele é oferecido por ${esc(LEGAL.responsavel)}.</p>
+<p><b>2. Conta.</b> Para criar uma conta você precisa de um código de teste válido, ter 18 anos ou mais e informar dados verdadeiros (nome de usuário, CPF, telefone, e-mail e gênero). Você é responsável por manter a sua senha em segredo e por tudo o que acontece na sua conta. O primeiro usuário de um grupo é o “líder” e pode adicionar mais 1 usuário ao mesmo grupo; quem é adicionado passa a ver os dados compartilhados do grupo.</p>
+<p><b>3. Teste grátis.</b> O teste dura o número de dias informado no código, a partir da criação da conta. Cada código só pode ser usado uma vez e cada CPF só pode ter uma conta.</p>
+<p><b>4. Mensalidade.</b> Depois do teste, a mensalidade é de R$ 14,90 para 1 usuário ou R$ 19,90 para um grupo com 2 usuários (paga uma única vez pelo grupo), por PIX, e pode ser reajustada com aviso prévio. O vencimento é sempre no mesmo dia do mês. O líder pode trocar o dia do vencimento (de 1 a 28); a diferença de dias é cobrada ou abatida, proporcionalmente, na fatura seguinte. Você recebe a fatura por e-mail e o QR Code no app a partir de 3 dias antes do vencimento. Confirmado o pagamento, o acesso é liberado por mais um mês.</p>
+<p><b>5. Atraso e suspensão.</b> Se o pagamento não for feito até 2 dias após o vencimento, a conta é suspensa: o acesso é bloqueado e seus dados ficam guardados, sem uso, até o pagamento ou o cancelamento. Pago o PIX, o acesso volta.</p>
+<p><b>6. Cancelamento e seus dados.</b> O líder pode cancelar a assinatura a qualquer momento no app. O acesso continua até o fim do período já pago e não há novas cobranças. Você pode baixar uma cópia dos seus dados a qualquer momento, inclusive depois do cancelamento. Pagamentos já feitos não são reembolsados, salvo nos casos previstos em lei (por exemplo, o direito de arrependimento de 7 dias do Código de Defesa do Consumidor, quando aplicável).</p>
+<p><b>7. Uso adequado.</b> Não é permitido usar o TTR para fins ilegais, tentar acessar dados de outras pessoas, burlar a cobrança, copiar ou revender o app, ou sobrecarregar o serviço. Podemos suspender contas que violem estes termos.</p>
+<p><b>8. Natureza das informações.</b> O TTR é uma ferramenta de organização. Os valores, gráficos e avisos dependem do que você lança e não substituem aconselhamento financeiro, contábil ou jurídico. Você é responsável pela conferência dos seus números e pelas cobranças que enviar a outras pessoas.</p>
+<p><b>9. Disponibilidade.</b> Trabalhamos para manter o app disponível, mas podem ocorrer interrupções para manutenção ou por falhas de terceiros (internet, hospedagem, e-mail, provedor de pagamento). Recomendamos baixar cópias dos seus dados de tempos em tempos.</p>
+<p><b>10. Limitação de responsabilidade.</b> Na extensão permitida em lei, não respondemos por perdas indiretas, lucros cessantes ou decisões tomadas com base nas informações do app.</p>
+<p><b>11. Mudanças.</b> Podemos atualizar estes termos. Quando a mudança for relevante, avisamos no app ou por e-mail. Continuar usando depois do aviso significa concordar com a nova versão.</p>
+<p><b>12. Contato e lei aplicável.</b> Dúvidas: ${esc(LEGAL.contato)}. Estes termos seguem as leis do Brasil.</p>`,
+  privacidade: () => `<h4>Política de privacidade</h4><p class="hint">Última atualização: ${LEGAL.atualizado}</p>
+<p>Esta política explica como o TTR trata os seus dados pessoais, conforme a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018). O controlador dos dados é ${esc(LEGAL.responsavel)}.</p>
+<p><b>1. Quais dados coletamos.</b></p>
+<ul><li><b>Cadastro:</b> nome de usuário, CPF, telefone, e-mail, gênero e senha (guardada de forma protegida, nunca em texto aberto).</li>
+<li><b>Dados que você lança no app:</b> compras, parcelas, orçamentos, rendas, porquinhos, cobranças a terceiros (nome e valores), clientes, vendas e serviços. Esses dados são seus; usamos apenas para o app funcionar.</li>
+<li><b>Assinatura e pagamento:</b> datas, valores, status e identificação dos PIX gerados. Não guardamos dados de cartão.</li>
+<li><b>Técnicos:</b> preferências do app (tema, notificações) guardadas no seu aparelho, e dados mínimos de acesso necessários à segurança.</li></ul>
+<p><b>2. Para que usamos.</b> Criar e manter sua conta; fazer o app funcionar; cobrar a mensalidade e liberar ou suspender o acesso; enviar e-mails do serviço (códigos de confirmação e de senha, faturas, recibos e avisos); enviar lembretes de vencimento se você ativar; dar suporte; e cumprir obrigações legais.</p>
+<p><b>3. Base legal.</b> Execução do contrato de uso do app, cumprimento de obrigações legais, legítimo interesse (segurança e prevenção a fraudes) e o seu consentimento quando necessário (por exemplo, notificações).</p>
+<p><b>4. Com quem compartilhamos.</b> Não vendemos seus dados. Eles são tratados por prestadores que fazem o serviço funcionar: hospedagem e banco de dados (Supabase), envio de e-mail (Google/Gmail ou serviço equivalente) e processamento de PIX (Mercado Pago, PagBank ou o seu banco). Cada um recebe só o necessário. Em um grupo com 2 usuários, os dados compartilhados do grupo ficam visíveis aos dois.</p>
+<p><b>5. Por quanto tempo guardamos.</b> Enquanto a conta existir. Depois do cancelamento, mantemos os dados por um período para que você possa baixá-los ou reativar a conta, e depois podemos excluí-los, exceto o que a lei nos obrigar a guardar (por exemplo, registros de cobrança).</p>
+<p><b>6. Seus direitos.</b> Você pode pedir: confirmação de que tratamos seus dados, acesso, correção, portabilidade (há um botão para baixar os dados no app), anonimização ou exclusão, informação sobre compartilhamento e revogação de consentimento. Peça por ${esc(LEGAL.contato)}.</p>
+<p><b>7. Segurança.</b> Usamos conexão criptografada, controle de acesso por conta e bloqueio automático de contas suspensas. Nenhum sistema é 100% seguro; use uma senha forte e não a compartilhe.</p>
+<p><b>8. Crianças.</b> O TTR é destinado a maiores de 18 anos.</p>
+<p><b>9. Mudanças e contato.</b> Podemos atualizar esta política e avisaremos quando for relevante. Dúvidas ou pedidos: ${esc(LEGAL.contato)}.</p>`
+};
+function abrirLegal(qual) {
+  $('legalTitulo').textContent = qual === 'privacidade' ? 'Política de privacidade' : 'Termos de uso';
+  $('legalTexto').innerHTML = LEGAL_TXT[qual === 'privacidade' ? 'privacidade' : 'termos']();
+  $('modalLegal').querySelector('.modal').scrollTop = 0;
+  abrirModal('modalLegal');
+}
+
+/* ---- assinatura: aviso de vencimento, PIX, suspensão ---- */
+let assinatura = null, pixTimer = null, verifAssinTimer = null;
+async function consultarAssinatura() {
+  try { const { data, error } = await db.rpc('minha_assinatura'); if (error || !data || typeof data !== 'object') return null; assinatura = data; return data; } catch (e) { return null; }
+}
+function renderBannerAssinatura() {
+  const b = $('bannerAssinatura'), a = assinatura; if (!b) return;
+  if (!a || !['aviso', 'vencida'].includes(a.estado)) { b.style.display = 'none'; return; }
+  let msg;
+  if (a.estado === 'vencida') msg = '⚠️ Sua mensalidade venceu. A conta será suspensa em ' + fmtDataBR(a.suspende_em) + '.';
+  else msg = (a.teste ? '🎁 Seu teste grátis termina ' : '📅 Sua mensalidade vence ') + (a.dias <= 0 ? 'hoje' : a.dias === 1 ? 'amanhã' : 'em ' + a.dias + ' dias') + '.';
+  b.className = 'banner-assin' + (a.estado === 'vencida' ? ' urgente' : '');
+  b.innerHTML = `<span>${esc(msg)}</span><button type="button" id="btnBannerPagar">Pagar ${fmtBRL(a.valor)}</button>`;
+  b.style.display = 'flex';
+}
+// estado === 'suspensa': durante o uso sai da conta sozinho; ao entrar de novo mostra "conta suspensa" com o PIX
+async function verificarAssinatura(durante) {
+  const a = await consultarAssinatura(); if (!a) return null;
+  renderBannerAssinatura();
+  if (a.estado === 'suspensa' || a.estado === 'cancelada') {
+    if (durante) { try { sessionStorage.setItem('ttr_suspensa', '1'); } catch (e) {} await db.auth.signOut(); location.reload(); }
+    else mostrarSuspenso();
+  }
+  return a;
+}
+function iniciarVigiaAssinatura() {
+  clearInterval(verifAssinTimer);
+  verifAssinTimer = setInterval(() => { if (currentUser && !document.hidden) verificarAssinatura(true); }, 5 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && currentUser) verificarAssinatura(true); });
+}
+function mostrarSuspenso() {
+  $('authScreen').style.display = 'none';
+  ['appHeader', 'monthSelector', 'bottomNav'].forEach(i => { const el = $(i); if (el) el.style.display = 'none'; });
+  document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  const canc = assinatura && assinatura.estado === 'cancelada';
+  $('suspensoTit').textContent = canc ? 'Conta cancelada' : 'Conta suspensa';
+  $('suspensoIc').textContent = canc ? '📦' : '🔒';
+  $('suspensoTxt').textContent = canc ? 'Sua assinatura foi cancelada. Você pode baixar os seus dados abaixo ou reativar a conta pagando o PIX: o acesso volta na hora.'
+    : 'Sua mensalidade não foi paga e a conta foi suspensa. Pague o PIX abaixo: assim que o pagamento for confirmado, o acesso é liberado.';
+  $('suspensoScreen').style.display = 'flex';
+  carregarPix('suspensoPix');
+}
+async function carregarPix(boxId) {
+  const box = $(boxId); clearInterval(pixTimer);
+  box.innerHTML = '<div class="pix-load">Gerando o PIX…</div>';
+  const r = await invocarConta('pix');
+  if (r.erro) { box.innerHTML = `<div class="pix-erro">${esc(r.mensagem)}</div><button class="btn ghost" type="button" data-pix-retry="${boxId}">Tentar de novo</button>`; return; }
+  box.innerHTML = `<div class="pix-card"><div class="pix-val">${fmtBRL(r.valor)}</div>
+    <img class="pix-qr" src="${esc(r.qr)}" alt="QR Code do PIX">
+    <button class="btn" type="button" data-pix-copiar="${boxId}">📋 Copiar PIX copia e cola</button>
+    <div class="pix-code" id="${boxId}Code">${esc(r.copia_cola)}</div>
+    <div class="pix-status" id="${boxId}Status">⏳ Aguardando o pagamento… ${r.auto ? 'A liberação é automática, na hora.' : 'Assim que o pagamento for confirmado, o acesso é liberado.'}</div></div>`;
+  box._pix = r.copia_cola;
+  pixTimer = setInterval(async () => {
+    if (!document.body.contains(box) || !box.getClientRects().length) { clearInterval(pixTimer); return; }
+    await invocarConta('conferir');
+    const a = await consultarAssinatura();
+    if (a && ['ok', 'ilimitado'].includes(a.estado)) {
+      clearInterval(pixTimer);
+      box.innerHTML = '<div class="pix-card"><div class="pix-status ok">✅ Pagamento confirmado! Acesso liberado.</div></div>';
+      setTimeout(() => location.reload(), 1600);
+    }
+  }, 6000);
+}
+async function abrirModalAssinatura(e) {
+  if (e) e.preventDefault();
+  fecharModal('modalConfiguracoes');
+  abrirModal('modalAssinatura');
+  $('assinConteudo').innerHTML = '<p class="pix-load">Carregando…</p>';
+  renderAssinatura(await consultarAssinatura());
+}
+const fmtISO = d => String(d).slice(0, 10).split('-').reverse().join('/');
+const sinalBRL = n => (Number(n) >= 0 ? '+ ' : '− ') + fmtBRL(Math.abs(n));
+function renderAssinatura(a) {
+  const el = $('assinConteudo');
+  if (!a || a.estado === 'ilimitado') { el.innerHTML = '<div class="info-box">Seu acesso não tem cobrança. Nada a pagar por aqui. 🎉</div>'; return; }
+  const rot = { ok: ['Em dia', ''], aviso: ['Vence em breve', 'aviso'], vencida: ['Vencida', 'ruim'], suspensa: ['Suspensa', 'ruim'], cancelada: ['Cancelada', 'ruim'] }[a.estado] || ['—', ''];
+  let h = `<div class="info-box"><span class="assin-badge ${rot[1]}">${a.cancelada && a.estado === 'ok' ? 'Cancelada · ativa até o vencimento' : rot[0]}</span><br>
+    ${a.teste ? '<b>Teste grátis</b>' : '<b>Mensalidade</b>'} · ${a.membros >= 2 ? '2 usuários no grupo' : '1 usuário'}<br>
+    ${a.cancelada ? 'Acesso até' : 'Vencimento'}: <b>${fmtDataBR(a.vencimento)}</b>${a.teste ? '' : ` · todo dia <b>${a.dia_venc}</b>`}<br>
+    Valor mensal: <b>${fmtBRL(a.valor_base || a.valor)}</b>${a.membros >= 2 ? ' <small>(paga uma vez só para os dois)</small>' : ''}
+    ${Number(a.ajuste) ? `<br>Ajuste de troca de dia: <b>${sinalBRL(a.ajuste)}</b> <small>(entra na próxima fatura: ${fmtBRL(a.valor)})</small>` : ''}</div>`;
+  if (a.cancelada && a.estado === 'ok') h += '<p class="hint">Você cancelou a assinatura: não haverá novas cobranças. Depois do vencimento a conta é bloqueada, mas você ainda pode baixar os seus dados.</p>';
+  else if (a.estado === 'ok') h += '<p class="hint">O QR Code do PIX aparece aqui 3 dias antes do vencimento. Você também recebe a fatura por e-mail.</p>';
+  else h += '<div id="assinPix"></div>';
+  if (a.lider && a.membros < 2 && !a.cancelada) h += `<button class="btn ghost" type="button" id="btnAbrirNovoMembro" style="margin-top:8px;">➕ Adicionar um usuário ao meu grupo (${fmtBRL(19.9)}/mês)</button>`;
+  if (a.lider && a.pode_trocar_dia && ['ok', 'aviso'].includes(a.estado)) h += `<button class="btn ghost" type="button" data-assin="dia" style="margin-top:8px;">🗓️ Trocar o dia do vencimento</button>
+    <div id="assinDiaBox" style="display:none;margin-top:8px;"><div class="input-group"><label>Novo dia do vencimento (1 a 28)</label><input type="number" id="diaNovo" min="1" max="28" inputmode="numeric" value="${a.dia_venc}"></div>
+    <button class="btn secondary" type="button" data-assin="dia-sim">Ver a diferença</button><div class="hint" id="diaSim" style="margin-top:8px;"></div>
+    <button class="btn" type="button" id="btnDiaConfirmar" data-assin="dia-ok" style="display:none;">Confirmar troca</button></div>`;
+  h += '<button class="btn ghost" type="button" data-assin="exportar" style="margin-top:8px;">📥 Baixar meus dados</button>';
+  if (a.lider && a.cancelada && a.estado === 'ok') h += '<button class="btn ghost" type="button" data-assin="reativar" style="margin-top:8px;">↩️ Reativar assinatura</button>';
+  else if (a.lider && !a.cancelada) h += '<button class="btn ghost" type="button" data-assin="cancelar" style="margin-top:8px;color:var(--danger-text);">Cancelar assinatura</button>';
+  el.innerHTML = h;
+  if (!['ok', 'ilimitado'].includes(a.estado)) carregarPix('assinPix');
+}
+function msgErroDia(m) {
+  const k = { teste_nao_altera: 'Você poderá trocar o dia depois do primeiro pagamento.', alterado_recentemente: 'Você já trocou o dia há pouco tempo. Tente de novo em até 25 dias.', pague_primeiro: 'Pague a fatura em aberto antes de trocar o dia.', sem_permissao: 'Só o líder do grupo pode fazer isso.', dia_invalido: 'Escolha um dia de 1 a 28.', cancelada: 'A assinatura está cancelada.' };
+  const c = Object.keys(k).find(x => String(m || '').includes(x)); return c ? k[c] : 'Não foi possível agora: ' + (m || 'erro');
+}
+async function assinAcao(ev) {
+  const t = ev.target.closest('[data-assin]'); if (!t) return;
+  const ac = t.dataset.assin;
+  if (ac === 'dia') { const bx = $('assinDiaBox'); bx.style.display = bx.style.display === 'none' ? 'block' : 'none'; }
+  else if (ac === 'dia-sim' || ac === 'dia-ok') {
+    const d = parseInt($('diaNovo').value); if (!(d >= 1 && d <= 28)) return notificar('Escolha um dia de 1 a 28.', 'erro');
+    const grava = ac === 'dia-ok';
+    const { data, error } = await db.rpc('alterar_dia_vencimento', { p_dia: d, p_confirmar: grava });
+    if (error) return notificar(msgErroDia(error.message), 'erro');
+    if (!data.dias) { $('diaSim').textContent = 'Esse já é o seu dia de vencimento.'; return; }
+    if (grava) { notificar('Dia do vencimento alterado!', 'sucesso'); await consultarAssinatura(); return renderAssinatura(assinatura); }
+    $('diaSim').innerHTML = `O vencimento muda de <b>${fmtISO(data.atual)}</b> para <b>${fmtISO(data.novo)}</b> (${data.dias > 0 ? '+' : ''}${data.dias} dias). ${data.ajuste > 0 ? 'Você usa esses dias a mais e eles serão <b>cobrados</b> na próxima fatura' : 'Esses dias a menos serão <b>abatidos</b> da próxima fatura'} (${sinalBRL(data.ajuste)}). Próxima fatura: <b>${fmtBRL(data.proximo_valor)}</b>.`;
+    $('btnDiaConfirmar').style.display = 'block';
+  }
+  else if (ac === 'exportar') baixarMeusDados();
+  else if (ac === 'cancelar') {
+    if (!(await confirmar({ titulo: 'Cancelar assinatura?', mensagem: 'Você continua usando até ' + fmtDataBR(assinatura.vencimento) + ' e não será mais cobrado. Depois disso a conta é bloqueada (você ainda pode baixar seus dados e reativar quando quiser).', confirmarTexto: 'Cancelar assinatura', tipo: 'perigo' }))) return;
+    const { error } = await db.rpc('cancelar_assinatura'); if (error) return notificar(msgErroDia(error.message), 'erro');
+    notificar('Assinatura cancelada.', 'info'); await consultarAssinatura(); renderAssinatura(assinatura);
+  }
+  else if (ac === 'reativar') {
+    const { error } = await db.rpc('reativar_assinatura'); if (error) return notificar(msgErroDia(error.message), 'erro');
+    notificar('Assinatura reativada!', 'sucesso'); await consultarAssinatura(); renderAssinatura(assinatura);
+  }
+}
+async function baixarMeusDados() {
+  notificar('Preparando seus dados…', 'info', 2500);
+  const r = await invocarConta('exportar');
+  if (r.erro) return notificar(r.mensagem, 'erro');
+  const blob = new Blob([JSON.stringify(r.exportacao, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ttr-meus-dados-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  notificar('Arquivo baixado! Guarde em local seguro.', 'sucesso');
+}
+function abrirModalNovoMembro() {
+  ['nmNome', 'nmCpf', 'nmTel', 'nmEmail', 'nmSenha'].forEach(i => { $(i).value = ''; });
+  $('nmGenero').innerHTML = optsGenero('', 'Selecione…');
+  abrirModal('modalNovoMembro');
+}
+async function criarMembro() {
+  const v = lerCamposConta('nm');
+  const e = validarCamposConta(v); if (e) return notificar(e, 'erro');
+  const b = $('btnNmCriar'); b.disabled = true; b.textContent = 'Adicionando...';
+  const r = await invocarConta('convidar', v);
+  b.disabled = false; b.textContent = 'Adicionar usuário';
+  if (r.erro) return notificar(r.mensagem, 'erro');
+  fecharModal('modalNovoMembro');
+  notificar('Usuário adicionado ao seu grupo! Ele já pode entrar.', 'sucesso', 6000);
+  await consultarAssinatura();
+  if ($('modalAssinatura').classList.contains('open')) renderAssinatura(assinatura);
+  try { await carregarDados(); } catch (err) {}
+}
+
+/* ---- admin: códigos de teste grátis e assinaturas ---- */
+function admAba(qual) {
+  $('admCodigos').style.display = qual === 'cod' ? 'block' : 'none'; $('admAssinaturas').style.display = qual === 'ass' ? 'block' : 'none';
+  $('tabAdmCod').className = 'btn' + (qual === 'cod' ? '' : ' ghost'); $('tabAdmAss').className = 'btn' + (qual === 'ass' ? '' : ' ghost');
+  if (qual === 'ass') admCarregarAssinaturas(); else admCarregarCodigos();
+}
+async function abrirAdminAssin(e) {
+  if (e) e.preventDefault();
+  fecharModal('modalConfiguracoes'); abrirModal('modalAdminAssin'); $('admNovos').innerHTML = ''; admAba('cod');
+}
+async function admGerarCodigos() {
+  const qtd = parseInt($('admQtd').value), dias = parseInt($('admDias').value), val = parseInt($('admValidade').value);
+  if (!(qtd >= 1 && qtd <= 100) || !(dias >= 1) || !(val >= 1)) return notificar('Confira a quantidade e os dias.', 'erro');
+  const b = $('btnAdmGerar'); b.disabled = true; b.textContent = 'Gerando...';
+  const { data, error } = await db.rpc('admin_gerar_codigos', { p_qtd: qtd, p_dias: dias, p_validade_dias: val, p_obs: $('admObs').value.trim() || null });
+  b.disabled = false; b.textContent = 'Gerar códigos';
+  if (error) return notificar(/function|schema cache/i.test(error.message) ? 'Rode o SQL novo (20261111_conta_assinatura.sql) no Supabase.' : error.message, 'erro');
+  const lista = (data || []).map(x => typeof x === 'string' ? x : Object.values(x)[0]);
+  $('admNovos').innerHTML = `<div class="info-box" style="margin-top:12px;"><b>${lista.length} código(s) gerado(s)</b> — ${dias} dias de teste<div class="cod-lista">${lista.map(c => `<div class="cod-item"><code>${esc(c)}</code><span><button type="button" data-cod-copiar="${esc(c)}">Copiar</button> <button type="button" data-cod-enviar="${esc(c)}|${dias}">Enviar</button></span></div>`).join('')}</div>
+    <button class="btn" type="button" data-cod-todos="${esc(lista.join('\n'))}">Copiar todos</button></div>`;
+  admCarregarCodigos();
+}
+let envCod = { codigo: '', dias: 30 };
+function abrirEnviarCodigo(codigo, dias) {
+  envCod = { codigo, dias: parseInt(dias) || 30 };
+  $('envCodigoTxt').textContent = codigo; $('envCodigoDias').textContent = envCod.dias + ' dias de teste grátis'; $('envContato').value = '';
+  abrirModal('modalEnviarCodigo');
+}
+function msgConvite() {
+  const link = location.origin + location.pathname;
+  return `Olá! Aqui está o seu código de teste grátis (${envCod.dias} dias) do TTR Gestão Financeira:\n\n${envCod.codigo}\n\nAbra ${link}, toque em "Criar conta" e digite o código.`;
+}
+function enviarCodigoWpp() {
+  let n = $('envContato').value.replace(/\D/g, '');
+  if (n && n.length <= 11) n = '55' + n;
+  window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(msgConvite()), '_blank');
+}
+async function enviarCodigoEmail() {
+  const email = $('envContato').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return notificar('Digite o e-mail da pessoa no campo acima.', 'erro');
+  const b = $('btnEnvEmail'); b.disabled = true;
+  const r = await invocarConta('enviar_convite', { codigo: envCod.codigo, email });
+  b.disabled = false;
+  if (r.erro) return notificar(r.mensagem, 'erro');
+  notificar('Código enviado por e-mail!', 'sucesso'); fecharModal('modalEnviarCodigo');
+}
+async function admCarregarCodigos() {
+  const box = $('admListaCodigos');
+  const { data, error } = await db.from('convites').select('*').order('criado_em', { ascending: false }).limit(200);
+  if (error) { box.innerHTML = '<p class="hint">Não foi possível carregar (rode o SQL novo no Supabase).</p>'; return; }
+  const nomes = {}; (membrosGrupo || []).forEach(m => { nomes[m.id] = m.nome; });
+  box.innerHTML = (data || []).length ? data.map(c => {
+    const usado = !!c.usado_em, exp = !usado && new Date(c.expira_em) < new Date();
+    const st = usado ? '✅ usado em ' + fmtDataBR(c.usado_em) : exp ? '⌛ expirado' : '🟢 livre até ' + fmtDataBR(c.expira_em);
+    return `<div class="cod-item"><div><code>${esc(c.codigo)}</code><small>${st} · ${c.dias} dias${c.observacao ? ' · ' + esc(c.observacao) : ''}</small></div>${usado ? '' : `<span><button type="button" data-cod-copiar="${esc(c.codigo)}">Copiar</button> <button type="button" data-cod-enviar="${esc(c.codigo)}|${c.dias}">Enviar</button> <button type="button" data-cod-del="${esc(c.codigo)}">✕</button></span>`}</div>`;
+  }).join('') : '<p class="hint">Nenhum código ainda.</p>';
+}
+async function admCarregarAssinaturas() {
+  const box = $('admListaAssin'); box.innerHTML = '<p class="pix-load">Carregando…</p>';
+  const { data, error } = await db.rpc('admin_assinaturas');
+  if (error) { box.innerHTML = '<p class="hint">Não foi possível carregar (rode o SQL novo no Supabase).</p>'; return; }
+  const rot = { ok: '🟢 em dia', aviso: '🟡 vence em breve', vencida: '🟠 vencida', suspensa: '🔴 suspensa' };
+  box.innerHTML = (data || []).length ? data.map(g => `<div class="assin-card"><b>Grupo ${g.grupo_id}</b> · ${rot[g.estado] || g.estado} · ${g.teste ? 'teste grátis' : 'pago'}<br>
+    ${(g.membros || []).map(m => esc(m.nome) + (m.lider ? ' (líder)' : '') + ' — ' + esc(m.email)).join('<br>')}<br>
+    Vence em <b>${fmtDataBR(g.vencimento)}</b> · ${fmtBRL(g.valor)}${g.ultimo_pagamento ? ' · último pagamento ' + fmtDataBR(g.ultimo_pagamento) : ''}
+    <div class="acoes"><button class="ok" type="button" data-adm-pago="${g.grupo_id}">✔ Confirmar pagamento (+1 mês)</button><button type="button" data-adm-dias="${g.grupo_id}:7">+7 dias</button><button type="button" data-adm-dias="${g.grupo_id}:30">+30 dias</button></div></div>`).join('')
+    : '<p class="hint">Nenhuma conta criada por código ainda.</p>';
+}
+async function admAcaoAssin(ev) {
+  const t = ev.target.closest('button'); if (!t) return;
+  if (t.dataset.codCopiar) { notificar(await copiarTexto(t.dataset.codCopiar) ? 'Código copiado!' : 'Não foi possível copiar.', 'info'); }
+  else if (t.dataset.codEnviar) { const [cd, dd] = t.dataset.codEnviar.split('|'); abrirEnviarCodigo(cd, dd); }
+  else if (t.dataset.codTodos) { notificar(await copiarTexto(t.dataset.codTodos) ? 'Códigos copiados!' : 'Não foi possível copiar.', 'info'); }
+  else if (t.dataset.codDel) { if (!(await confirmar({ titulo: 'Excluir este código?', mensagem: 'Ele deixará de funcionar.' }))) return; await db.from('convites').delete().eq('codigo', t.dataset.codDel); admCarregarCodigos(); }
+  else if (t.dataset.admPago) {
+    if (!(await confirmar({ titulo: 'Confirmar pagamento?', mensagem: 'O grupo ganha +1 mês de acesso e a conta é reativada.' }))) return;
+    const { error } = await db.rpc('admin_confirmar_pagamento', { p_grupo: parseInt(t.dataset.admPago) });
+    notificar(error ? error.message : 'Pagamento confirmado. Acesso liberado!', error ? 'erro' : 'sucesso'); admCarregarAssinaturas();
+  } else if (t.dataset.admDias) {
+    const [g, d] = t.dataset.admDias.split(':').map(Number);
+    const { error } = await db.rpc('admin_ajustar_vencimento', { p_grupo: g, p_dias: d });
+    notificar(error ? error.message : `+${d} dias aplicados.`, error ? 'erro' : 'sucesso'); admCarregarAssinaturas();
+  }
+}
+
 async function fazerLogin() {
   const userInput = $('loginUser').value.trim();
   const pass = $('loginSenha').value;
@@ -3570,6 +4095,9 @@ async function carregarPerfil(userId) {
     return mostrarErro('Perfil não encontrado.');
   }
   currentUser = data;
+  const assin = await verificarAssinatura(false);   // conta suspensa: não carrega nada, mostra a tela de pagamento
+  if (assin && (assin.estado === 'suspensa' || assin.estado === 'cancelada')) return;
+  iniciarVigiaAssinatura();
   $('authScreen').style.display = 'none';
   $('appHeader').style.display = 'flex';
   $('monthSelector').style.display = 'flex';
@@ -5835,7 +6363,39 @@ function ligarEventos() {
   $('btnLogin').addEventListener('click', fazerLogin);
   $('btnEsqueci').addEventListener('click', () => { recSenhaMostrar(true); $('rsNome').value = $('loginUser').value.trim().includes('@') ? '' : $('loginUser').value.trim(); });
   $('btnRsVoltar').addEventListener('click', () => recSenhaMostrar(false));
-  $('btnRsVerificar').addEventListener('click', recSenhaVerificar);
+  $('btnRsVerificar').addEventListener('click', () => recSenhaVerificar());
+  $('btnRsReenviar').addEventListener('click', recSenhaReenviar);
+  $('rsCodigo').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
+  $('btnCriarConta').addEventListener('click', () => cadContaMostrar(true));
+  $('btnCcVoltar').addEventListener('click', () => cadContaMostrar(false));
+  $('btnCcCriar').addEventListener('click', cadContaCriar);
+  document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('[data-legal]'); if (a) { e.preventDefault(); abrirLegal(a.dataset.legal); } });
+  $('btnCcReenviar').addEventListener('click', cadContaReenviar);
+  $('btnCcEditar').addEventListener('click', () => ccEtapaMostrar(1));
+  $('ccCodEmail').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
+  $('btnEnvWpp').addEventListener('click', enviarCodigoWpp);
+  $('btnEnvEmail').addEventListener('click', enviarCodigoEmail);
+  $('assinConteudo').addEventListener('click', assinAcao);
+  $('btnSuspensoExportar').addEventListener('click', baixarMeusDados);
+  $('ccCodigo').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
+  ['ccCpf', 'nmCpf'].forEach(id => $(id).addEventListener('input', e => mascaraCPF(e.target)));
+  ['ccTel', 'nmTel'].forEach(id => $(id).addEventListener('input', e => mascaraTelefone(e.target)));
+  ['ccNome', 'nmNome'].forEach(id => $(id).addEventListener('input', e => e.target.value = e.target.value.toLowerCase()));
+  $('btnCfgAssin').addEventListener('click', abrirModalAssinatura);
+  $('btnCfgAdminAssin').addEventListener('click', abrirAdminAssin);
+  $('bannerAssinatura').addEventListener('click', e => { if (e.target.closest('#btnBannerPagar')) abrirModalAssinatura(); });
+  $('btnNmCriar').addEventListener('click', criarMembro);
+  $('btnSuspensoSair').addEventListener('click', sair);
+  $('tabAdmCod').addEventListener('click', () => admAba('cod'));
+  $('tabAdmAss').addEventListener('click', () => admAba('ass'));
+  $('btnAdmGerar').addEventListener('click', admGerarCodigos);
+  $('modalAdminAssin').addEventListener('click', admAcaoAssin);
+  document.addEventListener('click', async ev => {
+    const t = ev.target.closest && ev.target.closest('button'); if (!t) return;
+    if (t.id === 'btnAbrirNovoMembro') abrirModalNovoMembro();
+    else if (t.dataset.pixCopiar) { const bx = $(t.dataset.pixCopiar); if (bx && bx._pix) { const ok = await copiarTexto(bx._pix); t.textContent = ok ? '✅ Copiado!' : 'Copie manualmente o código abaixo'; setTimeout(() => { t.textContent = '📋 Copiar PIX copia e cola'; }, 2500); } }
+    else if (t.dataset.pixRetry) carregarPix(t.dataset.pixRetry);
+  });
   $('btnRsSalvar').addEventListener('click', recSenhaSalvar);
   $('rsCpf').addEventListener('input', e => mascaraCPF(e.target));
   $('rsTel').addEventListener('input', e => mascaraTelefone(e.target));
@@ -6027,7 +6587,10 @@ async function initAuth() {
       if (modoAcesso(session.user.id) !== 'conectado') { esconderLoading(); await bloquearApp(session.user.id, session.user.email); mostrarLoading('Carregando seus dados...'); }
       await carregarPerfil(session.user.id);
     }
-    else $('authScreen').style.display = 'flex';
+    else {
+      $('authScreen').style.display = 'flex';
+      try { if (sessionStorage.getItem('ttr_suspensa')) { sessionStorage.removeItem('ttr_suspensa'); mostrarErro('Sua conta foi suspensa por falta de pagamento. Entre para pagar o PIX e liberar o acesso.'); } } catch (e) {}
+    }
   } catch (e) {
     console.error(e);
     if (!currentUser) $('authScreen').style.display = 'flex';
