@@ -1215,9 +1215,7 @@
           <p class="hint" style="margin:8px 0 0;">Digite o % de uma pessoa e o restante é dividido entre as outras automaticamente. A "pessoa de fora" não mora com você: a parte dessa pessoa não entra nos seus gastos e fica em <strong>A Receber</strong> até que ela pague. Escolha o gênero de cada pessoa de fora para os textos de cobrança saírem corretos.</p>
         </div>
       </div>
-      <div class="input-group" style="display:none;"><label>Motivo</label><input type="text" id="cMotivo" placeholder="Selecione ou digite"></div>
-      <div class="input-group" style="display:none;"><label>Tipo</label><input type="text" id="cTipo" placeholder="Selecione ou digite"></div>
-      <div class="input-group full"><label>Categoria do Orçamento (Opcional)</label><input type="text" id="cCategoriaOrcamento" placeholder="Deixar pendente"></div>
+                  <div class="input-group full"><label>Categoria do Orçamento (Opcional)</label><input type="text" id="cCategoriaOrcamento" placeholder="Deixar pendente"></div>
       <div class="input-group"><label>Tipo de Pagamento</label><input type="text" id="cTipoPagamento" placeholder="Selecione ou digite"></div>
       <div class="input-group"><label id="lblNomePagto">Nome (Conta ou Banco)</label><input type="text" id="cNomePagamento" placeholder="Selecione ou digite"></div>
       <div class="input-group"><label>Data da Compra</label><input type="date" id="cDataCompra"></div>
@@ -1476,9 +1474,7 @@
       <div class="input-group"><label>Responsável</label><select id="cfResp"></select></div>
       <div class="input-group"><label>Categoria</label><select id="cfCat"></select></div>
       <div class="input-group"><label>Pagamento</label><select id="cfPagto"></select></div>
-      <div class="input-group" style="display:none;"><label>Motivo</label><input type="text" id="cfMotivo" autocomplete="off"></div>
-      <div class="input-group" style="display:none;"><label>Tipo</label><input type="text" id="cfTipo" autocomplete="off"></div>
-      <div class="input-group"><label>Nome (conta/cartão)</label><input type="text" id="cfNomePagto" autocomplete="off"></div>
+                  <div class="input-group"><label>Nome (conta/cartão)</label><input type="text" id="cfNomePagto" autocomplete="off"></div>
     </div>
     <button class="btn" id="btnCfSalvar" type="button">Adicionar</button></div>
 </div></div>
@@ -1492,9 +1488,7 @@
   <div class="form-grid">
     <div class="input-group"><label>Palavra</label><input type="text" id="rgPalavra" placeholder="Ex.: padaria" autocomplete="off"></div>
     <div class="input-group"><label>Categoria</label><select id="rgCat"></select></div>
-    <div class="input-group" style="display:none;"><label>Motivo</label><input type="text" id="rgMotivo" autocomplete="off"></div>
-    <div class="input-group" style="display:none;"><label>Tipo</label><input type="text" id="rgTipo" autocomplete="off"></div>
-  </div>
+          </div>
   <button class="btn" id="btnRgSalvar" type="button">Adicionar regra</button>
 </div></div>
 <!-- CARTÕES -->
@@ -1559,7 +1553,6 @@
     <div class="cfg-titulo">Módulos</div>
     <button class="cfg-item" id="btnCfgModulos" type="button"><span class="cfg-ic">🧩</span><span class="cfg-tx"><strong>Ativar ou desativar módulos</strong><small id="cfgModulosResumo">Porquinho, Compras Divididas e Vendas/Serviços</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Cadastros</div>
-    <button class="cfg-item" id="btnCfgListas" type="button" style="display:none;"><span class="cfg-ic">🏷️</span><span class="cfg-tx"><strong>Motivos e tipos</strong><small>Veja, inclua ou exclua as opções das suas compras</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnCfgSugestoes" type="button"><span class="cfg-ic">💡</span><span class="cfg-tx"><strong>Sugestões e problemas</strong><small>Envie um bug, melhoria ou dúvida</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Ferramentas</div>
     <button class="cfg-item" id="btnCfgFixas" type="button"><span class="cfg-ic">🔁</span><span class="cfg-tx"><strong>Contas fixas</strong><small>Lançadas sozinhas todo mês</small></span><span class="cfg-seta">›</span></button>
@@ -1568,7 +1561,7 @@
     <button class="cfg-item" id="btnCfgSaldos" type="button"><span class="cfg-ic">💰</span><span class="cfg-tx"><strong>Contas e saldos</strong><small>Saldo, projeção e patrimônio</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnCfgRelatorios" type="button"><span class="cfg-ic">📊</span><span class="cfg-tx"><strong>Relatórios</strong><small>Comparativo por mês, Excel e PDF</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnCfgPix" type="button"><span class="cfg-ic">💠</span><span class="cfg-tx"><strong>Minha chave Pix</strong><small id="cfgPixResumo">Vai em todas as cobranças</small></span><span class="cfg-seta">›</span></button>
-    <button class="cfg-item" id="btnCfgA11y" type="button"><span class="cfg-ic">♿</span><span class="cfg-tx"><strong>Acessibilidade</strong><small id="cfgA11yResumo">Nomes e caixas de diálogo para leitor de tela</small></span><span class="cfg-seta" id="cfgA11yEstado">Ligado</span></button>
+    <label class="check-row" id="btnCfgA11y" style="margin:10px 4px 0;font-size:13px;color:var(--muted);cursor:pointer;"><input type="checkbox" id="chkA11y"><span>Leitor de tela (acessibilidade)</span></label>
     <button class="cfg-item" id="btnCfgGuia" type="button"><span class="cfg-ic">🧭</span><span class="cfg-tx"><strong>Guia rápido</strong><small>Como usar o app</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAssin" style="display:none;">Assinatura</div>
     <button class="cfg-item" id="btnCfgAssin" type="button" style="display:none;"><span class="cfg-ic">💳</span><span class="cfg-tx"><strong>Minha assinatura</strong><small id="cfgAssinResumo">Vencimento, valor e PIX</small></span><span class="cfg-seta">›</span></button>
@@ -1696,22 +1689,6 @@
     <button class="btn" id="btnSugEnviar" type="button">Enviar</button>
     <h4 id="sugListaTitulo" style="margin:18px 0 8px;font-size:14px;">Minhas sugestões</h4>
     <div id="sugLista"></div>
-  </div>
-</div>
-
-<!-- MODAL MOTIVOS E TIPOS -->
-<div class="modal-overlay modal-nivel-2" id="modalListas">
-  <div class="modal" role="dialog" aria-modal="true">
-    <div class="modal-header"><h3>Motivos e tipos</h3><button class="close-btn" aria-label="Fechar" data-close="modalListas">×</button></div>
-    <p class="hint" style="margin-top:0;">Opções sugeridas ao cadastrar e importar. Excluir não apaga compras já lançadas.</p>
-    <div class="form-grid">
-      <div class="input-group"><label>Novo</label><input type="text" id="listaNovoNome" maxlength="40" placeholder="Ex: Mercado, Essencial…" autocomplete="off"></div>
-      <div class="input-group"><label>Adicionar como</label><select id="listaNovoTipo"><option value="motivo">Motivo</option><option value="tipo">Tipo</option></select></div>
-    </div>
-    <label class="check-row" id="listaPadraoLinha" style="display:none;margin-top:6px;"><input type="checkbox" id="listaPadrao"><span>Admin: também tornar padrão para todos os usuários novos</span></label>
-    <button class="btn" id="btnListaAdd" type="button">+ Adicionar</button>
-    <h4 style="margin:18px 0 8px;font-size:14px;">Motivos</h4><div id="listaMotivos"></div>
-    <h4 style="margin:18px 0 8px;font-size:14px;">Tipos</h4><div id="listaTipos"></div>
   </div>
 </div>
 
@@ -2272,8 +2249,7 @@ let state = {
 let chartMotivos = null, chartPizza = null, gaugeCharts = {}, gxoChart = null;
 const SEM_MOTIVO = 'Sem categoria';
 const motivoDe = c => capIni(String(c.categoria_orcamento || c.motivo || '').trim()) || SEM_MOTIVO;
-let opcoesCompra = { motivo: [], tipo: [], pagto: [] };
-let motivosGrupo = [], tiposGrupo = []; // listas do grupo (tabelas motivos_grupo / tipos_grupo), alimentadas pelos padrões do admin
+let opcoesCompra = { pagto: [] };
 let opcoesResp = [];
 let adOpcoes = [];
 
@@ -3530,8 +3506,6 @@ function iniciarTeclado() {
 function iniciarCampos() {
   const ordenar = arr => [...arr].sort((a, b) => a.localeCompare(b));
   criarCombo('cResponsavel', { opcoes: () => [...membrosGrupo.map(m => m.nome), DIV_LABEL], livre: false, cap: true });
-  criarCombo('cMotivo', { opcoes: () => opcoesCompra.motivo, livre: true });
-  criarCombo('cTipo', { opcoes: () => opcoesCompra.tipo, livre: true });
   criarCombo('cCategoriaOrcamento', { opcoes: () => ordenar(categoriasOrcamento.map(c => c.nome)), livre: true, vazio: 'Deixar pendente', rotuloCriar: 'Nova categoria' });
   criarCombo('cTipoPagamento', { opcoes: () => opcoesCompra.pagto, livre: true, rotuloCriar: 'Novo tipo' });
   criarCombo('cNomePagamento', { opcoes: () => nomesPagto($('cTipoPagamento').value), livre: true, rotuloCriar: 'Novo nome' });
@@ -4764,16 +4738,12 @@ async function carregarPerfil(userId) {
 
   // 1º login do grupo: copia categorias/motivos/tipos padrão do admin para as tabelas do usuário (uma única vez; sem SQL novo, só ignora)
   try { await db.rpc('aplicar_padroes_grupo'); } catch (e) {}
-  const [{ data: membros }, { data: cats }, rMot, rTip] = await Promise.all([
+  const [{ data: membros }, { data: cats }] = await Promise.all([
     db.from('profiles').select('*').eq('grupo_id', grupoId()).order('nome'),
-    db.from('categorias_orcamento').select('*').eq('grupo_id', grupoId()).order('nome'),
-    db.from('motivos_grupo').select('*').eq('grupo_id', grupoId()).order('nome'),
-    db.from('tipos_grupo').select('*').eq('grupo_id', grupoId()).order('nome')
+    db.from('categorias_orcamento').select('*').eq('grupo_id', grupoId()).order('nome')
   ]);
   membrosGrupo = membros && membros.length ? membros : [currentUser];
   categoriasOrcamento = cats || [];
-  motivosGrupo = (rMot && !rMot.error && rMot.data) || [];
-  tiposGrupo = (rTip && !rTip.error && rTip.data) || [];
 
   let opts = membrosGrupo.map(m => `<option value="${esc(m.nome)}">${esc(capNome(m.nome))}</option>`).join('');
   opcoesResp = [...membrosGrupo.map(m => m.nome), ...(membrosGrupo.length > 1 ? ['Ambos'] : [])];
@@ -4856,7 +4826,7 @@ async function carregarDados() {
 function preencherDatalists() {
   const uniq = campo => [...new Set(state.compras.map(c => (c[campo] || '').trim()).filter(Boolean))].map(capIni);
   const ord = arr => uniqNorm(arr).sort((a, b) => a.localeCompare(b));
-  opcoesCompra = { motivo: ord([...motivosGrupo.map(m => capIni(m.nome)), ...uniq('motivo')]), tipo: ord([...tiposGrupo.map(t => capIni(t.nome)), ...uniq('tipo')]), pagto: ord([...TIPOS_PAGTO_PADRAO, ...uniq('tipo_pagamento')]) };
+  opcoesCompra = { pagto: ord([...TIPOS_PAGTO_PADRAO, ...uniq('tipo_pagamento')]) };
 }
 
 /* ---- Sugestões (bug, melhoria...) ---- */
@@ -4885,33 +4855,6 @@ async function enviarSugestao() {
   $('sugTexto').value = ''; $('sugContador').textContent = '0/1000';
   notificar('Mensagem enviada! Obrigado.', 'sucesso');
   carregarSugestoes();
-}
-
-/* ---- Motivos e tipos do grupo (cópia dos padrões do admin; o usuário inclui e exclui) ---- */
-function renderListasMT() {
-  const lin = (arr, tab) => arr.length ? arr.map(r => `<div class="item" style="padding:10px 12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">${esc(capIni(r.nome))}</div></div><button class="icon-btn" data-lista="${tab}" data-id="${esc(r.id)}" title="Excluir">🗑️</button></div>`).join('') : '<p class="hint">Nenhum cadastrado ainda.</p>';
-  $('listaMotivos').innerHTML = lin(motivosGrupo, 'motivos_grupo');
-  $('listaTipos').innerHTML = lin(tiposGrupo, 'tipos_grupo');
-}
-async function adicionarListaMT() {
-  const nome = capIni($('listaNovoNome').value.replace(/\s+/g, ' ').trim()); if (!nome) return;
-  const tab = $('listaNovoTipo').value === 'tipo' ? 'tipos_grupo' : 'motivos_grupo';
-  const arr = tab === 'tipos_grupo' ? tiposGrupo : motivosGrupo;
-  if (arr.some(r => normalizarNome(r.nome) === normalizarNome(nome))) return notificar('Esse já existe.', 'aviso');
-  const { data, error } = await db.from(tab).insert([{ grupo_id: grupoId(), nome }]).select().single();
-  if (error) return alert('Não foi possível salvar (rode o SQL novo no Supabase): ' + error.message);
-  arr.push(data);
-  if ($('listaPadrao').checked && currentUser.is_admin) {
-    const { error: e2 } = await db.from('catalogo_padrao').insert([{ tipo: tab === 'tipos_grupo' ? 'tipo' : 'motivo', nome }]);
-    if (e2 && e2.code !== '23505') alert('Salvo para você, mas não foi possível torná-lo padrão: ' + e2.message);
-  }
-  $('listaNovoNome').value = ''; preencherDatalists(); renderListasMT();
-}
-async function excluirListaMT(tab, id) {
-  const { error } = await db.from(tab).delete().eq('id', id).eq('grupo_id', grupoId());
-  if (error) return alert('Erro ao excluir: ' + error.message);
-  if (tab === 'tipos_grupo') tiposGrupo = tiposGrupo.filter(r => String(r.id) !== String(id)); else motivosGrupo = motivosGrupo.filter(r => String(r.id) !== String(id));
-  preencherDatalists(); renderListasMT();
 }
 
 function refresh() {
@@ -4980,7 +4923,7 @@ function aplicarMesesSelecionados() {
 function abrirModalCompra() {
   $('tituloModalCompra').textContent = 'Nova Compra';
   $('editIdCompra').value = '';
-  ['cNome', 'cValor', 'cMotivo', 'cTipo', 'cTipoPagamento', 'cNomePagamento'].forEach(i => $(i).value = '');
+  ['cNome', 'cValor', 'cTipoPagamento', 'cNomePagamento'].forEach(i => $(i).value = '');
   $('cParcelas').value = '1';
   $('cDia').value = '10';
   $('cCategoriaOrcamento').value = '';
@@ -5050,8 +4993,6 @@ async function salvarCompra() {
         nome_compra: capIni(nome),
         valor_parcela: (base + (i === n - 1 ? resto : 0)) / 100,
         responsavel: divInfo.responsavel,
-        motivo: capIni($('cMotivo').value.trim()) || null,
-        tipo: capIni($('cTipo').value.trim()) || null,
         categoria_orcamento: catNome || null,
         tipo_pagamento: capIni($('cTipoPagamento').value.trim()) || null,
         ...(usarNomePag ? { nome_pagamento: capNome(nomePagVal) || null } : {}),
@@ -5190,8 +5131,6 @@ async function abrirEditarCompra(idCompra) {
   divIniciar(c, extC);
   $('cResponsavel').value = dividida ? DIV_LABEL : c.responsavel;
   divVisibilidade();
-  $('cMotivo').value = c.motivo || '';
-  $('cTipo').value = c.tipo || '';
   $('cCategoriaOrcamento').value = c.categoria_orcamento || '';
   $('cTipoPagamento').value = c.tipo_pagamento || '';
   $('cNomePagamento').value = c.nome_pagamento || '';
@@ -6476,7 +6415,7 @@ async function impSalvar() {
       rows.push({
         id_compra: id, nome_compra: capIni(x.nome.trim()), valor_parcela: x.valor, responsavel: x._div ? x._div.responsavel : x.resp,
         ...(usarDiv ? { divisao: x._div ? x._div.divisao : null } : {}),
-        motivo: capIni(x.motivoC.trim()) || null, tipo: capIni(x.tipoC.trim()) || null, categoria_orcamento: x.cat || null,
+        categoria_orcamento: x.cat || null,
         tipo_pagamento: tipoPag, nome_pagamento: capNome(cartao), nome_original: x.nomeBase,
         data_compra: x.dataCompra || null, mes_referencia: ym, data_parcela: `${ym}-${pad2(Math.min(dia, new Date(y, mo, 0).getDate()))}`,
         parcela_referencia: `${k}/${x.total}`, status: 'Ativo', pagamento: false, data_pagamento: null, criado_por: currentUser.email
@@ -6940,7 +6879,7 @@ async function nvGerarRecorrentes() {
   const tem = new Set((data || []).map(x => x.id_compra));
   const rows = alvo.filter(a => !tem.has(a.id)).map(({ r, ym, id }) => {
     const [y, mo] = ym.split('-').map(Number), dia = pad2(Math.min(Number(r.dia) || 1, new Date(y, mo, 0).getDate()));
-    return { id_compra: id, nome_compra: capIni(r.nome), valor_parcela: Number(r.valor), responsavel: r.responsavel, motivo: r.motivo || null, tipo: r.tipo || null, categoria_orcamento: r.categoria || null,
+    return { id_compra: id, nome_compra: capIni(r.nome), valor_parcela: Number(r.valor), responsavel: r.responsavel, categoria_orcamento: r.categoria || null,
       tipo_pagamento: r.tipo_pagamento || 'Boleto', nome_pagamento: r.nome_pagamento || null, data_compra: `${ym}-${dia}`, mes_referencia: ym, data_parcela: `${ym}-${dia}`,
       parcela_referencia: '1/1', status: 'Ativo', pagamento: false, data_pagamento: null, criado_por: currentUser.email };
   });
@@ -6966,14 +6905,14 @@ function nvRenderRec() {
   $('cfTitulo').textContent = nvRecEdit ? 'Editar conta fixa' : 'Nova conta fixa';
   $('cfNome').value = r.nome ? capIni(r.nome) : ''; $('cfValor').value = r.valor ? nvMoedaIn(r.valor) : ''; $('cfDia').value = r.dia || '';
   $('cfResp').innerHTML = nvOptsResp(r.responsavel || (opcoesResp.includes(currentUser.nome) ? currentUser.nome : opcoesResp[0]));
-  $('cfCat').innerHTML = nvOptsCat(r.categoria); $('cfMotivo').value = r.motivo || ''; $('cfTipo').value = r.tipo || '';
+  $('cfCat').innerHTML = nvOptsCat(r.categoria); 
   $('cfPagto').innerHTML = TIPOS_PAGTO_PADRAO.map(t => `<option${t === (r.tipo_pagamento || 'Boleto') ? ' selected' : ''}>${esc(t)}</option>`).join(''); $('cfNomePagto').value = r.nome_pagamento || '';
   $('btnCfSalvar').textContent = nvRecEdit ? 'Salvar alterações' : 'Adicionar';
 }
 async function nvSalvarRec() {
   const nome = $('cfNome').value.trim(), valor = nvNum($('cfValor').value), dia = parseInt($('cfDia').value);
   if (!nome) return alert('Informe o nome.'); if (!(valor > 0)) return alert('Informe o valor.'); if (!(dia >= 1 && dia <= 31)) return alert('Dia do vencimento de 1 a 31.');
-  const dados = { nome: nome.toLowerCase(), valor, dia, responsavel: $('cfResp').value, categoria: $('cfCat').value || null, motivo: $('cfMotivo').value.trim() || null, tipo: $('cfTipo').value.trim() || null, tipo_pagamento: $('cfPagto').value, nome_pagamento: $('cfNomePagto').value.trim() || null };
+  const dados = { nome: nome.toLowerCase(), valor, dia, responsavel: $('cfResp').value, categoria: $('cfCat').value || null, tipo_pagamento: $('cfPagto').value, nome_pagamento: $('cfNomePagto').value.trim() || null };
   const b = $('btnCfSalvar'); b.disabled = true;
   let error;
   if (nvRecEdit) ({ error } = await db.from('recorrentes').update(dados).eq('id', nvRecEdit.id));
@@ -7021,10 +6960,10 @@ function nvRenderRegras() {
 }
 async function nvSalvarRegra() {
   const palavra = $('rgPalavra').value.trim(); if (palavra.length < 2) return alert('Digite a palavra (ex.: padaria).');
-  if (!$('rgCat').value && !$('rgMotivo').value.trim() && !$('rgTipo').value.trim()) return alert('Escolha a categoria.');
-  const { error } = await db.from('regras_categoria').insert([{ grupo_id: grupoId(), palavra: palavra.toLowerCase(), categoria: $('rgCat').value || null, motivo: $('rgMotivo').value.trim() || null, tipo: $('rgTipo').value.trim() || null, ativo: true }]);
+  if (!$('rgCat').value) return alert('Escolha a categoria.');
+  const { error } = await db.from('regras_categoria').insert([{ grupo_id: grupoId(), palavra: palavra.toLowerCase(), categoria: $('rgCat').value || null, ativo: true }]);
   if (error) return alert('Não foi possível salvar: ' + error.message);
-  ['rgPalavra', 'rgMotivo', 'rgTipo'].forEach(i => { $(i).value = ''; }); await nvCarregar(); nvRenderRegras();
+  ['rgPalavra'].forEach(i => { $(i).value = ''; }); await nvCarregar(); nvRenderRegras();
 }
 
 /* ---- cartões: limite, disponível e melhor dia de compra ---- */
@@ -7837,13 +7776,11 @@ function ligarEventos() {
   exLigarEventos();
   nvLigarEventos();
   $('cNome').addEventListener('blur', () => {
-    if ($('cCategoriaOrcamento').value || $('cMotivo').value || $('cTipo').value || !$('cNome').value.trim()) return;
+    if ($('cCategoriaOrcamento').value || !$('cNome').value.trim()) return;
     const rg = sugerirCategoria($('cNome').value); if (!rg) return;
-    if (rg.cat) $('cCategoriaOrcamento').value = capIni(rg.cat); if (rg.motivo) $('cMotivo').value = rg.motivo; if (rg.tipo) $('cTipo').value = rg.tipo;
+    if (rg.cat) $('cCategoriaOrcamento').value = capIni(rg.cat); 
   });
   $('btnCfgNotif').addEventListener('click', () => { fecharModal('modalConfiguracoes'); abrirModalNotificacoes(); });
-  $('btnCfgListas').addEventListener('click', () => { $('listaPadraoLinha').style.display = currentUser && currentUser.is_admin ? 'flex' : 'none'; renderListasMT(); abrirModal('modalListas'); });
-  $('btnListaAdd').addEventListener('click', adicionarListaMT);
   $('btnCfgSugestoes').addEventListener('click', () => { fecharModal('modalConfiguracoes'); $('sugTexto').value = ''; $('sugContador').textContent = '0/1000'; abrirModal('modalSugestoes'); carregarSugestoes(); });
   $('btnSugEnviar').addEventListener('click', enviarSugestao);
   $('sugTexto').addEventListener('input', e => { $('sugContador').textContent = e.target.value.length + '/1000'; });
@@ -7853,8 +7790,6 @@ function ligarEventos() {
     if (error) return alert('Erro ao atualizar: ' + error.message);
     carregarSugestoes();
   });
-  $('listaNovoNome').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); adicionarListaMT(); } });
-  $('modalListas').addEventListener('click', e => { const b = e.target.closest('[data-lista]'); if (b) excluirListaMT(b.dataset.lista, b.dataset.id); });
   $('btnOlho').addEventListener('click', () => aplicarPrivacidade(!document.body.classList.contains('privado')));
   $('btnAtivarPush').addEventListener('click', alternarPush);
   $('btnSalvarNotif').addEventListener('click', () => salvarNotif());
@@ -8037,7 +7972,7 @@ function a11yRefazer() {
   document.querySelectorAll('[data-a11y-r]').forEach(el => { el.setAttribute('role', el.getAttribute('data-a11y-r')); el.setAttribute('aria-modal', 'true'); el.removeAttribute('data-a11y-r'); });
 }
 function a11yAtualizarTela() {
-  const on = a11yLigada(), e = document.getElementById('cfgA11yEstado'); if (e) e.textContent = on ? 'Ligado' : 'Desligado';
+  const c = document.getElementById('chkA11y'); if (c) c.checked = a11yLigada();
 }
 function ajustarAcessibilidade(raiz) {
   if (!a11yLigada()) return;
@@ -8069,10 +8004,9 @@ ajustarAcessibilidade(); if (!a11yLigada()) a11yDesfazer(); a11yAtualizarTela();
   });
   document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#btnConfiguracoes')) setTimeout(pixRes, 50); });
   setTimeout(pixRes, 1500);
-  $$('btnCfgA11y').addEventListener('click', () => {
-    const on = !a11yLigada(); lsSet('ttr_a11y', on ? null : '0');
+  $$('chkA11y').addEventListener('change', () => {
+    const on = $$('chkA11y').checked; lsSet('ttr_a11y', on ? null : '0');
     if (on) ajustarAcessibilidade(); else a11yDesfazer();
-    a11yAtualizarTela(); notificar(on ? 'Acessibilidade ligada.' : 'Acessibilidade desligada.', 'info');
   });
   // puxar para atualizar: recarrega só os dados, a tela e o desbloqueio continuam como estavam
   let y0 = null, dy = 0, busy = false, ind = null;
