@@ -621,7 +621,8 @@
   .form-grid .input-group label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .input-group input[type=date] { display: block; text-align: left; min-width: 0; }
   .input-group input[type=date]::-webkit-date-and-time-value { text-align: left; }
-  #modalImportar .form-grid { margin-bottom: 14px; }
+  #modalImportar .form-grid, #modalExtrato .form-grid { margin-bottom: 14px; }
+  #modalExtrato .hint { margin-bottom: 0; }
   #modalImportar .hint { margin-bottom: 0; }
   .imp-in, .imp-card select { min-height: 44px; display: block; }
   .imp-card { padding: 14px; }
@@ -928,9 +929,7 @@
     <div class="auth-logo-wrapper">
       <div class="logo-icon"><img src="data:image/webp;base64,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" alt="Logo" draggable="false"></div>
       <h2>Gestão Financeira</h2>
-      <div class="ttr-def" data-ttr="nome"></div>
     </div>
-    <div class="ttr-lema" data-ttr="lema"></div>
     <div id="msgErro" class="msg-erro"></div>
     <div id="loginForm">
       <div class="input-group"><label>E-mail, Nome ou CPF</label><input type="text" id="loginUser" placeholder="Digite seus dados de acesso" autocomplete="username"></div>
@@ -938,6 +937,7 @@
       <button class="btn" id="btnLogin">Entrar</button>
       <button class="btn secondary" id="btnCriarConta" type="button" style="margin-top:8px;">Criar conta</button>
       <button class="btn ghost" id="btnEsqueci" type="button">Esqueci minha senha</button>
+      <div class="ttr-def" data-ttr="nome" style="margin-top:14px;"></div>
     </div>
     <div id="recSenhaForm" style="display:none;">
       <h3 style="margin:0 0 6px;font-size:17px;">Recuperar acesso</h3>
@@ -1086,6 +1086,7 @@
       <h3>Faturas e Formas de Pagamento</h3>
       <div id="listaPagamentos"></div>
       <button class="btn secondary" id="btnImportarFatura" type="button" style="margin-top:12px;">📥 Importar fatura (CSV)</button>
+      <button class="btn secondary" id="btnImportarExtrato" type="button" style="margin-top:8px;">🏦 Importar extrato da conta</button>
     </div>
 
     <div class="chart-container">
@@ -1424,12 +1425,29 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modalExtrato">
+  <div class="modal">
+    <div class="modal-header"><h3>Importar extrato da conta</h3><button class="close-btn" data-close="modalExtrato">×</button></div>
+    <div class="form-grid">
+      <div class="input-group"><label>Conta</label><input type="text" id="exConta" placeholder="Ex.: Nubank"></div>
+      <div class="input-group"><label>Responsável</label><input type="text" id="exResp" placeholder="Selecione"></div>
+    </div>
+    <input type="file" id="exArquivo" accept=".csv,.txt,.ofx,.qfx,text/csv,text/plain" style="display:none">
+    <button class="btn secondary" id="btnExArquivo" type="button" style="margin-top:0;">📎 Escolher extrato (CSV ou OFX)</button>
+    <p class="hint" id="exArqNome" style="margin-top:8px;"></p>
+    <div id="exColunas" style="display:none;"></div>
+    <div id="exResumo"></div>
+    <div id="exLista"></div>
+    <div class="imp-rodape"><small id="exRodapeInfo"></small><button class="btn" id="btnExSalvar" disabled>Nada selecionado</button></div>
+  </div>
+</div>
+
 <!-- MODAL CONFIGURAÇÕES -->
 <div class="modal-overlay" id="modalConfiguracoes">
   <div class="modal">
     <div class="modal-header"><h3>Configurações</h3><button class="close-btn" data-close="modalConfiguracoes">×</button></div>
     <div class="cfg-titulo">Avisos</div>
-    <button class="cfg-item" id="btnCfgNotif" type="button"><span class="cfg-ic">🔔</span><span class="cfg-tx"><strong>Notificações de vencimento</strong><small id="cfgNotifResumo">Lembretes de parcelas vencendo</small></span><span class="cfg-seta">›</span></button>
+    <button class="cfg-item" id="btnCfgNotif" type="button"><span class="cfg-ic">🔔</span><span class="cfg-tx"><strong>Notificações</strong><small id="cfgNotifResumo">Avisos e lembretes do app</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Aparência</div>
     <div class="tema-grid" id="temaGrid"></div>
     <p class="hint">O tema fica salvo neste aparelho. O padrão é o Escuro.</p>
@@ -1460,7 +1478,6 @@
     <div style="font-size:42px;" id="suspensoIc">🔒</div>
     <h2 id="suspensoTit">Conta suspensa</h2>
     <p class="hint" id="suspensoTxt" style="font-size:13.5px;">Sua mensalidade não foi paga e a conta foi suspensa. Pague o PIX abaixo: assim que o pagamento for confirmado, o acesso é liberado.</p>
-    <div class="ttr-lema" data-ttr="lema"></div>
     <div id="suspensoPix"></div>
     <button class="btn secondary" id="btnSuspensoExportar" type="button" style="margin-bottom:8px;">📥 Baixar meus dados</button>
     <button class="btn ghost" id="btnSuspensoSair" type="button">Sair da conta</button>
@@ -1588,7 +1605,7 @@
 <!-- MODAL NOTIFICAÇÕES -->
 <div class="modal-overlay" id="modalNotificacoes">
   <div class="modal">
-    <div class="modal-header"><h3>Notificações de Vencimento</h3><button class="close-btn" data-close="modalNotificacoes">×</button></div>
+    <div class="modal-header"><h3>Notificações</h3><button class="close-btn" data-close="modalNotificacoes">×</button></div>
     <div class="info-box" id="notifStatus"></div>
     <input type="checkbox" id="notifAtivo" hidden>
     <button class="btn" id="btnAtivarPush" type="button" style="margin-top:0;margin-bottom:14px;">🔔 Ativar notificações</button>
@@ -6269,6 +6286,364 @@ function impLigarEventos() {
   $('impLista').addEventListener('change', editar);
 }
 
+/* =========================================
+   IMPORTAR EXTRATO DA CONTA (CSV / OFX)
+   ========================================= */
+const ext = { linhas: [], cab: [], iniDados: 0, map: { data: -1, desc: -1, desc2: -1, valor: -1, deb: -1, cred: -1 }, sinal: 'auto', txs: [], itens: [], ignoradas: [], faturas: [], existentes: [], token: 0, mes: '', formato: '' };
+const EX_MAP_KEY = 'ttr_extrato_colunas';
+const EX_FATURA = /fatura|pgto cart|pag cart|pagamento cart|pagto cart|cartao de credito/;
+const EX_TIPOS = TIPOS_PAGTO_PADRAO.filter(t => !ehCartaoCredito(t));
+
+function exAcharCabecalho(rows) {
+  for (let i = 0; i < Math.min(rows.length, 20); i++) {
+    const n = rows[i].map(normalizarNome);
+    if (n.filter(Boolean).length >= 2 && n.some(x => /\b(data|date)\b/.test(x)) && n.some(x => /valor|amount|value|debito|credito|saida|entrada/.test(x))) return i;
+  }
+  return -1;
+}
+function exDetectar(cab) {
+  const f = re => cab.findIndex(h => re.test(normalizarNome(h)));
+  const valor = f(/^(valor|amount|value)|valor \(?r\$/);
+  let desc = f(/descri|lancamento|title|estabelec|merchant|nome/), desc2 = f(/historico/);
+  if (desc < 0 && desc2 >= 0) { desc = desc2; desc2 = -1; }
+  return { data: f(/\b(data|date)\b/), desc, desc2: desc2 === desc ? -1 : desc2, valor, deb: f(/debito|saida/), cred: f(/credito|entrada/) };
+}
+function exParseOFX(txt) {
+  const out = [];
+  const blocos = txt.split(/<STMTTRN>/i).slice(1);
+  blocos.forEach(b => {
+    b = b.split(/<\/STMTTRN>/i)[0];
+    const g = tag => { const m = b.match(new RegExp('<' + tag + '>([^<\\r\\n]*)', 'i')); return m ? m[1].trim() : ''; };
+    const dt = g('DTPOSTED').replace(/\D/g, '').slice(0, 8);
+    const v = parseFloat(g('TRNAMT').replace(',', '.'));
+    const desc = [g('NAME'), g('MEMO')].filter((x, i, a) => x && a.indexOf(x) === i).join(' - ');
+    if (dt.length < 8 || !isFinite(v) || v === 0) return;
+    out.push({ data: `${dt.slice(0, 4)}-${dt.slice(4, 6)}-${dt.slice(6, 8)}`, desc: desc || 'Sem descrição', v });
+  });
+  return out;
+}
+// transforma as linhas do CSV em lançamentos (valor negativo = saída)
+function exLerCSV() {
+  const m = ext.map, out = [];
+  if (m.data < 0 || m.desc < 0 || (m.valor < 0 && m.deb < 0 && m.cred < 0)) return out;
+  const brutos = [];
+  ext.linhas.slice(ext.iniDados).forEach(r => {
+    const data = impData(r[m.data], ymLocal()); if (!data) return;
+    let desc = String(r[m.desc] || '').trim();
+    if (m.desc2 >= 0 && r[m.desc2] && normalizarNome(r[m.desc2]) !== normalizarNome(desc)) desc = (String(r[m.desc2]).trim() + ' - ' + desc).replace(/ - $/, '');
+    if (!desc) return;
+    let v = NaN;
+    if (m.valor >= 0) v = impNumero(r[m.valor]);
+    if (!isFinite(v) && (m.deb >= 0 || m.cred >= 0)) {
+      const d = m.deb >= 0 ? Math.abs(impNumero(r[m.deb])) : 0, c = m.cred >= 0 ? Math.abs(impNumero(r[m.cred])) : 0;
+      v = (isFinite(c) ? c : 0) - (isFinite(d) ? d : 0);
+    }
+    if (!isFinite(v) || v === 0) return;
+    brutos.push({ data, desc, v });
+  });
+  const temNeg = brutos.some(b => b.v < 0);
+  const inverte = ext.sinal === 'pos' || (ext.sinal === 'auto' && !temNeg && m.valor >= 0);
+  ext.avisoSinal = ext.sinal === 'auto' && !temNeg && m.valor >= 0;
+  return brutos.map(b => ({ ...b, v: inverte ? -b.v : b.v }));
+}
+function exRenderColunas() {
+  const box = $('exColunas');
+  if (ext.formato === 'ofx') { box.style.display = 'none'; return; }
+  const m = ext.map;
+  const opt = (sel, vazio) => (vazio ? `<option value="-1"${sel < 0 ? ' selected' : ''}>— nenhuma —</option>` : (sel < 0 ? '<option value="-1" selected>Escolher…</option>' : '')) + ext.cab.map((h, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${esc(h || 'Coluna ' + (i + 1))}</option>`).join('');
+  const faltando = m.data < 0 || m.desc < 0 || (m.valor < 0 && m.deb < 0 && m.cred < 0);
+  box.style.display = 'block';
+  box.innerHTML = `<details class="imp-det"${faltando ? ' open' : ''}><summary>Colunas do arquivo ${faltando ? '⚠️ confira' : '✓'}</summary>
+    <div class="form-grid">
+      <div class="input-group"><label>Data</label><select data-col="data">${opt(m.data, false)}</select></div>
+      <div class="input-group"><label>Descrição</label><select data-col="desc">${opt(m.desc, false)}</select></div>
+      <div class="input-group"><label>Complemento</label><select data-col="desc2">${opt(m.desc2, true)}</select></div>
+      <div class="input-group"><label>Valor</label><select data-col="valor">${opt(m.valor, true)}</select></div>
+      <div class="input-group"><label>Coluna de débito</label><select data-col="deb">${opt(m.deb, true)}</select></div>
+      <div class="input-group"><label>Coluna de crédito</label><select data-col="cred">${opt(m.cred, true)}</select></div>
+      <div class="input-group"><label>Sinal do valor</label><select id="exSinal"><option value="auto"${ext.sinal === 'auto' ? ' selected' : ''}>Automático</option><option value="neg"${ext.sinal === 'neg' ? ' selected' : ''}>Negativo = saída</option><option value="pos"${ext.sinal === 'pos' ? ' selected' : ''}>Positivo = saída</option></select></div>
+    </div></details>`;
+}
+
+function abrirExtrato() {
+  Object.assign(ext, { linhas: [], cab: [], iniDados: 0, txs: [], itens: [], ignoradas: [], faturas: [], existentes: [], formato: '', sinal: 'auto', token: ext.token + 1 });
+  const rec = state.compras.filter(c => c.nome_pagamento && !ehCartaoCredito(c.tipo_pagamento) && normalizarNome(c.tipo_pagamento) !== 'dinheiro').sort((a, b) => String(b.data_parcela || '').localeCompare(String(a.data_parcela || '')))[0];
+  $('exConta').value = rec ? capNome(String(rec.nome_pagamento).trim()) : '';
+  $('exResp').value = opcoesResp.includes(currentUser.nome) ? currentUser.nome : (opcoesResp[0] || '');
+  $('exArqNome').textContent = 'Exporte o extrato da conta em CSV ou OFX no app do banco e escolha o arquivo aqui.';
+  ['exColunas', 'exResumo', 'exLista'].forEach(id => { $(id).innerHTML = ''; }); $('exColunas').style.display = 'none';
+  exAtualizarResumo();
+  abrirModal('modalExtrato');
+}
+async function exLerArquivo(file) {
+  if (!file) return;
+  const txt = impDecodificar(await file.arrayBuffer());
+  ext.sinal = 'auto';
+  if (/<OFX|OFXHEADER/i.test(txt) && /<STMTTRN>/i.test(txt)) {
+    ext.formato = 'ofx'; ext.txs = exParseOFX(txt);
+    if (!ext.txs.length) return alert('Não encontrei lançamentos neste arquivo OFX.');
+    $('exArqNome').textContent = `📄 ${file.name} · ${ext.txs.length} lançamento(s)`;
+    exRenderColunas();
+    return exAnalisar();
+  }
+  const rows = impParseCSV(txt);
+  if (rows.length < 2) return alert('Não consegui ler linhas neste arquivo. Use um CSV (separado por vírgula ou ponto e vírgula) ou um OFX.');
+  const h = exAcharCabecalho(rows);
+  ext.formato = 'csv'; ext.linhas = rows; ext.iniDados = h + 1;
+  ext.cab = h >= 0 ? rows[h] : (rows[0] || []).map((_, i) => 'Coluna ' + (i + 1));
+  let salvo = null; try { salvo = (JSON.parse(localStorage.getItem(EX_MAP_KEY) || '{}'))[impAssinatura(ext.cab)]; } catch (e) {}
+  ext.map = salvo && typeof salvo === 'object' ? { ...ext.map, ...salvo } : exDetectar(ext.cab);
+  $('exArqNome').textContent = `📄 ${file.name} · ${rows.length - ext.iniDados} linha(s)`;
+  exRenderColunas();
+  await exAnalisar();
+}
+
+// nome sugerido a partir do texto do banco ("Pix enviado - Fulano" → "Fulano")
+function exNomeSugerido(desc) {
+  let s = String(desc).replace(/\s+/g, ' ').trim();
+  const m = s.match(/^(.{3,45}?)\s+[-–]\s+(.+)$/);
+  if (m && /pix|transfer|compra|pagamento|pgto|debito|d[eé]bito|boleto|enviad|recebid/i.test(m[1])) s = m[2];
+  s = s.replace(/[•*]{2,}[\d.\-•*]*/g, '').replace(/\b\d{2,3}\.\d{3}\.\d{3}[\/\-]?\d*\b/g, '').replace(/\s+-\s+.*\b(ag[eê]ncia|conta)\b.*$/i, '').replace(/\s+/g, ' ').trim();
+  return bonitoNome(s || desc);
+}
+function exTipoPagto(desc) {
+  const n = normalizarNome(desc);
+  if (/\bpix\b/.test(n)) return 'Pix';
+  if (/boleto|titulo|convenio|concessionaria/.test(n)) return 'Boleto';
+  if (/transf|\bted\b|\bdoc\b/.test(n)) return 'Transferência';
+  return 'Cartão de Débito';
+}
+function exMesDe(d) { return String(d).slice(0, 7); }
+function exFaturas(exist) {
+  const g = {};
+  exist.filter(c => isAtiva(c) && ehCartaoCredito(c.tipo_pagamento)).forEach(c => {
+    const k = rotuloPagto(c) + '|' + c.mes_referencia;
+    const o = (g[k] = g[k] || { rotulo: rotuloPagto(c), mes: c.mes_referencia, parcelas: [], total: 0, pago: 0 });
+    o.parcelas.push(c); o.total += Number(c.valor_parcela) || 0; o.pago += valorPagoParcela(c);
+  });
+  return Object.values(g).map(o => ({ ...o, restante: Math.round((o.total - o.pago) * 100) / 100, total: Math.round(o.total * 100) / 100 }))
+    .sort((a, b) => a.mes.localeCompare(b.mes) || a.rotulo.localeCompare(b.rotulo));
+}
+const exDistMes = (a, b) => Math.abs((+a.slice(0, 4) * 12 + +a.slice(5, 7)) - (+b.slice(0, 4) * 12 + +b.slice(5, 7)));
+
+async function exAnalisar() {
+  if (ext.formato === 'csv') ext.txs = exLerCSV();
+  const txs = ext.txs;
+  if (!txs.length) { ext.itens = []; ext.ignoradas = []; $('exLista').innerHTML = ext.formato === 'csv' ? '<p class="hint">Escolha as colunas de Data, Descrição e Valor acima.</p>' : ''; $('exResumo').innerHTML = ''; exAtualizarResumo(); return; }
+  const tk = ++ext.token;
+  $('exLista').innerHTML = '<p class="hint" style="text-align:center;">Analisando o extrato…</p>';
+  const ultimo = txs.map(t => t.data).sort().pop(); ext.mes = exMesDe(ultimo);
+  let exist;
+  try { exist = await impBuscarExistentes(ext.mes); } catch (e) { $('exLista').innerHTML = ''; return alert('Erro ao consultar as compras do app: ' + (e.message || e)); }
+  if (tk !== ext.token) return;
+  ext.existentes = exist.map(c => ({ ...c }));
+  const ex = ext.existentes;
+  ext.faturas = exFaturas(ex);
+  const apelidos = {};
+  [...ex].sort((a, b) => String(a.mes_referencia).localeCompare(String(b.mes_referencia))).forEach(c => {
+    const a = apelidos[normalizarNome(c.nome_original || c.nome_compra)] || {};
+    const k = normalizarNome(c.nome_original || c.nome_compra); if (!k) return;
+    apelidos[k] = { nome: c.nome_compra, motivo: c.motivo || a.motivo || '', tipo: c.tipo || a.tipo || '', cat: c.categoria_orcamento || a.cat || '', resp: c.responsavel || a.resp };
+  });
+  const naoCartao = ex.filter(c => !ehCartaoCredito(c.tipo_pagamento));
+  const respPadrao = $('exResp').value;
+  const itens = [], ign = [];
+  [...txs].sort((a, b) => a.data.localeCompare(b.data)).forEach(t => {
+    if (t.v > 0) return ign.push({ ...t, motivo: 'Entrada (não importada)' });
+    const valor = Math.round(Math.abs(t.v) * 100) / 100, n = normalizarNome(t.desc), mes = exMesDe(t.data);
+    if (EX_FATURA.test(n)) {
+      const cand = ext.faturas.map((f, i) => ({ f, i })).filter(({ f }) => exDistMes(f.mes, mes) <= 2 && f.restante > 0.004);
+      const dica = ({ f }) => { const nm = normalizarNome(f.rotulo.split('·').pop()); return nm && n.includes(nm) ? 0 : 1; };
+      const ord = (a, b) => dica(a) - dica(b) || exDistMes(a.f.mes, mes) - exDistMes(b.f.mes, mes);
+      const exatas = cand.filter(({ f }) => Math.abs(f.restante - valor) <= 0.05).sort(ord);
+      const parciais = cand.filter(({ f }) => f.restante > valor).sort(ord);
+      const jaPaga = ext.faturas.find(f => exDistMes(f.mes, mes) <= 2 && f.restante <= 0.004 && Math.abs(f.total - valor) <= 0.05);
+      let escolha = -1, nivel = 'sem';
+      if (exatas.length) { escolha = exatas[0].i; nivel = 'exata'; }
+      else if (jaPaga) nivel = 'ja';
+      else if (parciais.length) { escolha = parciais[0].i; nivel = 'parcial'; }
+      return itens.push({ kind: 'fatura', desc: t.desc, valor, data: t.data, escolha, nivel, incluir: escolha >= 0 });
+    }
+    const chave = normalizarNome(t.desc);
+    const ap = apelidos[chave] || null;
+    const tol = 0.05;
+    const nomeIgual = c => [c.nome_original, c.nome_compra].some(x => x && normalizarNome(x) === chave) || (ap && c.nome_compra && normalizarNome(c.nome_compra) === normalizarNome(ap.nome));
+    const achou = naoCartao.find(c => !c._usado && Math.abs(Number(c.valor_parcela) - valor) <= tol && exDistMes(c.mes_referencia, mes) <= 1 &&
+      (nomeIgual(c) || String(c.data_compra || '').slice(0, 10) === t.data || String(c.data_parcela || '').slice(0, 10) === t.data));
+    // mesmo valor e mês numa conta ainda não paga (ex.: boleto cadastrado com outro nome): sugere marcar como paga, a pessoa confirma
+    const fraco = achou ? null : naoCartao.find(c => !c._usado && !c.pagamento && Math.abs(Number(c.valor_parcela) - valor) <= tol && exDistMes(c.mes_referencia, mes) <= 1);
+    const par = achou || fraco;
+    if (par) {
+      par._usado = true;
+      return itens.push({ kind: par.pagamento ? 'existe' : 'pendente', fraco: !!fraco, desc: t.desc, valor, data: t.data, achou: { id: par.id, nome: par.nome_compra, valor: par.valor_parcela, mes: par.mes_referencia }, incluir: !par.pagamento });
+    }
+    itens.push({ kind: 'nova', desc: t.desc, valor, data: t.data, incluir: true, lembrado: !!ap,
+      nome: ap ? ap.nome : exNomeSugerido(t.desc), resp: ap && ap.resp ? ap.resp : respPadrao, respAuto: !(ap && ap.resp),
+      cat: ap && ap.cat ? ap.cat : '', motivoC: ap && ap.motivo ? ap.motivo : '', tipoC: ap && ap.tipo ? ap.tipo : '',
+      pagto: exTipoPagto(t.desc), puxou: ap && (ap.cat || ap.motivo || ap.tipo) ? ap.nome : '' });
+  });
+  // refazer a análise (trocar o arquivo/colunas) não apaga o que a pessoa já editou
+  const ch = x => [x.kind, x.desc, x.valor, x.data].join('|');
+  const ed = {}; (ext.itens || []).forEach(x => { ed[ch(x)] = x; });
+  itens.forEach(x => { const a = ed[ch(x)]; if (!a) return; if (x.kind === 'nova') Object.assign(x, { nome: a.nome, resp: a.resp, respAuto: a.respAuto, cat: a.cat, motivoC: a.motivoC, tipoC: a.tipoC, pagto: a.pagto }); if (x.kind === 'fatura' && a.escolha !== undefined) { x.escolha = a.escolha; } x.incluir = a.incluir; });
+  ext.itens = itens; ext.ignoradas = ign;
+  exRender();
+}
+
+function exOpcoesFatura(x) {
+  const lista = ext.faturas.map((f, i) => ({ f, i })).filter(({ f }) => f.restante > 0.004).sort((a, b) => exDistMes(a.f.mes, x.data.slice(0, 7)) - exDistMes(b.f.mes, x.data.slice(0, 7)) || a.f.rotulo.localeCompare(b.f.rotulo));
+  return `<option value="-1"${x.escolha < 0 ? ' selected' : ''}>— não casar com nenhuma fatura —</option>` +
+    lista.map(({ f, i }) => `<option value="${i}"${i === x.escolha ? ' selected' : ''}>${esc(f.rotulo)} · ${esc(formatarMes(f.mes))} · falta ${fm(f.restante)}</option>`).join('');
+}
+function exPrevia(x) {
+  if (x.escolha < 0) return x.nivel === 'ja' ? '✅ Já existe uma fatura com esse valor marcada como paga no app.' : 'Sem fatura correspondente em aberto. Escolha uma na lista ou deixe sem casar.';
+  const f = ext.faturas[x.escolha];
+  if (x.valor > f.restante + 0.05) return `⚠️ O valor passa do que falta nessa fatura (${fm(f.restante)}).`;
+  if (Math.abs(f.restante - x.valor) <= 0.05) return `✅ Valor igual ao que falta: quita a fatura inteira (${f.parcelas.filter(p => !p.pagamento).length} parcela(s)).`;
+  return `Pagamento parcial: abate ${fm(x.valor)} de ${fm(f.restante)} (da maior parcela para a menor).`;
+}
+function exCardFatura(x, i) {
+  return `<div class="imp-card" data-i="${i}">
+    <label class="imp-top"><input type="checkbox" data-f="incluir"${x.incluir ? ' checked' : ''}><span class="imp-orig">${esc(x.desc)}</span><strong>${fm(x.valor)}</strong></label>
+    <div class="imp-meta">📅 ${dataBR(x.data)} · pagamento de fatura do cartão</div>
+    <select class="imp-in" data-f="escolha" style="margin-top:8px;">${exOpcoesFatura(x)}</select>
+    <div class="imp-nota" data-previa style="margin-top:8px;">${esc(exPrevia(x))}</div>
+  </div>`;
+}
+function exCard(x, i) {
+  const data = ` · 📅 ${dataBR(x.data)}`;
+  return `<div class="imp-card" data-i="${i}">
+    <label class="imp-top"><input type="checkbox" data-f="incluir"${x.incluir ? ' checked' : ''}><span class="imp-orig">${esc(x.desc)}</span><strong>${fm(x.valor)}</strong></label>
+    <div class="imp-meta">Saída da conta${data}${x.lembrado ? ' · ✨ nome lembrado' : ''}</div>
+    <input class="imp-in" type="text" data-f="nome" value="${esc(x.nome)}" placeholder="Nome da compra" autocomplete="off">
+    ${x.puxou ? `<div class="imp-nota">📌 Categoria, motivo e tipo foram <strong>puxados de "${esc(capIni(x.puxou))}"</strong> (mesmo nome). Você pode editar abaixo.</div>` : ''}
+    <div class="imp-pend" data-pend${impCategorizada(x) ? ' style="display:none"' : ''}>⏳ Sem categorização completa — ${x.incluir ? 'vai para "Sem categorização" se não for preenchida' : 'marque para importar'}</div>
+    <div class="imp-row">
+      <select data-f="resp" title="Responsável">${impOptsSelect(opcoesResp, x.resp)}</select>
+      <select data-f="cat" title="Categoria">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Categoria…')}</select>
+    </div>
+    <div class="imp-row"><input class="imp-in" type="text" data-f="motivoC" value="${esc(x.motivoC)}" placeholder="Motivo" autocomplete="off"><input class="imp-in" type="text" data-f="tipoC" value="${esc(x.tipoC)}" placeholder="Tipo" autocomplete="off"></div>
+    <div class="imp-row" style="grid-template-columns:1fr;"><select data-f="pagto" title="Forma de pagamento">${EX_TIPOS.map(t => `<option value="${esc(t)}"${t === x.pagto ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></div>
+  </div>`;
+}
+function exRender() {
+  const it = ext.itens;
+  const por = k => it.map((x, i) => [x, i]).filter(([x]) => x.kind === k);
+  const fat = por('fatura'), nov = por('nova'), pen = por('pendente'), ja = por('existe');
+  let h = '';
+  if (fat.length) h += `<div class="imp-sec">💳 Pagamento de fatura <span class="badge">${fat.length}</span></div><p class="hint">Casa o pagamento com a fatura do cartão e marca as parcelas como pagas.</p>` + fat.map(([x, i]) => exCardFatura(x, i)).join('');
+  h += `<div class="imp-sec">🆕 Saídas novas <span class="badge">${nov.length}</span></div>`;
+  h += nov.length ? nov.map(([x, i]) => exCard(x, i)).join('') : '<p class="hint">Nenhuma saída nova neste arquivo.</p>';
+  if (pen.length) h += `<div class="imp-sec">⏳ Já existem, ainda pendentes <span class="badge">${pen.length}</span></div><p class="hint">O app já tem essas contas como “a pagar”. Marcadas, elas passam a pagas (sem duplicar).</p>` +
+    pen.map(([x, i]) => `<div class="imp-card" data-i="${i}"><label class="imp-top"><input type="checkbox" data-f="incluir"${x.incluir ? ' checked' : ''}><span class="imp-orig">${esc(capIni(x.achou.nome))}</span><strong>${fm(x.valor)}</strong></label><div class="imp-meta">Extrato: ${esc(x.desc)} · 📅 ${dataBR(x.data)} → marcar como paga${x.fraco ? ' · <strong>mesmo valor e mês; confira se é a mesma conta</strong>' : ''}</div><select class="imp-in" data-f="modo" style="margin-top:8px;"><option value="pendente" selected>Marcar a conta existente como paga</option><option value="nova">Não é a mesma: lançar como nova saída</option></select></div>`).join('');
+  if (ja.length) h += `<details class="imp-det"><summary>✅ Já estão no app (${ja.length})</summary>${ja.map(([x]) => `<div class="imp-ja"><span>${esc(capIni(x.achou.nome))}</span><strong>${fm(x.valor)}</strong></div>`).join('')}</details>`;
+  const jaFat = it.filter(x => x.kind === 'fatura' && x.nivel === 'ja');
+  const ig = [...ext.ignoradas.map(x => ({ desc: x.desc, v: x.v, motivo: x.motivo })), ...jaFat.map(x => ({ desc: x.desc, v: -x.valor, motivo: 'Fatura já marcada como paga no app' }))];
+  if (ig.length) h += `<details class="imp-det"><summary>🚫 Linhas ignoradas (${ig.length})</summary>${ig.map(x => `<div class="imp-ja"><span>${esc(x.desc)}<small>${esc(x.motivo)}</small></span><strong>${fm(Math.abs(x.v))}</strong></div>`).join('')}</details>`;
+  $('exLista').innerHTML = h;
+  impLigarCombos($('exLista'));
+  exAtualizarResumo();
+}
+const exSel = () => ext.itens.filter(x => x.incluir && (x.kind === 'nova' || x.kind === 'pendente' || (x.kind === 'fatura' && x.escolha >= 0)));
+function exAtualizarResumo() {
+  const sel = exSel(), nov = sel.filter(x => x.kind === 'nova'), fat = sel.filter(x => x.kind === 'fatura'), pen = sel.filter(x => x.kind === 'pendente');
+  $('exResumo').innerHTML = ext.itens.length ? `<div class="info-box">Arquivo: <strong>${ext.itens.length}</strong> saída(s) analisada(s).<br>Selecionadas: <strong>${nov.length}</strong> nova(s) · <strong>${fat.length}</strong> pagamento(s) de fatura · <strong>${pen.length}</strong> conta(s) pendente(s) a marcar como paga(s).${ext.avisoSinal ? '<br><small>Todos os valores vieram positivos; tratei como saídas. Se for o contrário, ajuste “Sinal do valor” em Colunas.</small>' : ''}</div>` : '';
+  const cats = nov.filter(impCategorizada).length;
+  const info = $('exRodapeInfo'); if (info) info.textContent = nov.length ? `${cats} de ${nov.length} novas categorizadas · ${nov.length - cats} irão para "Sem categorização"` : '';
+  const b = $('btnExSalvar'); b.disabled = !sel.length; b.textContent = sel.length ? `Importar (${sel.length})` : 'Nada selecionado';
+}
+
+async function exSalvar() {
+  const sel = exSel(); if (!sel.length) return;
+  const conta = $('exConta').value.trim();
+  const novas = sel.filter(x => x.kind === 'nova'), fats = sel.filter(x => x.kind === 'fatura'), pens = sel.filter(x => x.kind === 'pendente');
+  if (novas.length && !conta) return alert('Informe o nome da conta (ex.: Nubank, Itaú).');
+  const semNome = novas.find(x => !String(x.nome || '').trim()); if (semNome) return alert(`Informe o nome da compra "${semNome.desc}".`);
+  const semResp = novas.find(x => !x.resp); if (semResp) return alert(`Selecione o responsável de "${semResp.desc}".`);
+  const temVP = temColValorPago();
+  // pagamentos de fatura: simula em cópias, em ordem de data, para vários pagamentos na mesma fatura não se atropelarem
+  const copias = new Map(), mexidas = new Map();
+  const cop = p => { if (!copias.has(p.id)) copias.set(p.id, { ...p }); return copias.get(p.id); };
+  for (const x of [...fats].sort((a, b) => a.data.localeCompare(b.data))) {
+    const f = ext.faturas[x.escolha];
+    const lista = f.parcelas.map(cop).filter(p => !p.pagamento).sort((a, b) => (Number(b.valor_parcela) - Number(a.valor_parcela)) || String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+    const plano = planoAdiantamento(lista, x.valor);
+    if (plano.sobra > 0) return alert(`O pagamento "${x.desc}" (${fm(x.valor)}) passa do que falta na fatura ${f.rotulo} ${formatarMes(f.mes)}. Ajuste a fatura escolhida ou desmarque.`);
+    if (!temVP && plano.itens.some(i => !i.quita)) return alert('Esse pagamento é parcial e falta criar a coluna valor_pago no banco (execute o SQL enviado). Escolha uma fatura de valor exato ou desmarque.');
+    const ts = new Date(x.data + 'T12:00:00').toISOString();
+    plano.itens.forEach(i => {
+      Object.assign(i.p, i.quita ? { pagamento: true, valor_pago: i.tot / 100, data_pagamento: ts } : { valor_pago: i.novoPago / 100 });
+      mexidas.set(i.p.id, i.p);
+    });
+  }
+  const nCat = novas.filter(impCategorizada).length, nPend = novas.length - nCat;
+  if (novas.length) {
+    const msg = `${nCat} de ${novas.length} saída(s) nova(s) estão categorizadas.` + (nPend ? `\n\n${nPend} irão para "Sem categorização" e ficam pendentes no Planejamento.` : '') + (fats.length ? `\n\n${fats.length} pagamento(s) de fatura serão casados com as parcelas do cartão.` : '');
+    if (!await confirmar({ titulo: 'Confirmar importação', mensagem: msg, confirmarTexto: 'Importar', tipo: nPend ? 'aviso' : 'info' })) return;
+  }
+  const btn = $('btnExSalvar'); btn.disabled = true; btn.textContent = 'Importando...';
+  const user = currentUser.email, hist = [];
+  const rows = novas.map(x => {
+    const id = novoIdCompra(), ym = x.data.slice(0, 7);
+    hist.push({ grupo_id: grupoId(), id_compra: id, nome_compra: x.nome.trim(), acao: 'Importada', detalhes: `${fm(x.valor)} (extrato da conta)` });
+    return { id_compra: id, nome_compra: capIni(x.nome.trim()), valor_parcela: x.valor, responsavel: x.resp, motivo: capIni(x.motivoC.trim()) || null, tipo: capIni(x.tipoC.trim()) || null,
+      categoria_orcamento: x.cat || null, tipo_pagamento: x.pagto, nome_pagamento: capNome(conta), nome_original: x.desc, data_compra: x.data, mes_referencia: ym, data_parcela: x.data,
+      parcela_referencia: '1/1', status: 'Ativo', pagamento: true, data_pagamento: new Date(x.data + 'T12:00:00').toISOString(), ...(temVP ? { valor_pago: x.valor } : {}), criado_por: user };
+  });
+  try {
+    let semOriginal = false;
+    for (let i = 0; i < rows.length; i += 200) {
+      let lote = rows.slice(i, i + 200);
+      let { error } = await db.from('compras').insert(lote);
+      if (error && /nome_original/.test(error.message || '') && !semOriginal) { semOriginal = true; rows.forEach(r => { delete r.nome_original; }); lote = rows.slice(i, i + 200); ({ error } = await db.from('compras').insert(lote)); }
+      if (error) throw error;
+    }
+    if (hist.length) await db.from('historico_compras').insert(hist);
+    const ups = [];
+    mexidas.forEach(p => ups.push(db.from('compras').update(p.pagamento ? { pagamento: true, ...(temVP ? { valor_pago: p.valor_pago } : {}), data_pagamento: p.data_pagamento } : { valor_pago: p.valor_pago }).eq('id', p.id).in('criado_por', emailsGrupo())));
+    pens.forEach(x => ups.push(db.from('compras').update({ pagamento: true, data_pagamento: new Date(x.data + 'T12:00:00').toISOString(), ...(temVP ? { valor_pago: x.achou.valor } : {}) }).eq('id', x.achou.id).in('criado_por', emailsGrupo())));
+    const res = await Promise.all(ups); const er = res.find(r => r.error); if (er) throw er.error;
+  } catch (e) {
+    btn.disabled = false; exAtualizarResumo();
+    alert('Não foi possível importar tudo: ' + (e.message || e)); await carregarDados(); return;
+  }
+  fecharModal('modalExtrato');
+  state.mesesSelecionados = [ext.mes];
+  notificar(`Extrato importado: ${novas.length} saída(s) nova(s), ${fats.length} pagamento(s) de fatura casado(s), ${pens.length} conta(s) marcada(s) como paga(s).`, 'sucesso', 7000);
+  await carregarDados();
+}
+function exLigarEventos() {
+  const bt = $('btnImportarExtrato'); if (!bt) return;
+  bt.addEventListener('click', abrirExtrato);
+  $('btnExArquivo').addEventListener('click', () => { semBloqueioPor(180000); $('exArquivo').click(); });
+  $('exArquivo').addEventListener('change', async e => { const f = e.target.files[0]; try { await exLerArquivo(f); } finally { e.target.value = ''; } });
+  $('exResp').addEventListener('change', () => { const r = $('exResp').value; ext.itens.forEach(x => { if (x.kind === 'nova' && x.respAuto) x.resp = r; }); if (ext.itens.length) exRender(); });
+  $('btnExSalvar').addEventListener('click', exSalvar);
+  $('exColunas').addEventListener('change', e => {
+    if (e.target.id === 'exSinal') { ext.sinal = e.target.value; return exAnalisar(); }
+    const c = e.target.dataset && e.target.dataset.col; if (!c) return;
+    ext.map[c] = parseInt(e.target.value);
+    try { const all = JSON.parse(localStorage.getItem(EX_MAP_KEY) || '{}'); all[impAssinatura(ext.cab)] = ext.map; localStorage.setItem(EX_MAP_KEY, JSON.stringify(all)); } catch (er) {}
+    exAnalisar();
+  });
+  const editar = e => {
+    const f = e.target.dataset && e.target.dataset.f; if (!f) return;
+    const card = e.target.closest('.imp-card'); if (!card) return;
+    const x = ext.itens[+card.dataset.i]; if (!x) return;
+    if (f === 'incluir') x.incluir = e.target.checked;
+    else if (f === 'modo') {
+      if (e.target.value === 'nova') { Object.assign(x, { kind: 'nova', incluir: true, lembrado: false, nome: exNomeSugerido(x.desc), resp: $('exResp').value, respAuto: true, cat: '', motivoC: '', tipoC: '', pagto: exTipoPagto(x.desc), puxou: '' }); exRender(); }
+      return;
+    }
+    else if (f === 'escolha') { x.escolha = parseInt(e.target.value); x.incluir = x.escolha >= 0; const cb = card.querySelector('[data-f="incluir"]'); if (cb) cb.checked = x.incluir; const p = card.querySelector('[data-previa]'); if (p) p.textContent = exPrevia(x); }
+    else { x[f] = e.target.value; if (f === 'resp') x.respAuto = false; }
+    const pend = card.querySelector('[data-pend]'); if (pend) pend.style.display = impCategorizada(x) ? 'none' : '';
+    exAtualizarResumo();
+  };
+  $('exLista').addEventListener('input', editar);
+  $('exLista').addEventListener('change', editar);
+}
+
 /* ---- Exportações ---- */
 function exportarPDF() {
   const l = comprasFiltradas();
@@ -6897,6 +7272,7 @@ function ligarEventos() {
     $('btnPagasMes').addEventListener('click', abrirPagasMes);
   $('btnConfiguracoes').addEventListener('click', abrirConfiguracoes);
   impLigarEventos();
+  exLigarEventos();
   $('btnCfgNotif').addEventListener('click', () => { fecharModal('modalConfiguracoes'); abrirModalNotificacoes(); });
   $('btnCfgListas').addEventListener('click', () => { $('listaPadraoLinha').style.display = currentUser && currentUser.is_admin ? 'flex' : 'none'; renderListasMT(); abrirModal('modalListas'); });
   $('btnListaAdd').addEventListener('click', adicionarListaMT);
