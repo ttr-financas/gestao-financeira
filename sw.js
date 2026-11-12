@@ -1,9 +1,9 @@
 // Service worker do TTR Gestão Financeira: notificações push + cópia do app para abrir sem internet.
 // Precisa ficar na MESMA pasta do HTML, no mesmo endereço https.
 // Arquivos usados: icon-192.png (ícone grande) e badge-96.png (silhueta da barra de status do Android).
-const CACHE = 'ttr-app-v3';
+const CACHE = 'ttr-app-v4';
 // Guarda o app e as bibliotecas externas JÁ NA INSTALAÇÃO (não só nas próximas visitas), para abrir sem internet desde o primeiro uso.
-const LOCAIS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png'];
+const LOCAIS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png', 'vendor/supabase.min.js', 'vendor/chart.umd.min.js'];
 const EXTERNOS = [
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js',
