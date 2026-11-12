@@ -482,6 +482,16 @@
   .assin-card .acoes button { border: 1px solid var(--border-strong); background: transparent; color: var(--text); border-radius: 9px; padding: 7px 11px; font: inherit; font-size: 12px; cursor: pointer; }
   .assin-card .acoes button.ok { background: var(--success); border-color: var(--success); color: #fff; font-weight: 700; }
   .legal-txt { font-size: 13.5px; line-height: 1.6; margin-bottom: 14px; } .legal-txt h4 { margin: 4px 0 2px; font-size: 17px; } .legal-txt p, .legal-txt ul { margin: 0 0 10px; } .legal-txt ul { padding-left: 20px; }
+  /* definição da marca: iniciais T, T e R maiores e em outra cor */
+  .ttr-l { font-size: 1.5em; font-weight: 800; color: var(--accent-text); line-height: 1; margin: 0 .5px; }
+  .ttr-def { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: 4px; letter-spacing: .2px; }
+  .ttr-lema { font-size: 11.5px; color: var(--muted); text-align: center; margin: 6px 0 12px; line-height: 1.9; opacity: .9; }
+  .ttr-def-load { margin-top: 8px; font-size: 11px; letter-spacing: .4px; opacity: .85; }
+  .plano-op { display: flex; gap: 10px; align-items: center; padding: 11px 12px; margin-top: 8px; border: 1px solid var(--border, rgba(255,255,255,.12)); border-radius: 12px; cursor: pointer; font-size: 14px; }
+  .plano-op input { width: auto; margin: 0; }
+  .plano-op small { color: var(--muted); }
+  .aviso-spam { font-size: 12.5px; line-height: 1.5; padding: 9px 11px; border-radius: 10px; background: rgba(252,211,77,.12); color: var(--warn-text); margin: 0 0 12px; }
+  .cfg-sw input { width: 22px; height: 22px; margin-left: auto; flex: none; }
   .hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.45; }
   .info-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13px; margin-bottom: 15px; line-height: 1.65; }
   .section-box h3 { gap: 8px; flex-wrap: wrap; }
@@ -892,6 +902,7 @@
   <div class="loading-brand">
     <div class="loading-title">TTR</div>
     <div class="loading-tag">Gestão Financeira</div>
+    <div class="ttr-def ttr-def-load" data-ttr="nome"></div>
     <div class="loading-sub" id="loadingTxt">Carregando...</div>
   </div>
   <div class="loading-bar"></div>
@@ -917,7 +928,9 @@
     <div class="auth-logo-wrapper">
       <div class="logo-icon"><img src="data:image/webp;base64,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" alt="Logo" draggable="false"></div>
       <h2>Gestão Financeira</h2>
+      <div class="ttr-def" data-ttr="nome"></div>
     </div>
+    <div class="ttr-lema" data-ttr="lema"></div>
     <div id="msgErro" class="msg-erro"></div>
     <div id="loginForm">
       <div class="input-group"><label>E-mail, Nome ou CPF</label><input type="text" id="loginUser" placeholder="Digite seus dados de acesso" autocomplete="username"></div>
@@ -937,6 +950,7 @@
         <button class="btn" id="btnRsVerificar" type="button">Enviar código por e-mail</button>
       </div>
       <div id="recSenhaPasso2" style="display:none;">
+        <p class="aviso-spam">📬 Não chegou? Veja também a pasta de <b>Spam</b> (ou Lixo eletrônico) e marque como “Não é spam”.</p>
         <div class="input-group"><label>Código recebido por e-mail</label><input type="text" id="rsCodigo" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:6px;font-size:20px;text-align:center;"></div>
         <button class="btn ghost" id="btnRsReenviar" type="button" style="margin:-4px 0 12px;">Não recebi · enviar de novo</button>
         <div class="input-group"><label>Nova senha</label><div class="password-wrapper"><input type="password" id="rsSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="rsSenha">👁️</button></div></div>
@@ -948,22 +962,35 @@
     </div>
     <div id="cadContaForm" style="display:none;">
       <h3 style="margin:0 0 6px;font-size:17px;">Criar conta</h3>
-      <p class="hint" style="margin-top:0;">Digite o código de teste grátis que você recebeu. O teste dura 30 dias a partir de hoje; depois, a mensalidade é de R$ 14,90 (ou R$ 19,90 para 2 usuários), paga por PIX no próprio app.</p>
-      <div class="input-group"><label>Código de teste</label><input type="text" id="ccCodigo" placeholder="TTR-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" maxlength="20"></div>
-      <div class="input-group"><label>Nome de usuário</label><input type="text" id="ccNome" autocomplete="off" maxlength="30" placeholder="como você quer ser chamado"></div>
-      <div class="input-group"><label>CPF</label><input type="text" id="ccCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
-      <div class="input-group"><label>Gênero</label><select id="ccGenero"></select></div>
-      <div class="input-group"><label>Telefone</label><input type="text" id="ccTel" maxlength="15" inputmode="tel" placeholder="(00) 00000-0000" autocomplete="off"></div>
-      <div class="input-group"><label>E-mail</label><input type="email" id="ccEmail" placeholder="nome@exemplo.com" autocomplete="off"></div>
-      <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="ccSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha">👁️</button></div></div>
-      <div class="input-group"><label>Repita a senha</label><div class="password-wrapper"><input type="password" id="ccSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha2">👁️</button></div></div>
-      <p class="hint">Mínimo de 6 caracteres, com uma letra maiúscula, uma minúscula e um número.</p>
-      <label class="check-row"><input type="checkbox" id="ccAceite"><span>Li e aceito os <a href="#" data-legal="termos" style="color:var(--accent-text);text-decoration:underline;">Termos de uso</a> e a <a href="#" data-legal="privacidade" style="color:var(--accent-text);text-decoration:underline;">Política de privacidade</a>.</span></label>
+      <div id="ccAcesso">
+        <p class="hint" id="ccIntro" style="margin-top:0;">Tem um código de <b>teste grátis</b> ou de <b>convite</b>? Digite abaixo junto com o seu CPF. Se não tiver código, deixe em branco: você escolhe o plano e paga por PIX.</p>
+        <div class="input-group"><label id="ccCodigoLbl">Código de teste ou de convite (opcional)</label><input type="text" id="ccCodigo" placeholder="TTR-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" maxlength="20"></div>
+        <div class="input-group"><label>CPF</label><input type="text" id="ccCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
+      </div>
+      <div id="ccInfo" class="info-box" style="display:none;margin-bottom:12px;"></div>
+      <div id="ccPlano" style="display:none;margin-bottom:12px;">
+        <label style="font-size:13px;color:var(--muted);">Quantas pessoas vão usar a conta?</label>
+        <label class="plano-op"><input type="radio" name="ccVagas" value="1" checked><span><b>1 pessoa</b> · R$ 9,90 por mês</span></label>
+        <label class="plano-op"><input type="radio" name="ccVagas" value="2"><span><b>2 pessoas</b> · R$ 13,90 por mês <small>(paga uma vez só, vale para as duas)</small></span></label>
+      </div>
+      <div id="ccResto" style="display:none;">
+        <div class="input-group"><label>Nome de usuário</label><input type="text" id="ccNome" autocomplete="off" maxlength="30" placeholder="como você quer ser chamado"></div>
+        <div class="input-group"><label>Gênero</label><select id="ccGenero"></select></div>
+        <div class="input-group"><label>Telefone</label><input type="text" id="ccTel" maxlength="15" inputmode="tel" placeholder="(00) 00000-0000" autocomplete="off"></div>
+        <div class="input-group"><label>E-mail</label><input type="email" id="ccEmail" placeholder="nome@exemplo.com" autocomplete="off"></div>
+        <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="ccSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha">👁️</button></div></div>
+        <div class="input-group"><label>Repita a senha</label><div class="password-wrapper"><input type="password" id="ccSenha2" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="ccSenha2">👁️</button></div></div>
+        <p class="hint">Mínimo de 6 caracteres, com uma letra maiúscula, uma minúscula e um número.</p>
+        <label class="check-row"><input type="checkbox" id="ccAceite"><span>Li e aceito os <a href="#" data-legal="termos" style="color:var(--accent-text);text-decoration:underline;">Termos de uso</a> e a <a href="#" data-legal="privacidade" style="color:var(--accent-text);text-decoration:underline;">Política de privacidade</a>.</span></label>
+      </div>
       <div id="ccPasso2" style="display:none;">
         <div class="input-group"><label>Código enviado para o seu e-mail</label><input type="text" id="ccCodEmail" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:6px;font-size:20px;text-align:center;"></div>
+        <p class="aviso-spam">📬 Não chegou? Veja também a pasta de <b>Spam</b> (ou Lixo eletrônico) e marque como “Não é spam”.</p>
         <div style="display:flex;gap:8px;margin:-4px 0 12px;"><button class="btn ghost" id="btnCcReenviar" type="button">Enviar de novo</button><button class="btn ghost" id="btnCcEditar" type="button">Corrigir dados</button></div>
       </div>
-      <button class="btn" id="btnCcCriar" type="button">Continuar</button>
+      <button class="btn" id="btnCcAcesso" type="button">Continuar</button>
+      <button class="btn" id="btnCcCriar" type="button" style="display:none;">Continuar</button>
+      <button class="btn ghost" id="btnCcTrocar" type="button" style="display:none;">Trocar código ou CPF</button>
       <button class="btn ghost auth-voltar" id="btnCcVoltar" type="button">Já tenho conta · Entrar</button>
     </div>
   </div>
@@ -1417,10 +1444,13 @@
     <button class="cfg-item" id="btnCfgAssin" type="button" style="display:none;"><span class="cfg-ic">💳</span><span class="cfg-tx"><strong>Minha assinatura</strong><small id="cfgAssinResumo">Vencimento, valor e PIX</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAdmin" style="display:none;">Administração</div>
     <button class="cfg-item" id="btnCfgAdminAssin" type="button" style="display:none;"><span class="cfg-ic">🎟️</span><span class="cfg-tx"><strong>Testes grátis e assinaturas</strong><small>Gere códigos e acompanhe pagamentos</small></span><span class="cfg-seta">›</span></button>
+    <label class="cfg-item cfg-sw" id="rowTesteGratis" style="display:none;"><span class="cfg-ic">🎁</span><span class="cfg-tx"><strong>Teste grátis no “Criar conta”</strong><small id="cfgTesteTxt">Carregando…</small></span><input type="checkbox" id="cfgTesteGratis"></label>
     <button class="cfg-item" id="btnGerenciarUsuarios" type="button" style="display:none;"><span class="cfg-ic">👥</span><span class="cfg-tx"><strong>Gerenciar usuários</strong><small>Acessos e permissões do grupo</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo">Conta</div>
     <div class="info-box" id="cfgConta"></div>
     <p class="hint"><a href="#" data-legal="termos" style="color:var(--accent-text);">Termos de uso</a> · <a href="#" data-legal="privacidade" style="color:var(--accent-text);">Política de privacidade</a></p>
+    <div class="cfg-titulo">Sobre o TTR</div>
+    <div class="info-box" style="text-align:center;"><div class="ttr-def" data-ttr="nome" style="font-size:14px;margin:0 0 8px;"></div><div class="ttr-lema" data-ttr="lema" style="margin:0;"></div></div>
   </div>
 </div>
 
@@ -1430,6 +1460,7 @@
     <div style="font-size:42px;" id="suspensoIc">🔒</div>
     <h2 id="suspensoTit">Conta suspensa</h2>
     <p class="hint" id="suspensoTxt" style="font-size:13.5px;">Sua mensalidade não foi paga e a conta foi suspensa. Pague o PIX abaixo: assim que o pagamento for confirmado, o acesso é liberado.</p>
+    <div class="ttr-lema" data-ttr="lema"></div>
     <div id="suspensoPix"></div>
     <button class="btn secondary" id="btnSuspensoExportar" type="button" style="margin-bottom:8px;">📥 Baixar meus dados</button>
     <button class="btn ghost" id="btnSuspensoSair" type="button">Sair da conta</button>
@@ -1456,16 +1487,20 @@
 <!-- LÍDER: ADICIONAR 2º USUÁRIO -->
 <div class="modal-overlay modal-nivel-2" id="modalNovoMembro">
   <div class="modal">
-    <div class="modal-header"><h3>Adicionar usuário ao grupo</h3><button class="close-btn" data-close="modalNovoMembro">×</button></div>
-    <p class="hint" style="margin-top:0;">Esta pessoa entra no mesmo grupo que você (vê as mesmas contas e divide o orçamento). Com 2 usuários a mensalidade do grupo é de <b>R$ 19,90</b> — paga uma única vez.</p>
-    <div class="input-group"><label>Nome de usuário</label><input type="text" id="nmNome" autocomplete="off" maxlength="30"></div>
-    <div class="input-group"><label>CPF</label><input type="text" id="nmCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
-    <div class="input-group"><label>Gênero</label><select id="nmGenero"></select></div>
-    <div class="input-group"><label>Telefone</label><input type="text" id="nmTel" maxlength="15" inputmode="tel" placeholder="(00) 00000-0000" autocomplete="off"></div>
-    <div class="input-group"><label>E-mail</label><input type="email" id="nmEmail" placeholder="nome@exemplo.com" autocomplete="off"></div>
-    <div class="input-group"><label>Senha inicial</label><div class="password-wrapper"><input type="password" id="nmSenha" autocomplete="new-password"><button type="button" class="toggle-password" data-toggle="nmSenha">👁️</button></div></div>
-    <p class="hint">Mínimo de 6 caracteres, com maiúscula, minúscula e número. Avise a pessoa para entrar com este e-mail e esta senha.</p>
-    <button class="btn" id="btnNmCriar" type="button">Adicionar usuário</button>
+    <div class="modal-header"><h3>Convidar usuário para o grupo</h3><button class="close-btn" data-close="modalNovoMembro">×</button></div>
+    <p class="hint" id="nmHint" style="margin-top:0;"></p>
+    <div id="nmForm">
+      <div class="input-group"><label>CPF da pessoa</label><input type="text" id="nmCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
+      <p class="hint">A pessoa cria o próprio acesso e a própria senha. Para isso ela digita o código e este CPF na tela “Criar conta”.</p>
+      <button class="btn" id="btnNmCriar" type="button">Gerar código de convite</button>
+    </div>
+    <div id="nmPix"></div>
+    <div id="nmResultado" style="display:none;">
+      <div class="info-box" style="margin-bottom:12px;"><b>Código gerado:</b> <code id="nmCodigo" style="font-size:19px;letter-spacing:1px;"></code><br><small id="nmValidade"></small></div>
+      <div class="input-group"><label>Mensagem pronta para enviar</label><textarea id="nmTexto" rows="9" readonly style="width:100%;font-size:13px;line-height:1.5;"></textarea></div>
+      <button class="btn" id="btnNmWpp" type="button">💬 Enviar pelo WhatsApp</button>
+      <button class="btn secondary" id="btnNmCopiar" type="button" style="margin-top:8px;">📋 Copiar mensagem</button>
+    </div>
   </div>
 </div>
 
@@ -1748,7 +1783,310 @@
    ========================================= */
 const SUPABASE_URL = 'https://cdwadyowauwfwcepzvee.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_FtOpTX3ARaGFtg_YkmyQRA_L7gwRC7Y';
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/* ===== OFFLINE: o que não dá para enviar fica guardado no aparelho e sobe sozinho quando a internet voltar =====
+   - leituras (select) são guardadas; sem internet o app lê a cópia guardada
+   - gravações (insert/update/upsert/delete) sem internet entram numa fila; as telas já enxergam a alteração
+   - quando a conexão volta, a fila é enviada na ordem e a tela é recarregada com os dados reais do banco */
+function criarOffline(deps) {
+  deps = deps || {};
+  const ESCRITA = new Set(['insert', 'update', 'upsert', 'delete']);
+  const FILTROS = new Set(['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'in', 'is', 'like', 'ilike', 'not', 'or', 'match', 'filter', 'contains', 'containedBy', 'overlaps', 'textSearch', 'rangeGt', 'rangeGte', 'rangeLt', 'rangeLte', 'rangeAdjacent']);
+  const online = deps.online || (() => (typeof navigator === 'undefined' ? true : navigator.onLine !== false));
+  let real = null, uid = null, offline = false, flushing = false, recente = false, semSessao = false;
+  let fila = [];
+  let falhas = [];
+  let timerSonda = null, timerRecente = null;
+  const hooks = { aoSincronizar: null, aviso: null, confirmarSair: null };
+
+  /* ---------- armazenamento: IndexedDB (ou só memória, se o navegador não deixar) ---------- */
+  const mem = new Map(); let dbp = null;
+  const abre = () => dbp || (dbp = new Promise((ok, ko) => { try { const r = indexedDB.open('ttr_offline', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); } catch (e) { ko(e); } }));
+  const idb = {
+    async get(k) { try { const d = await abre(); return await new Promise((ok, ko) => { const q = d.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => ok(q.result); q.onerror = () => ko(q.error); }); } catch (e) { return mem.get(k); } },
+    async set(k, v) { try { const d = await abre(); await new Promise((ok, ko) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = ok; t.onerror = () => ko(t.error); }); } catch (e) { mem.set(k, v); } },
+    async del(k) { mem.delete(k); try { const d = await abre(); await new Promise((ok, ko) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').delete(k); t.oncomplete = ok; t.onerror = () => ko(t.error); }); } catch (e) {} },
+    async chaves() { try { const d = await abre(); return await new Promise((ok, ko) => { const q = d.transaction('kv').objectStore('kv').getAllKeys(); q.onsuccess = () => ok(q.result); q.onerror = () => ko(q.error); }); } catch (e) { return [...mem.keys()]; } }
+  };
+  const kv = deps.kv || idb;
+
+  const clone = x => (x === undefined ? x : JSON.parse(JSON.stringify(x)));
+  const chaveCache = (tabela, calls) => 'c|' + uid + '|' + tabela + '|' + JSON.stringify(calls);
+  const chaveFila = () => 'q|' + uid;
+  const salvarFila = () => kv.set(chaveFila(), fila);
+  let seq = 0;
+  let ultTemp = 0;                       // ids provisórios: números enormes e crescentes (aparecem por último e nunca colidem com ids reais)
+  const tempId = () => { ultTemp = Math.max(ultTemp + 1, 8e15 + (Date.now() - 1.7e12) * 1000); return ultTemp; };
+
+  /* ---------- reconhece falha de rede ---------- */
+  const RE_REDE = /failed to fetch|networkerror|network request failed|load failed|fetch failed|err_internet|timeout|timed out|aborted|abort/i;
+  const falhaRede = res => !!(res && res.error && (res.status === 0 || RE_REDE.test(String(res.error.message || '') + ' ' + String(res.error.details || ''))) && !res.error.code?.toString().startsWith('PGRST') && !/^\d{5}$/.test(String(res.error.code || '')));
+  const erroRede = e => RE_REDE.test(String((e && (e.message || e.name)) || e));
+
+  /* ---------- gravador de chamadas: guarda "from(tabela).metodo(args)..." e só executa quando alguém dá await ---------- */
+  function gravador(tabela) {
+    const calls = [];
+    const exec = () => executar(tabela, calls);
+    const p = new Proxy({}, {
+      get(_, nome) {
+        if (typeof nome === 'symbol') return undefined;
+        if (nome === 'then') return (ok, ko) => exec().then(ok, ko);
+        if (nome === 'catch') return ko => exec().catch(ko);
+        if (nome === 'finally') return f => exec().finally(f);
+        return (...args) => { calls.push([nome, args]); return p; };
+      }
+    });
+    return p;
+  }
+  function montar(tabela, calls, opc) {
+    opc = opc || {};
+    let q = real.from(tabela);
+    for (const [m, a] of calls) q = q[m](...a);
+    if (opc.timeout && typeof q.abortSignal === 'function' && typeof AbortSignal !== 'undefined' && AbortSignal.timeout) q = q.abortSignal(AbortSignal.timeout(opc.timeout));
+    return q;
+  }
+  function executar(tabela, calls) {
+    const primeiro = calls[0] && calls[0][0];
+    return ESCRITA.has(primeiro) ? escrever(tabela, calls) : ler(tabela, calls);
+  }
+
+  /* ---------- leitura ---------- */
+  async function ler(tabela, calls) {
+    const chave = chaveCache(tabela, calls);
+    if (!offline && online()) {
+      try {
+        const res = await montar(tabela, calls, { timeout: deps.timeoutLeitura || 20000 });
+        if (!falhaRede(res)) {
+          if (!res.error && uid) kv.set(chave, { data: res.data, count: res.count == null ? null : res.count, ts: Date.now() });
+          estarOnline();
+          return res;
+        }
+      } catch (e) { if (!erroRede(e)) throw e; }
+      estarOffline();
+    }
+    const c = uid ? await kv.get(chave) : null;
+    const unico = calls.some(([m]) => m === 'single' || m === 'maybeSingle');
+    if (!c) return { data: unico ? null : [], error: null, count: null, status: 200, statusText: 'offline (sem cópia guardada)', semCopia: true };
+    return { data: aplicarFila(tabela, calls, clone(c.data)), error: null, count: c.count, status: 200, statusText: 'offline (cópia guardada)' };
+  }
+
+  /* ---------- filtros do PostgREST avaliados localmente ---------- */
+  const eqv = (a, b) => (b === null || a === null || a === undefined || b === undefined) ? (a == null && b == null) : String(a) === String(b);
+  function testa(row, m, a) {
+    const col = a[0], val = a[1], v = row ? row[col] : undefined;
+    switch (m) {
+      case 'eq': return eqv(v, val);
+      case 'neq': return !eqv(v, val);
+      case 'gt': return v != null && v > val;
+      case 'gte': return v != null && v >= val;
+      case 'lt': return v != null && v < val;
+      case 'lte': return v != null && v <= val;
+      case 'in': return Array.isArray(val) ? val.some(x => eqv(v, x)) : true;
+      case 'is': return val === null ? v == null : v === val;
+      case 'like': case 'ilike': {
+        const re = new RegExp('^' + String(val).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/%/g, '.*').replace(/_/g, '.') + '$', m === 'ilike' ? 'i' : '');
+        return re.test(String(v ?? ''));
+      }
+      case 'not': return !testa(row, a[1], [a[0], a[2]]);
+      case 'match': return Object.keys(col || {}).every(k => eqv(row[k], col[k]));
+      default: return true;               // filtros que não dá para avaliar aqui (or, contains...) não escondem a linha
+    }
+  }
+  const filtrosDe = calls => calls.filter(([m]) => FILTROS.has(m));
+  const passa = (row, calls) => filtrosDe(calls).every(([m, a]) => testa(row, m, a));
+
+  /* ---------- aplica a fila de alterações pendentes por cima da cópia guardada ---------- */
+  function aplicarFila(tabela, calls, data) {
+    const ops = fila.filter(o => o.tabela === tabela);
+    if (!ops.length || data == null) return data;
+    if (calls.some(([m, a]) => m === 'select' && a[1] && (a[1].head || a[1].count))) return data;
+    const unico = calls.some(([m]) => m === 'single' || m === 'maybeSingle');
+    let rows = Array.isArray(data) ? data : [data];
+    for (const op of ops) {
+      const [tipo, args] = op.calls[0];
+      const payload = args[0], opcoes = args[1] || {};
+      const fOp = op.calls.slice(1);
+      const casa = r => passa(r, fOp);
+      if (tipo === 'insert') {
+        (Array.isArray(payload) ? payload : [payload]).forEach((r, i) => { rows.push({ ...r, id: r && r.id != null ? r.id : (op.tempIds && op.tempIds[i]) }); });
+      } else if (tipo === 'update') {
+        rows = rows.map(r => casa(r) ? { ...r, ...payload } : r);
+      } else if (tipo === 'delete') {
+        rows = rows.filter(r => !casa(r));
+      } else if (tipo === 'upsert') {
+        const chaves = String(opcoes.onConflict || 'id').split(',').map(x => x.trim());
+        (Array.isArray(payload) ? payload : [payload]).forEach((nova, i) => {
+          const ix = rows.findIndex(r => chaves.every(k => nova[k] !== undefined && eqv(r[k], nova[k])));
+          if (ix >= 0) rows[ix] = { ...rows[ix], ...nova };
+          else rows.push({ ...nova, id: nova.id != null ? nova.id : (op.tempIds && op.tempIds[i]) });
+        });
+      }
+    }
+    rows = rows.filter(r => passa(r, calls));
+    const ord = calls.filter(([m]) => m === 'order');
+    if (ord.length) rows.sort((x, y) => { for (const [, a] of ord) { const col = a[0], asc = !(a[1] && a[1].ascending === false); const A = x[col], B = y[col]; if (A === B) continue; if (A == null) return asc ? 1 : -1; if (B == null) return asc ? -1 : 1; return (A > B ? 1 : -1) * (asc ? 1 : -1); } return 0; });
+    return unico ? (rows[0] ?? null) : rows;
+  }
+
+  /* ---------- gravação ---------- */
+  async function escrever(tabela, calls) {
+    if (!offline && online() && !fila.length && !flushing) {
+      try {
+        const res = await montar(tabela, calls);
+        if (!falhaRede(res)) { estarOnline(); return res; }
+      } catch (e) { if (!erroRede(e)) throw e; }
+      estarOffline();
+    }
+    return enfileirar(tabela, calls);
+  }
+  function enfileirar(tabela, calls) {
+    const [tipo, args] = calls[0];
+    const payload = args[0];
+    const lista = (tipo === 'insert' || tipo === 'upsert') ? (Array.isArray(payload) ? payload : [payload]) : [];
+    const tempIds = lista.map(r => (r && r.id != null) ? null : tempId());
+    const op = { qid: Date.now() + '-' + (++seq), tabela, calls: clone(calls), tempIds: tempIds.length ? tempIds : null, ts: Date.now() };
+    fila.push(op); salvarFila(); render(); iniciarSonda();
+    let data = null;
+    if (tipo === 'insert' && calls.some(([m]) => m === 'select')) {
+      const rows = lista.map((r, i) => ({ ...r, id: r.id != null ? r.id : tempIds[i] }));
+      data = calls.some(([m]) => m === 'single' || m === 'maybeSingle') ? rows[0] : rows;
+    }
+    return { data, error: null, count: null, status: 201, statusText: 'guardado para enviar', offline: true };
+  }
+
+  /* ---------- envio da fila ---------- */
+  function trocarTemp(x, mapa) {
+    if (typeof x === 'number' && mapa[x] !== undefined) return mapa[x];
+    if (Array.isArray(x)) return x.map(v => trocarTemp(v, mapa));
+    if (x && typeof x === 'object') { const o = {}; for (const k of Object.keys(x)) o[k] = trocarTemp(x[k], mapa); return o; }
+    return x;
+  }
+  async function enviar() {
+    if (flushing || !fila.length || !real) return 0;
+    if (!online()) return 0;
+    flushing = true; render();
+    let feitos = 0; const mapa = {};
+    try {
+      let ok = true;
+      try { const r = await real.auth.getSession(); ok = !!(r && r.data && r.data.session); } catch (e) { ok = !erroRede(e); }
+      semSessao = !ok;
+      if (!ok) return 0;
+      while (fila.length) {
+        const op = fila[0];
+        const calls = trocarTemp(op.calls, mapa);
+        const tipo = calls[0][0];
+        const precisaSelect = tipo === 'insert' && op.tempIds && !calls.some(([m]) => m === 'select');
+        let res;
+        try {
+          res = await montar(op.tabela, precisaSelect ? [...calls, ['select', ['id']]] : calls);
+          if (precisaSelect && res && res.error && !falhaRede(res)) res = await montar(op.tabela, calls);   // sem permissão de leitura: tenta sem devolver o id
+        } catch (e) { if (erroRede(e)) { estarOffline(); break; } res = { error: { message: String((e && e.message) || e) } }; }
+        if (falhaRede(res)) { estarOffline(); break; }
+        if (res && res.error) {
+          falhas.push({ tabela: op.tabela, tipo, erro: String(res.error.message || res.error) });
+          fila.shift(); salvarFila();
+          if (hooks.aviso) hooks.aviso('Uma alteração feita sem internet não pôde ser enviada: ' + String(res.error.message || res.error), 'aviso');
+          continue;
+        }
+        if (op.tempIds && res && Array.isArray(res.data)) op.tempIds.forEach((t, i) => { if (t != null && res.data[i] && res.data[i].id != null) mapa[t] = res.data[i].id; });
+        fila.shift(); salvarFila(); feitos++;
+        render();
+      }
+    } finally { flushing = false; render(); }
+    if (!fila.length && feitos) {
+      recente = true; clearTimeout(timerRecente); timerRecente = setTimeout(() => { recente = false; render(); }, 4500);
+      render();
+      if (hooks.aviso) hooks.aviso('Tudo sincronizado: ' + feitos + (feitos === 1 ? ' alteração enviada.' : ' alterações enviadas.'), 'sucesso');
+      if (hooks.aoSincronizar) { try { await hooks.aoSincronizar(); } catch (e) {} }
+    }
+    return feitos;
+  }
+
+  /* ---------- estado da conexão ---------- */
+  function estarOffline() { if (!offline) { offline = true; render(); } iniciarSonda(); }
+  function estarOnline() { if (offline) { offline = false; render(); } if (fila.length) enviar(); }
+  function iniciarSonda() {
+    if (timerSonda) return;
+    timerSonda = setInterval(async () => {
+      if (!offline && !fila.length) { clearInterval(timerSonda); timerSonda = null; return; }
+      if (!online()) return;
+      let ok = false;
+      try { ok = deps.sonda ? await deps.sonda() : await sondaRede(); } catch (e) { ok = false; }
+      if (ok) { offline = false; render(); if (fila.length) enviar(); }
+    }, deps.intervaloSonda || 15000);
+  }
+  async function sondaRede() {
+    const r = await fetch(deps.url + '/auth/v1/health', { headers: { apikey: deps.chave }, cache: 'no-store', signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(6000) : undefined });
+    return r.status > 0;
+  }
+
+  /* ---------- faixa de aviso na tela ---------- */
+  function render() {
+    if (typeof document === 'undefined' || deps.semTela) return;
+    let el = document.getElementById('offBar');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'offBar';
+      el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:9990;padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.4;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.35);display:none;';
+      document.body.appendChild(el);
+      el.addEventListener('click', e => { if (e.target.closest('[data-off-enviar]')) enviar(); });
+    }
+    const n = fila.length, semNet = offline || !online();
+    let txt = '', fundo = '#7c2d12', cor = '#fff';
+    if (semNet) txt = n ? `📴 Sem internet · ${n} ${n === 1 ? 'alteração guardada' : 'alterações guardadas'} neste aparelho. O envio é automático quando a conexão voltar.` : '📴 Sem internet. Você pode continuar usando: o que mudar fica guardado e é enviado depois.';
+    else if (flushing) { txt = `🔄 Sincronizando ${n} ${n === 1 ? 'alteração' : 'alterações'}…`; fundo = '#1e3a8a'; }
+    else if (n) { txt = semSessao ? `⚠️ ${n} ${n === 1 ? 'alteração aguardando' : 'alterações aguardando'} envio. Entre de novo na conta para enviar.` : `⏳ ${n} ${n === 1 ? 'alteração aguardando' : 'alterações aguardando'} envio. <a href="#" data-off-enviar style="color:#fff;text-decoration:underline;">Enviar agora</a>`; fundo = '#78350f'; }
+    else if (recente) { txt = '✅ Tudo sincronizado'; fundo = '#14532d'; }
+    el.style.display = txt ? 'block' : 'none'; el.style.background = fundo; el.style.color = cor; el.innerHTML = txt;
+  }
+
+  /* ---------- interface pública ---------- */
+  const api = {
+    hooks,
+    wrap(cliente) {
+      real = cliente;
+      return new Proxy(cliente, {
+        get(alvo, prop) {
+          if (prop === 'from') return tabela => gravador(tabela);
+          const v = Reflect.get(alvo, prop, alvo);
+          return typeof v === 'function' ? v.bind(alvo) : v;
+        }
+      });
+    },
+    async definirUsuario(id) {
+      uid = id;
+      try { localStorage.setItem('ttr_last_uid', id); } catch (e) {}
+      fila = (await kv.get(chaveFila())) || [];
+      render();
+      if (fila.length && online()) enviar();
+    },
+    async aoSair() {                       // apaga as cópias de leitura (a fila de envio continua guardada)
+      try { localStorage.removeItem('ttr_last_uid'); } catch (e) {}
+      try { const ks = await kv.chaves(); for (const k of ks) if (String(k).startsWith('c|')) await kv.del(k); } catch (e) {}
+    },
+    async antesDeSair() {                  // devolve false se a pessoa desistir de sair
+      if (!fila.length) return true;
+      if (online()) { await Promise.race([enviar(), new Promise(r => setTimeout(r, 8000))]); }
+      if (!fila.length) return true;
+      return hooks.confirmarSair ? await hooks.confirmarSair(fila.length) : true;
+    },
+    enviar, render,
+    pendentes: () => fila.length,
+    falhas: () => falhas.slice(),
+    estaOffline: () => offline || !online(),
+    marcarOffline: estarOffline,
+    iniciarEventos() {
+      if (typeof window === 'undefined') return;
+      window.addEventListener('online', () => { offline = false; render(); enviar(); });
+      window.addEventListener('offline', () => { offline = true; render(); iniciarSonda(); });
+      document.addEventListener('visibilitychange', () => { if (!document.hidden && fila.length && online()) enviar(); });
+      render();
+    }
+  };
+  return api;
+}
+
+const dbReal = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const OFF = criarOffline({ url: SUPABASE_URL, chave: SUPABASE_KEY });
+const db = OFF.wrap(dbReal);   // mesmo uso de sempre; sem internet, guarda no aparelho e envia depois
 
 const $ = id => document.getElementById(id);
 // escreve texto num elemento sem quebrar a tela se o id não existir
@@ -3177,6 +3515,21 @@ async function garantirCategoria(txt) {
 /* ---- textos: iniciais maiúsculas ---- */
 const capIni = s => { s = String(s ?? ''); return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; };
 const capNome = s => String(s ?? '').replace(/(^|[\s\-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+
+/* ---- preços, marca TTR e sessão ---- */
+const PRECO_1 = 9.9, PRECO_2 = 13.9, PRECO_EXCEDENTE = 4.0;   // 1 usuário · 2 usuários · diferença cobrada ao adicionar o 2º
+const TTR_L = t => `<span class="ttr-l">${t}</span>`;
+const TTR_NOME_HTML = `${TTR_L('T')}racking, ${TTR_L('T')}rust &amp; ${TTR_L('R')}esults`;
+const TTR_LEMA_HTML = `${TTR_L('T')}rack Your Finances. ${TTR_L('T')}rust Your Decisions. Achieve ${TTR_L('R')}esults.`;
+function preencherMarca() { document.querySelectorAll('[data-ttr]').forEach(el => { el.innerHTML = el.dataset.ttr === 'lema' ? TTR_LEMA_HTML : TTR_NOME_HTML; }); }
+const AVISO_SPAM = 'Se o e-mail não chegar, veja também a pasta de Spam (ou Lixo eletrônico).';
+// encerra a sessão de verdade: não trava se a internet falhar e apaga o login guardado, para não "voltar" ao carregar os dados
+async function encerrarSessao() {
+  try { clearInterval(verifAssinTimer); clearInterval(pixTimer); } catch (e) {}
+  try { await OFF.aoSair(); } catch (e) {}
+  try { await Promise.race([db.auth.signOut({ scope: 'local' }), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}
+  try { Object.keys(localStorage).filter(k => /^sb-.*-auth-token/.test(k)).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+}
 function uniqNorm(arr) { const vistos = new Set(), out = []; arr.forEach(v => { const k = normalizarNome(v); if (k && !vistos.has(k)) { vistos.add(k); out.push(v); } }); return out; }
 
 /* ---- forma de pagamento: tipo + nome (ex.: Cartão de Crédito · Nubank) ---- */
@@ -3278,7 +3631,7 @@ function bloquearApp(uid, email) {
     _lockTentar = porSenha ? null : tentar;
     btn.onclick = tentar;
     campo.onkeydown = e => { if (e.key === 'Enter') tentar(); };
-    $('btnLockSenha').onclick = async () => { await db.auth.signOut(); location.reload(); };
+    $('btnLockSenha').onclick = async () => { await encerrarSessao(); location.reload(); };
     if (porSenha) { if (document.visibilityState === 'visible') setTimeout(() => campo.focus(), 50); }
     else if (document.visibilityState === 'visible') tentar(); // biometria: tenta já ao abrir; se o aparelho exigir um toque, o botão resolve
   });
@@ -3361,16 +3714,17 @@ function onbPasso(passos, i) {
   } else {
     const ok = pushSuportado();
     corpo.innerHTML = ok
-      ? `${cab}<div class="onb-ic">🔔</div><h3>Ativar notificações</h3><p>Receba lembretes de parcelas vencendo e de quem te deve. Ao tocar em ativar, enviamos um aviso agora para confirmar que funcionou.</p><button class="btn" id="onbOk" type="button">Ativar notificações</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`
+      ? `${cab}<div class="onb-ic">🔔</div><h3>Ativar notificações</h3><p>Receba lembretes de parcelas vencendo e de quem te deve. Ao tocar em ativar, enviamos um aviso agora para confirmar que funcionou. Os lembretes chegam todo dia às <b>12:00</b>; para mudar o horário ou desativar, é só entrar em <b>Configurações → Notificações</b>.</p><button class="btn" id="onbOk" type="button">Ativar notificações</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`
       : `${cab}<div class="onb-ic">🔔</div><h3>Notificações</h3><p>Este navegador não recebe notificações. No iPhone, adicione o app à Tela de Início e abra por lá; então a opção de ativar aparece aqui.</p><button class="btn" id="onbNao" type="button">Entendi</button>`;
     if (ok) $('onbOk').onclick = async () => {
       const b = $('onbOk'); b.disabled = true;
       const feito = await ativarPush();
       b.disabled = false;
       if (feito) prox();
+      else if (pushSuportado() && Notification.permission === 'denied') { notificar('Sem problema: as notificações ficaram desligadas. Para receber lembretes, libere nas configurações do navegador e ative em Configurações → Notificações.', 'info', 9000); prox(); }
     };
   }
-  $('onbNao').onclick = prox;
+  $('onbNao').onclick = () => { if (tipo === 'notif') notificar('Tudo bem! Você pode ativar as notificações quando quiser em Configurações → Notificações.', 'info', 7000); prox(); };
   abrirModal('modalOnboarding');
 }
 
@@ -3423,6 +3777,7 @@ function abrirConfiguracoes(e) {
   $('btnGerenciarUsuarios').style.display = adm ? 'flex' : 'none';
   $('cfgTituloAdmin').style.display = adm ? 'block' : 'none';
   $('btnCfgAdminAssin').style.display = adm ? 'flex' : 'none';
+  $('rowTesteGratis').style.display = adm ? 'flex' : 'none'; if (adm) carregarTesteGratisCfg();
   const temAssin = !!(assinatura && assinatura.estado && assinatura.estado !== 'ilimitado');
   $('cfgTituloAssin').style.display = temAssin ? 'block' : 'none'; $('btnCfgAssin').style.display = temAssin ? 'flex' : 'none';
   if (temAssin) $('cfgAssinResumo').textContent = (assinatura.teste ? 'Teste grátis' : 'Mensalidade') + ' · vence em ' + fmtDataBR(assinatura.vencimento);
@@ -3432,11 +3787,11 @@ function abrirConfiguracoes(e) {
 }
 // carrega as preferências salvas (horário, antecedência...) para os campos; sem registro, usa os padrões
 async function carregarConfigNotif() {
-  $('notifAtivo').checked = false; $('notifHora').value = '10:00'; $('notifAntes').value = rotuloAntes(0); $('notifAtrasadas').checked = false;
+  $('notifAtivo').checked = false; $('notifHora').value = '12:00'; $('notifAntes').value = rotuloAntes(0); $('notifAtrasadas').checked = false;
   const { data } = await db.from('notificacoes_config').select('*').eq('user_id', currentUser.id).maybeSingle();
   if (data) {
     $('notifAtivo').checked = !!data.ativo;
-    $('notifHora').value = String(data.hora || '10:00').slice(0, 5);
+    $('notifHora').value = String(data.hora || '12:00').slice(0, 5);
     $('notifAntes').value = rotuloAntes(Number(data.dias_antes) || 0);
     $('notifAtrasadas').checked = !!data.incluir_atrasadas;
   }
@@ -3457,7 +3812,7 @@ async function ativarPush() {
   try {
     semBloqueioPor(30000);
     const perm = await Notification.requestPermission();
-    if (perm !== 'granted') { alert('Não foi possível ativar: a permissão de notificação foi negada.'); return false; }
+    if (perm !== 'granted') { alert('Não foi possível ativar: a permissão de notificação foi negada. Para receber lembretes, libere as notificações nas configurações do navegador e depois ative em Configurações → Notificações.'); return false; }
     const reg = await registrarSW();
     if (!reg) throw new Error('o arquivo sw.js precisa estar na mesma pasta do app, em um endereço https.');
     await navigator.serviceWorker.ready;
@@ -3472,7 +3827,7 @@ async function ativarPush() {
     // aviso de confirmação: só diz que deu certo se a notificação realmente foi enviada
     const { data, error: eTeste } = await db.functions.invoke('enviar-notificacoes', { body: { teste: true } });
     if (eTeste) throw eTeste;
-    if (data && data.enviados) notificar('Notificações ativadas! Enviei um aviso para confirmar.', 'sucesso');
+    if (data && data.enviados) notificar('Notificações ativadas! Os lembretes chegam às ' + ($('notifHora').value || '12:00') + '. Para mudar o horário, vá em Configurações → Notificações.', 'sucesso', 7000);
     else notificar('Notificações ativadas, mas o aviso de confirmação não chegou. Confira as permissões do app.', 'aviso');
     return true;
   } catch (e) { alert('Erro ao ativar notificações: ' + (e.message || e)); return false; }
@@ -3494,7 +3849,7 @@ async function desativarPush() {
 async function salvarNotif(silencioso) {
   const btn = $('btnSalvarNotif'); btn.disabled = true;
   const { error } = await db.from('notificacoes_config').upsert({
-    user_id: currentUser.id, ativo: $('notifAtivo').checked, hora: $('notifHora').value || '10:00',
+    user_id: currentUser.id, ativo: $('notifAtivo').checked, hora: $('notifHora').value || '12:00',
     dias_antes: ANTES_NOTIF[$('notifAntes').value] ?? 0, incluir_atrasadas: $('notifAtrasadas').checked,
     fuso: 'America/Sao_Paulo', ultimo_envio: null
   }, { onConflict: 'user_id' });
@@ -3679,8 +4034,8 @@ async function recSenhaVerificar(reenvio) {
   if (r.erro) return mostrarErro(r.mensagem);
   ['rsNome', 'rsCpf', 'rsTel', 'rsEmail'].forEach(i => { $(i).disabled = true; });
   $('recSenhaPasso1').style.display = 'none'; $('recSenhaPasso2').style.display = 'block';
-  $('recSenhaDica').textContent = 'Enviamos um código de 6 números para ' + mascaraEmail(d.email) + '. Digite o código e escolha a nova senha. O código vale por 15 minutos.';
-  if (reenvio === true) notificar('Novo código enviado!', 'sucesso');
+  $('recSenhaDica').textContent = 'Enviamos um código de 6 números para ' + mascaraEmail(d.email) + '. Digite o código e escolha a nova senha. O código vale por 15 minutos. ' + AVISO_SPAM;
+  if (reenvio === true) notificar('Novo código enviado! ' + AVISO_SPAM, 'sucesso', 8000);
   setTimeout(() => $('rsCodigo').focus(), 50);
 }
 async function recSenhaReenviar() {
@@ -3688,7 +4043,7 @@ async function recSenhaReenviar() {
   const r = await invocarConta('reset_solicitar', recSenhaDados());
   setTimeout(() => { b.disabled = false; }, 8000);
   if (r.erro) return mostrarErro(r.mensagem);
-  notificar('Novo código enviado para o seu e-mail.', 'sucesso');
+  notificar('Novo código enviado para o seu e-mail. ' + AVISO_SPAM, 'sucesso', 8000);
 }
 async function recSenhaSalvar() {
   const cod = $('rsCodigo').value.replace(/\D/g, ''), s1 = $('rsSenha').value, s2 = $('rsSenha2').value;
@@ -3726,31 +4081,70 @@ function validarCamposConta(v, senha2) {
   if (senha2 !== undefined && v.senha !== senha2) return 'As senhas não são iguais.';
   return '';
 }
-let ccEtapa = 1;
+let ccEtapa = 0, ccTipo = '', ccTesteLigado = true;
+// etapa 0 = código + CPF · 1 = dados da pessoa · 2 = código recebido por e-mail
 function ccEtapaMostrar(n) {
-  ccEtapa = n; const bloq = n === 2;
-  ['ccCodigo', 'ccNome', 'ccCpf', 'ccTel', 'ccEmail', 'ccSenha', 'ccSenha2', 'ccAceite', 'ccGenero'].forEach(i => { $(i).disabled = bloq; });
-  $('ccPasso2').style.display = bloq ? 'block' : 'none';
-  $('btnCcCriar').textContent = bloq ? 'Confirmar e criar minha conta' : 'Continuar';
-  if (!bloq) $('ccCodEmail').value = '';
+  ccEtapa = n;
+  const mostra = (id, on) => { $(id).style.display = on ? 'block' : 'none'; };
+  const trava = (ids, on) => ids.forEach(i => { $(i).disabled = on; });
+  trava(['ccCodigo', 'ccCpf'], n >= 1);
+  trava(['ccNome', 'ccTel', 'ccEmail', 'ccSenha', 'ccSenha2', 'ccAceite', 'ccGenero'], n === 2);
+  document.querySelectorAll('input[name="ccVagas"]').forEach(r => { r.disabled = n === 2; });
+  mostra('ccResto', n >= 1); mostra('ccPasso2', n === 2); mostra('btnCcAcesso', n === 0); mostra('ccInfo', n >= 1);
+  mostra('ccPlano', n >= 1 && ccTipo === 'pago');
+  mostra('btnCcCriar', n >= 1); mostra('btnCcTrocar', n === 1);
+  $('btnCcCriar').textContent = n === 2 ? 'Confirmar e criar minha conta' : 'Continuar';
+  if (n < 2) $('ccCodEmail').value = '';
+}
+async function ccCarregarConfig() {
+  try { const { data } = await db.rpc('config_publica'); ccTesteLigado = !data || data.teste_gratis !== false; } catch (e) { ccTesteLigado = true; }
+  $('ccCodigoLbl').textContent = ccTesteLigado ? 'Código de teste ou de convite (opcional)' : 'Código de convite (opcional)';
+  $('ccIntro').innerHTML = ccTesteLigado
+    ? 'Tem um código de <b>teste grátis</b> ou de <b>convite</b>? Digite abaixo junto com o seu CPF. Se não tiver código, deixe em branco: você escolhe o plano e paga por PIX.'
+    : 'Foi convidado por alguém? Digite o <b>código de convite</b> e o seu CPF. Se não tiver código, deixe em branco: você escolhe o plano e paga por PIX.';
+}
+function cadContaMostrar(ativo) {
+  $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = 'none'; $('cadContaForm').style.display = ativo ? 'block' : 'none';
+  if (ativo) {
+    ['ccCodigo', 'ccCpf', 'ccNome', 'ccTel', 'ccEmail', 'ccSenha', 'ccSenha2'].forEach(i => { $(i).value = ''; });
+    $('ccAceite').checked = false; $('ccGenero').innerHTML = optsGenero('', 'Selecione…'); ccTipo = '';
+    const r1 = document.querySelector('input[name="ccVagas"][value="1"]'); if (r1) r1.checked = true;
+    ccEtapaMostrar(0); ccCarregarConfig(); authTopo();
+  }
+}
+async function cadContaAcesso() {
+  const codigo = $('ccCodigo').value.trim().toUpperCase(), cpf = $('ccCpf').value.trim();
+  const falha = m => { mostrarErro(m); authTopo(); };
+  if (!validaCPF(cpf)) return falha('Informe um CPF válido.');
+  const b = $('btnCcAcesso'); b.disabled = true; b.textContent = 'Conferindo...';
+  const r = await invocarConta('validar_codigo', { codigo, cpf });
+  b.disabled = false; b.textContent = 'Continuar';
+  if (r.erro) return falha(r.mensagem);
+  ccTipo = r.tipo;
+  const info = $('ccInfo');
+  if (r.tipo === 'teste') info.innerHTML = `🎁 <b>Teste grátis de ${r.dias} dias.</b> Depois, a mensalidade é de ${fmtBRL(PRECO_1)} (1 pessoa) ou ${fmtBRL(PRECO_2)} (2 pessoas), por PIX.`;
+  else if (r.tipo === 'membro') info.innerHTML = `🤝 Convite de <b>${esc(capNome(r.lider))}</b>. Você entra no grupo dele(a) e o pagamento é do grupo. Preencha seus dados e crie a sua senha.`;
+  else info.innerHTML = `💳 <b>Conta sem teste grátis.</b> Escolha o plano abaixo; o PIX aparece logo depois de criar a conta e o acesso é liberado assim que o pagamento é confirmado.`;
+  ccEtapaMostrar(1);
+  setTimeout(() => { const el = $('ccNome'); if (el) el.focus(); }, 80);
 }
 async function cadContaCriar() {
   const v = lerCamposConta('cc'); v.codigo = $('ccCodigo').value.trim().toUpperCase(); v.aceite = $('ccAceite').checked;
+  if (ccTipo === 'pago') { v.codigo = ''; v.vagas = Number((document.querySelector('input[name="ccVagas"]:checked') || {}).value || 1); }
   const falha = (m) => { mostrarErro(m); authTopo(); };
-  if (!v.codigo) return falha('Digite o código de teste grátis.');
   const e = validarCamposConta(v, $('ccSenha2').value); if (e) return falha(e);
   if (!v.aceite) return falha('Para criar a conta é preciso aceitar os termos.');
   const b = $('btnCcCriar'); b.disabled = true;
-  if (ccEtapa === 1) {                       // 1) confere os dados e manda o código de confirmação para o e-mail
+  if (ccEtapa === 1) {                       // confere os dados e manda o código de confirmação para o e-mail
     b.textContent = 'Enviando código...';
     const r = await invocarConta('cadastro_codigo', v);
     b.disabled = false;
     if (r.erro) { b.textContent = 'Continuar'; return falha(r.mensagem); }
-    ccEtapaMostrar(2); notificar('Enviamos um código de 6 números para ' + v.email + '.', 'sucesso', 6000);
+    ccEtapaMostrar(2); notificar('Enviamos um código de 6 números para ' + v.email + '. ' + AVISO_SPAM, 'sucesso', 9000);
     setTimeout(() => $('ccCodEmail').focus(), 80);
     return;
   }
-  const cod = $('ccCodEmail').value.replace(/\D/g, '');   // 2) confirma o e-mail e cria a conta
+  const cod = $('ccCodEmail').value.replace(/\D/g, '');   // confirma o e-mail e cria a conta
   if (cod.length !== 6) { b.disabled = false; return falha('Digite o código de 6 números enviado para o seu e-mail.'); }
   v.codigo_email = cod;
   b.textContent = 'Criando sua conta...';
@@ -3763,7 +4157,9 @@ async function cadContaCriar() {
     mostrarLoading('Preparando seu app...');
     await carregarPerfil(data.user.id);
     esconderLoading();
-    notificar('Conta criada! Seu teste grátis vai até ' + fmtDataBR(r.vencimento) + '.', 'sucesso', 7000);
+    if (r.tipo === 'pago') notificar('Conta criada! Falta só o pagamento do PIX para liberar o acesso.', 'sucesso', 7000);
+    else if (r.tipo === 'membro') notificar('Conta criada! Você já faz parte do grupo.', 'sucesso', 7000);
+    else notificar('Conta criada! Seu teste grátis vai até ' + fmtDataBR(r.vencimento) + '.', 'sucesso', 7000);
   } catch (err) {
     esconderLoading(); cadContaMostrar(false); $('loginUser').value = v.email;
     notificar('Conta criada! Entre com o seu e-mail e a senha.', 'sucesso', 6000);
@@ -3771,25 +4167,26 @@ async function cadContaCriar() {
 }
 async function cadContaReenviar() {
   const v = lerCamposConta('cc'); v.codigo = $('ccCodigo').value.trim().toUpperCase(); v.aceite = $('ccAceite').checked;
+  if (ccTipo === 'pago') { v.codigo = ''; v.vagas = Number((document.querySelector('input[name="ccVagas"]:checked') || {}).value || 1); }
   const b = $('btnCcReenviar'); b.disabled = true;
   const r = await invocarConta('cadastro_codigo', v);
   setTimeout(() => { b.disabled = false; }, 8000);
   if (r.erro) return mostrarErro(r.mensagem);
-  notificar('Novo código enviado para o seu e-mail.', 'sucesso');
+  notificar('Novo código enviado para o seu e-mail. ' + AVISO_SPAM, 'sucesso', 8000);
 }
 
 /* ---- Termos de uso e Política de privacidade (texto genérico: revise com um advogado e ajuste os dados abaixo) ---- */
 const LEGAL = {
   contato: 'ttrgestaofinanceira@gmail.com',
   responsavel: 'TTR Gestão Financeira',
-  atualizado: '11/11/2026'
+  atualizado: '12/11/2026'
 };
 const LEGAL_TXT = {
   termos: () => `<h4>Termos de uso</h4><p class="hint">Última atualização: ${LEGAL.atualizado}</p>
 <p><b>1. Sobre o serviço.</b> O TTR Gestão Financeira (“TTR”) é um aplicativo para organizar finanças pessoais e da casa: orçamento, compras e parcelas, divisão de gastos, porquinhos (metas) e, opcionalmente, controle de vendas e serviços. Ele é oferecido por ${esc(LEGAL.responsavel)}.</p>
-<p><b>2. Conta.</b> Para criar uma conta você precisa de um código de teste válido, ter 18 anos ou mais e informar dados verdadeiros (nome de usuário, CPF, telefone, e-mail e gênero). Você é responsável por manter a sua senha em segredo e por tudo o que acontece na sua conta. O primeiro usuário de um grupo é o “líder” e pode adicionar mais 1 usuário ao mesmo grupo; quem é adicionado passa a ver os dados compartilhados do grupo.</p>
+<p><b>2. Conta.</b> Para criar uma conta você precisa ter 18 anos ou mais, usar um código de teste grátis (quando disponível), um código de convite do líder de um grupo ou escolher um plano pago, e informar dados verdadeiros (nome de usuário, CPF, telefone, e-mail e gênero). Você é responsável por manter a sua senha em segredo e por tudo o que acontece na sua conta. O primeiro usuário de um grupo é o “líder” e pode convidar mais 1 usuário ao mesmo grupo gerando um código ligado ao CPF da pessoa; ela cria o próprio acesso e senha e passa a ver os dados compartilhados do grupo.</p>
 <p><b>3. Teste grátis.</b> O teste dura o número de dias informado no código, a partir da criação da conta. Cada código só pode ser usado uma vez e cada CPF só pode ter uma conta.</p>
-<p><b>4. Mensalidade.</b> Depois do teste, a mensalidade é de R$ 14,90 para 1 usuário ou R$ 19,90 para um grupo com 2 usuários (paga uma única vez pelo grupo), por PIX, e pode ser reajustada com aviso prévio. O vencimento é sempre no mesmo dia do mês. O líder pode trocar o dia do vencimento (de 1 a 28); a diferença de dias é cobrada ou abatida, proporcionalmente, na fatura seguinte. Você recebe a fatura por e-mail e o QR Code no app a partir de 3 dias antes do vencimento. Confirmado o pagamento, o acesso é liberado por mais um mês.</p>
+<p><b>4. Mensalidade.</b> Depois do teste, a mensalidade é de R$ 9,90 para 1 usuário ou R$ 13,90 para um grupo com 2 usuários (paga uma única vez pelo grupo), por PIX, e pode ser reajustada com aviso prévio. Se o plano pago for de 1 usuário e o líder quiser adicionar uma segunda pessoa, é cobrada na hora a diferença de R$ 4,00 e, a partir do mês seguinte, vale o valor de 2 usuários. O vencimento é sempre no mesmo dia do mês. O líder pode trocar o dia do vencimento (de 1 a 28); a diferença de dias é cobrada ou abatida, proporcionalmente, na fatura seguinte. Você recebe a fatura por e-mail e o QR Code no app a partir de 3 dias antes do vencimento. Confirmado o pagamento, o acesso é liberado por mais um mês.</p>
 <p><b>5. Atraso e suspensão.</b> Se o pagamento não for feito até 2 dias após o vencimento, a conta é suspensa: o acesso é bloqueado e seus dados ficam guardados, sem uso, até o pagamento ou o cancelamento. Pago o PIX, o acesso volta.</p>
 <p><b>6. Cancelamento e seus dados.</b> O líder pode cancelar a assinatura a qualquer momento no app. O acesso continua até o fim do período já pago e não há novas cobranças. Você pode baixar uma cópia dos seus dados a qualquer momento, inclusive depois do cancelamento. Pagamentos já feitos não são reembolsados, salvo nos casos previstos em lei (por exemplo, o direito de arrependimento de 7 dias do Código de Defesa do Consumidor, quando aplicável).</p>
 <p><b>7. Uso adequado.</b> Não é permitido usar o TTR para fins ilegais, tentar acessar dados de outras pessoas, burlar a cobrança, copiar ou revender o app, ou sobrecarregar o serviço. Podemos suspender contas que violem estes termos.</p>
@@ -3841,7 +4238,7 @@ async function verificarAssinatura(durante) {
   const a = await consultarAssinatura(); if (!a) return null;
   renderBannerAssinatura();
   if (a.estado === 'suspensa' || a.estado === 'cancelada') {
-    if (durante) { try { sessionStorage.setItem('ttr_suspensa', '1'); } catch (e) {} await db.auth.signOut(); location.reload(); }
+    if (durante) { try { sessionStorage.setItem('ttr_suspensa', '1'); } catch (e) {} await encerrarSessao(); location.reload(); }
     else mostrarSuspenso();
   }
   return a;
@@ -3856,17 +4253,21 @@ function mostrarSuspenso() {
   ['appHeader', 'monthSelector', 'bottomNav'].forEach(i => { const el = $(i); if (el) el.style.display = 'none'; });
   document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   const canc = assinatura && assinatura.estado === 'cancelada';
-  $('suspensoTit').textContent = canc ? 'Conta cancelada' : 'Conta suspensa';
-  $('suspensoIc').textContent = canc ? '📦' : '🔒';
+  const novo = !!(assinatura && assinatura.primeiro_pagamento && !canc);   // conta nova criada sem teste grátis: ainda não pagou
+  $('suspensoTit').textContent = canc ? 'Conta cancelada' : novo ? 'Falta só o pagamento' : 'Conta suspensa';
+  $('suspensoIc').textContent = canc ? '📦' : novo ? '💳' : '🔒';
   $('suspensoTxt').textContent = canc ? 'Sua assinatura foi cancelada. Você pode baixar os seus dados abaixo ou reativar a conta pagando o PIX: o acesso volta na hora.'
+    : novo ? 'Sua conta foi criada! Pague o PIX abaixo para liberar o acesso. Assim que o pagamento for confirmado, você entra na hora.'
     : 'Sua mensalidade não foi paga e a conta foi suspensa. Pague o PIX abaixo: assim que o pagamento for confirmado, o acesso é liberado.';
+  $('btnSuspensoExportar').style.display = novo ? 'none' : 'block';
   $('suspensoScreen').style.display = 'flex';
   carregarPix('suspensoPix');
 }
-async function carregarPix(boxId) {
-  const box = $(boxId); clearInterval(pixTimer);
+async function carregarPix(boxId, opts) {
+  opts = opts || {};
+  const box = $(boxId); clearInterval(pixTimer); box._pixOpts = opts;
   box.innerHTML = '<div class="pix-load">Gerando o PIX…</div>';
-  const r = await invocarConta('pix');
+  const r = await invocarConta('pix', opts.tipo ? { tipo: opts.tipo } : {});
   if (r.erro) { box.innerHTML = `<div class="pix-erro">${esc(r.mensagem)}</div><button class="btn ghost" type="button" data-pix-retry="${boxId}">Tentar de novo</button>`; return; }
   box.innerHTML = `<div class="pix-card"><div class="pix-val">${fmtBRL(r.valor)}</div>
     <img class="pix-qr" src="${esc(r.qr)}" alt="QR Code do PIX">
@@ -3876,7 +4277,11 @@ async function carregarPix(boxId) {
   box._pix = r.copia_cola;
   pixTimer = setInterval(async () => {
     if (!document.body.contains(box) || !box.getClientRects().length) { clearInterval(pixTimer); return; }
-    await invocarConta('conferir');
+    const cf = await invocarConta('conferir', opts.tipo ? { tipo: opts.tipo } : {});
+    if (opts.tipo) {
+      if (cf && cf.pago) { clearInterval(pixTimer); box.innerHTML = '<div class="pix-card"><div class="pix-status ok">✅ Pagamento confirmado!</div></div>'; setTimeout(() => { if (opts.aoPagar) opts.aoPagar(); }, 900); }
+      return;
+    }
     const a = await consultarAssinatura();
     if (a && ['ok', 'ilimitado'].includes(a.estado)) {
       clearInterval(pixTimer);
@@ -3897,16 +4302,16 @@ const sinalBRL = n => (Number(n) >= 0 ? '+ ' : '− ') + fmtBRL(Math.abs(n));
 function renderAssinatura(a) {
   const el = $('assinConteudo');
   if (!a || a.estado === 'ilimitado') { el.innerHTML = '<div class="info-box">Seu acesso não tem cobrança. Nada a pagar por aqui. 🎉</div>'; return; }
-  const rot = { ok: ['Em dia', ''], aviso: ['Vence em breve', 'aviso'], vencida: ['Vencida', 'ruim'], suspensa: ['Suspensa', 'ruim'], cancelada: ['Cancelada', 'ruim'] }[a.estado] || ['—', ''];
+  const rot = { ok: ['Em dia', ''], aviso: ['Vence em breve', 'aviso'], vencida: ['Vencida', 'ruim'], suspensa: [a.primeiro_pagamento ? 'Aguardando o 1º pagamento' : 'Suspensa', 'ruim'], cancelada: ['Cancelada', 'ruim'] }[a.estado] || ['—', ''];
   let h = `<div class="info-box"><span class="assin-badge ${rot[1]}">${a.cancelada && a.estado === 'ok' ? 'Cancelada · ativa até o vencimento' : rot[0]}</span><br>
-    ${a.teste ? '<b>Teste grátis</b>' : '<b>Mensalidade</b>'} · ${a.membros >= 2 ? '2 usuários no grupo' : '1 usuário'}<br>
+    ${a.teste ? '<b>Teste grátis</b>' : '<b>Mensalidade</b>'} · ${Math.max(a.membros, a.vagas || 1) >= 2 ? '2 usuários no grupo' : '1 usuário'}<br>
     ${a.cancelada ? 'Acesso até' : 'Vencimento'}: <b>${fmtDataBR(a.vencimento)}</b>${a.teste ? '' : ` · todo dia <b>${a.dia_venc}</b>`}<br>
-    Valor mensal: <b>${fmtBRL(a.valor_base || a.valor)}</b>${a.membros >= 2 ? ' <small>(paga uma vez só para os dois)</small>' : ''}
+    Valor mensal: <b>${fmtBRL(a.valor_base || a.valor)}</b>${Math.max(a.membros, a.vagas || 1) >= 2 ? ' <small>(paga uma vez só para os dois)</small>' : ''}
     ${Number(a.ajuste) ? `<br>Ajuste de troca de dia: <b>${sinalBRL(a.ajuste)}</b> <small>(entra na próxima fatura: ${fmtBRL(a.valor)})</small>` : ''}</div>`;
   if (a.cancelada && a.estado === 'ok') h += '<p class="hint">Você cancelou a assinatura: não haverá novas cobranças. Depois do vencimento a conta é bloqueada, mas você ainda pode baixar os seus dados.</p>';
   else if (a.estado === 'ok') h += '<p class="hint">O QR Code do PIX aparece aqui 3 dias antes do vencimento. Você também recebe a fatura por e-mail.</p>';
   else h += '<div id="assinPix"></div>';
-  if (a.lider && a.membros < 2 && !a.cancelada) h += `<button class="btn ghost" type="button" id="btnAbrirNovoMembro" style="margin-top:8px;">➕ Adicionar um usuário ao meu grupo (${fmtBRL(19.9)}/mês)</button>`;
+  if (a.lider && a.membros < 2 && !a.cancelada) h += `<button class="btn ghost" type="button" id="btnAbrirNovoMembro" style="margin-top:8px;">➕ Convidar mais 1 usuário para o meu grupo</button>`;
   if (a.lider && a.pode_trocar_dia && ['ok', 'aviso'].includes(a.estado)) h += `<button class="btn ghost" type="button" data-assin="dia" style="margin-top:8px;">🗓️ Trocar o dia do vencimento</button>
     <div id="assinDiaBox" style="display:none;margin-top:8px;"><div class="input-group"><label>Novo dia do vencimento (1 a 28)</label><input type="number" id="diaNovo" min="1" max="28" inputmode="numeric" value="${a.dia_venc}"></div>
     <button class="btn secondary" type="button" data-assin="dia-sim">Ver a diferença</button><div class="hint" id="diaSim" style="margin-top:8px;"></div>
@@ -3955,30 +4360,61 @@ async function baixarMeusDados() {
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   notificar('Arquivo baixado! Guarde em local seguro.', 'sucesso');
 }
+function precoMembroTexto() {
+  const a = assinatura || {};
+  if (a.teste) return `Com 2 usuários, a mensalidade do grupo passa a ser <b>${fmtBRL(PRECO_2)}</b> depois do teste (paga uma única vez, vale para os dois).`;
+  if (Number(a.vagas) >= 2) return `Seu plano já é para 2 pessoas (${fmtBRL(PRECO_2)} por mês).`;
+  return `Seu plano é de 1 pessoa. Para liberar o 2º usuário você paga agora o excedente de <b>${fmtBRL(PRECO_EXCEDENTE)}</b> por PIX; a partir do próximo mês o grupo paga <b>${fmtBRL(PRECO_2)}</b> por mês (uma vez só, para os dois).`;
+}
 function abrirModalNovoMembro() {
-  ['nmNome', 'nmCpf', 'nmTel', 'nmEmail', 'nmSenha'].forEach(i => { $(i).value = ''; });
-  $('nmGenero').innerHTML = optsGenero('', 'Selecione…');
+  $('nmCpf').value = ''; $('nmForm').style.display = 'block'; $('nmPix').innerHTML = ''; $('nmResultado').style.display = 'none';
+  $('nmHint').innerHTML = 'Gere um código de convite para a pessoa entrar no seu grupo (ela vê as mesmas contas e divide o orçamento). ' + precoMembroTexto();
   abrirModal('modalNovoMembro');
 }
 async function criarMembro() {
-  const v = lerCamposConta('nm');
-  const e = validarCamposConta(v); if (e) return notificar(e, 'erro');
-  const b = $('btnNmCriar'); b.disabled = true; b.textContent = 'Adicionando...';
-  const r = await invocarConta('convidar', v);
-  b.disabled = false; b.textContent = 'Adicionar usuário';
+  const cpf = $('nmCpf').value.trim();
+  if (!validaCPF(cpf)) return notificar('Informe um CPF válido.', 'erro');
+  const b = $('btnNmCriar'); b.disabled = true; b.textContent = 'Gerando...';
+  const r = await invocarConta('convidar', { cpf });
+  b.disabled = false; b.textContent = 'Gerar código de convite';
   if (r.erro) return notificar(r.mensagem, 'erro');
-  fecharModal('modalNovoMembro');
-  notificar('Usuário adicionado ao seu grupo! Ele já pode entrar.', 'sucesso', 6000);
-  await consultarAssinatura();
-  if ($('modalAssinatura').classList.contains('open')) renderAssinatura(assinatura);
-  try { await carregarDados(); } catch (err) {}
+  if (r.precisa_pagar) {              // plano de 1 pessoa: cobra o excedente na hora e só então gera o código
+    $('nmForm').style.display = 'none';
+    $('nmPix').innerHTML = `<div class="info-box" style="margin-bottom:10px;">Para liberar o 2º usuário, pague o excedente de <b>${fmtBRL(r.valor)}</b>. Assim que o pagamento for confirmado, o código de convite é gerado.</div><div id="nmPixBox"></div>`;
+    carregarPix('nmPixBox', { tipo: 'excedente', aoPagar: async () => { await consultarAssinatura(); criarMembro(); } });
+    return;
+  }
+  mostrarConviteGerado(r);
+  consultarAssinatura().then(() => { if ($('modalAssinatura').classList.contains('open')) renderAssinatura(assinatura); });
 }
+function textoConvite(r) {
+  const url = r.app_url || (location.origin + location.pathname);
+  return `Oi! 👋 ${capNome(r.lider || currentUser.nome)} te convidou para o TTR Gestão Financeira.\n\nPara criar o seu acesso:\n1) Abra: ${url}\n2) Toque em "Criar conta"\n3) Digite o código de convite *${r.codigo}* e o seu CPF\n\nDepois é só preencher seus dados e criar a sua senha. O código vale até ${fmtDataBR(r.expira_em)}.`;
+}
+function mostrarConviteGerado(r) {
+  $('nmForm').style.display = 'none'; $('nmPix').innerHTML = '';
+  $('nmCodigo').textContent = r.codigo; $('nmValidade').textContent = 'Vale até ' + fmtDataBR(r.expira_em) + ' · só funciona com o CPF informado.';
+  $('nmTexto').value = textoConvite(r); $('nmResultado').style.display = 'block';
+}
+function nmWpp() { window.open('https://wa.me/?text=' + encodeURIComponent($('nmTexto').value), '_blank'); }
+async function nmCopiar() { const ok = await copiarTexto($('nmTexto').value); notificar(ok ? 'Mensagem copiada!' : 'Não foi possível copiar. Selecione o texto e copie manualmente.', ok ? 'sucesso' : 'aviso'); }
 
 /* ---- admin: códigos de teste grátis e assinaturas ---- */
 function admAba(qual) {
   $('admCodigos').style.display = qual === 'cod' ? 'block' : 'none'; $('admAssinaturas').style.display = qual === 'ass' ? 'block' : 'none';
   $('tabAdmCod').className = 'btn' + (qual === 'cod' ? '' : ' ghost'); $('tabAdmAss').className = 'btn' + (qual === 'ass' ? '' : ' ghost');
   if (qual === 'ass') admCarregarAssinaturas(); else admCarregarCodigos();
+}
+function textoTesteGratis(on) { $('cfgTesteTxt').textContent = on ? 'Ligado: o “Criar conta” aceita códigos de teste' : 'Desligado: só conta paga ou convite de líder'; }
+async function carregarTesteGratisCfg() {
+  try { const { data } = await db.rpc('config_publica'); const on = !data || data.teste_gratis !== false; $('cfgTesteGratis').checked = on; textoTesteGratis(on); }
+  catch (e) { $('cfgTesteTxt').textContent = 'Não foi possível ler (rode o SQL novo)'; }
+}
+async function alternarTesteGratis() {
+  const on = $('cfgTesteGratis').checked;
+  const { error } = await db.rpc('admin_config_teste', { p_ativo: on });
+  if (error) { $('cfgTesteGratis').checked = !on; return notificar(/function|schema cache/i.test(error.message) ? 'Rode o SQL novo (20261112_conta_v3.sql) no Supabase.' : error.message, 'erro'); }
+  textoTesteGratis(on); notificar(on ? 'Teste grátis ligado.' : 'Teste grátis desligado.', 'sucesso');
 }
 async function abrirAdminAssin(e) {
   if (e) e.preventDefault();
@@ -4018,7 +4454,7 @@ async function enviarCodigoEmail() {
   const r = await invocarConta('enviar_convite', { codigo: envCod.codigo, email });
   b.disabled = false;
   if (r.erro) return notificar(r.mensagem, 'erro');
-  notificar('Código enviado por e-mail!', 'sucesso'); fecharModal('modalEnviarCodigo');
+  notificar('Código enviado por e-mail! Avise a pessoa para conferir também o Spam.', 'sucesso', 6000); fecharModal('modalEnviarCodigo');
 }
 async function admCarregarCodigos() {
   const box = $('admListaCodigos');
@@ -4068,7 +4504,7 @@ async function fazerLogin() {
   try {
     let emailParaLogin = userInput;
     if (!userInput.includes('@')) {
-      const { data: pNome } = await db.from('profiles').select('email').eq('nome', userInput.toLowerCase()).maybeSingle();
+      const { data: pNome } = await db.from('profiles').select('email').eq('nome', userInput.toLowerCase().replace(/\s+/g, ' ')).maybeSingle();
       if (pNome?.email) emailParaLogin = pNome.email;
       else if (userInput.replace(/\D/g, '').length === 11) {
         const { data: pCpf } = await db.from('profiles').select('email').eq('cpf', userInput).maybeSingle();
@@ -4088,9 +4524,14 @@ async function fazerLogin() {
 }
 
 async function carregarPerfil(userId) {
+  await OFF.definirUsuario(userId);
   const { data } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
+  if (!data && OFF.estaOffline()) {   // sem internet e sem cópia guardada: não derruba o login
+    esconderLoading(); $('authScreen').style.display = 'flex';
+    return mostrarErro('Sem internet. Conecte-se para entrar pela primeira vez neste aparelho.');
+  }
   if (!data) {
-    await db.auth.signOut();
+    await encerrarSessao();
     $('authScreen').style.display = 'flex';
     return mostrarErro('Perfil não encontrado.');
   }
@@ -4102,7 +4543,7 @@ async function carregarPerfil(userId) {
   $('appHeader').style.display = 'flex';
   $('monthSelector').style.display = 'flex';
   $('bottomNav').style.display = 'grid';
-  $('nomeUsuario').textContent = currentUser.nome;
+  $('nomeUsuario').textContent = capNome(currentUser.nome);
   aplicarPrivacidade(lerPrivacidade());
 
   // 1º login do grupo: copia categorias/motivos/tipos padrão do admin para as tabelas do usuário (uma única vez; sem SQL novo, só ignora)
@@ -4158,7 +4599,12 @@ function renderFiltroPessoa() {
 
 function atualizarSelectCategorias() { /* o campo de categoria lê categoriasOrcamento direto */ }
 
-async function sair() { await db.auth.signOut(); location.reload(); }
+async function sair() {
+  mostrarLoading('Saindo...');
+  let pode = true; try { pode = await OFF.antesDeSair(); } catch (e) {}
+  if (!pode) { esconderLoading(); return; }
+  await encerrarSessao(); location.reload();
+}
 
 /* =========================================
    CARGA DE DADOS
@@ -6369,6 +6815,8 @@ function ligarEventos() {
   $('btnCriarConta').addEventListener('click', () => cadContaMostrar(true));
   $('btnCcVoltar').addEventListener('click', () => cadContaMostrar(false));
   $('btnCcCriar').addEventListener('click', cadContaCriar);
+  $('btnCcAcesso').addEventListener('click', cadContaAcesso);
+  $('btnCcTrocar').addEventListener('click', () => ccEtapaMostrar(0));
   document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('[data-legal]'); if (a) { e.preventDefault(); abrirLegal(a.dataset.legal); } });
   $('btnCcReenviar').addEventListener('click', cadContaReenviar);
   $('btnCcEditar').addEventListener('click', () => ccEtapaMostrar(1));
@@ -6379,12 +6827,18 @@ function ligarEventos() {
   $('btnSuspensoExportar').addEventListener('click', baixarMeusDados);
   $('ccCodigo').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
   ['ccCpf', 'nmCpf'].forEach(id => $(id).addEventListener('input', e => mascaraCPF(e.target)));
-  ['ccTel', 'nmTel'].forEach(id => $(id).addEventListener('input', e => mascaraTelefone(e.target)));
-  ['ccNome', 'nmNome'].forEach(id => $(id).addEventListener('input', e => e.target.value = e.target.value.toLowerCase()));
+  ['ccTel'].forEach(id => $(id).addEventListener('input', e => mascaraTelefone(e.target)));
+  ['ccNome', 'rsNome'].forEach(id => $(id).addEventListener('input', e => {   // inicial maiúscula em cada nome, enquanto digita
+    const t = e.target, v = capNome(t.value);
+    if (v !== t.value) { const p = t.selectionStart; t.value = v; try { t.setSelectionRange(p, p); } catch (x) {} }
+  }));
   $('btnCfgAssin').addEventListener('click', abrirModalAssinatura);
   $('btnCfgAdminAssin').addEventListener('click', abrirAdminAssin);
   $('bannerAssinatura').addEventListener('click', e => { if (e.target.closest('#btnBannerPagar')) abrirModalAssinatura(); });
   $('btnNmCriar').addEventListener('click', criarMembro);
+  $('btnNmWpp').addEventListener('click', nmWpp);
+  $('btnNmCopiar').addEventListener('click', nmCopiar);
+  $('cfgTesteGratis').addEventListener('change', alternarTesteGratis);
   $('btnSuspensoSair').addEventListener('click', sair);
   $('tabAdmCod').addEventListener('click', () => admAba('cod'));
   $('tabAdmAss').addEventListener('click', () => admAba('ass'));
@@ -6394,7 +6848,7 @@ function ligarEventos() {
     const t = ev.target.closest && ev.target.closest('button'); if (!t) return;
     if (t.id === 'btnAbrirNovoMembro') abrirModalNovoMembro();
     else if (t.dataset.pixCopiar) { const bx = $(t.dataset.pixCopiar); if (bx && bx._pix) { const ok = await copiarTexto(bx._pix); t.textContent = ok ? '✅ Copiado!' : 'Copie manualmente o código abaixo'; setTimeout(() => { t.textContent = '📋 Copiar PIX copia e cola'; }, 2500); } }
-    else if (t.dataset.pixRetry) carregarPix(t.dataset.pixRetry);
+    else if (t.dataset.pixRetry) { const bx = $(t.dataset.pixRetry); carregarPix(t.dataset.pixRetry, bx && bx._pixOpts); }
   });
   $('btnRsSalvar').addEventListener('click', recSenhaSalvar);
   $('rsCpf').addEventListener('input', e => mascaraCPF(e.target));
@@ -6578,10 +7032,25 @@ function ligarEventos() {
 }
 
 async function initAuth() {
+  preencherMarca();
   ligarEventos();
+  OFF.hooks.aviso = (m, t) => notificar(m, t, 6000);
+  OFF.hooks.aoSincronizar = async () => { if (currentUser) { await carregarDados(); } };
+  OFF.hooks.confirmarSair = n => confirmar({ titulo: 'Há alterações não enviadas', mensagem: `${n} ${n === 1 ? 'alteração' : 'alterações'} ainda não ${n === 1 ? 'foi enviada' : 'foram enviadas'} ao servidor (sem internet). Elas continuam guardadas neste aparelho e serão enviadas quando você entrar de novo com internet. Sair mesmo assim?`, confirmarTexto: 'Sair mesmo assim', tipo: 'perigo' });
+  OFF.iniciarEventos();
   mostrarLoading('Carregando seus dados...');
   try {
-    const { data: { session } } = await db.auth.getSession();
+    let session = null;
+    try { ({ data: { session } } = await db.auth.getSession()); } catch (e) {}
+    if (!session && !navigator.onLine) {   // abriu o app sem internet com o acesso vencido: usa o último usuário deste aparelho (só se não exigir senha)
+      let uidOff = null; try { uidOff = localStorage.getItem('ttr_last_uid'); } catch (e) {}
+      if (uidOff && modoAcesso(uidOff) !== 'senha') {
+        if (modoAcesso(uidOff) !== 'conectado') { esconderLoading(); await bloquearApp(uidOff, ''); mostrarLoading('Carregando seus dados...'); }
+        OFF.marcarOffline();
+        await carregarPerfil(uidOff);
+        return;
+      }
+    }
     if (session) {
       // quem escolheu entrar com biometria/Face ID precisa confirmar antes de ver qualquer dado
       if (modoAcesso(session.user.id) !== 'conectado') { esconderLoading(); await bloquearApp(session.user.id, session.user.email); mostrarLoading('Carregando seus dados...'); }
