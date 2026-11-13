@@ -306,6 +306,11 @@
   .gerenciar-filtros { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
   .gerenciar-filtros input { flex: 1; min-width: 0; padding: 10px 12px; background: rgba(var(--w),.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); }
 
+  .gerenciar-item.destaque { animation: destaqueParcela 2.4s ease; }
+  @keyframes destaqueParcela { 0%,60% { box-shadow: 0 0 0 3px var(--primary); } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .venc-item { cursor: pointer; }
+  .hist-ad { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 11px; margin-top:8px; border:1px solid var(--border); border-radius:12px; background: var(--card2); font-size:13px; }
+  .hist-ad small { display:block; color: var(--muted); }
   .gerenciar-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
   .gerenciar-item .ger-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
   .gerenciar-item .ger-title { font-size: 15px; font-weight: 700; color: var(--text); word-break: break-word; }
@@ -374,6 +379,12 @@
   .loading-logo { position: relative; width: 104px; height: 104px; display: flex; align-items: center; justify-content: center; }
   .loading-logo::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 3px solid rgba(var(--w),.08); border-top-color: var(--primary); border-right-color: var(--primary2); animation: loadSpin 1s linear infinite; }
   @keyframes loadSpin { to { transform: rotate(360deg); } }
+  /* bloqueio de toques enquanto o app espera o servidor (e-mail, PIX…) */
+  #bloqueioAcao { position: fixed; inset: 0; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.35); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); touch-action: none; }
+  #bloqueioAcao.on { display: flex; }
+  #bloqueioAcao .bq-box { background: var(--card-solid); color: var(--text); border: 1px solid var(--border-strong); border-radius: 16px; padding: 18px 22px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: var(--shadow-lg); }
+  #bloqueioAcao .bq-spin { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgba(var(--pr),.25); border-top-color: var(--primary); animation: loadSpin .8s linear infinite; }
+
   .loading-sub { font-size: 13px; color: var(--muted); text-align: center; margin-top: 4px; }
   .loading-brand { text-align: center; animation: brandIn .7s cubic-bezier(.2,.8,.2,1) both; }
   .loading-title { font-size: 44px; font-weight: 800; letter-spacing: 10px; padding-left: 10px; line-height: 1; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 18px rgba(var(--pr),.35)); }
@@ -527,6 +538,7 @@
   .cfg-titulo:first-of-type { margin-top: 4px; }
   .cfg-item { display: flex; align-items: center; gap: 12px; width: 100%; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--text); font: inherit; text-align: left; cursor: pointer; margin-bottom: 8px; }
   .cfg-item:hover { border-color: var(--primary); }
+  .cfg-switch input { width: 22px; height: 22px; flex: none; accent-color: var(--primary); margin: 0; }
   .cfg-ic { font-size: 20px; }
   .cfg-tx { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .cfg-tx strong { font-size: 14px; }
@@ -951,7 +963,7 @@
     </div>
     <div id="msgErro" class="msg-erro"></div>
     <div id="loginForm">
-      <div class="input-group"><label>E-mail, CPF ou nome e sobrenome</label><input type="text" id="loginUser" placeholder="Como você se cadastrou" autocomplete="username"></div>
+      <div class="input-group"><label>Dados de acesso</label><input type="text" id="loginUser" placeholder="E-mail, CPF ou nome e sobrenome" autocomplete="username"></div>
       <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="loginSenha" placeholder="Digite sua senha" autocomplete="current-password"><button type="button" class="toggle-password" data-toggle="loginSenha" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
       <button class="btn" id="btnLogin">Entrar</button>
       <button class="btn secondary" id="btnCriarConta" type="button" style="margin-top:8px;">Criar conta</button>
@@ -1560,7 +1572,7 @@
     <button class="cfg-item" id="btnCfgSaldos" type="button"><span class="cfg-ic">💰</span><span class="cfg-tx"><strong>Contas e saldos</strong><small>Saldo, projeção e patrimônio</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnCfgRelatorios" type="button"><span class="cfg-ic">📊</span><span class="cfg-tx"><strong>Relatórios</strong><small>Comparativo por mês, Excel e PDF</small></span><span class="cfg-seta">›</span></button>
     <button class="cfg-item" id="btnCfgPix" type="button"><span class="cfg-ic">💠</span><span class="cfg-tx"><strong>Minha chave Pix</strong><small id="cfgPixResumo">Vai em todas as cobranças</small></span><span class="cfg-seta">›</span></button>
-    <label class="check-row" id="btnCfgA11y" style="margin:10px 4px 0;font-size:13px;color:var(--muted);cursor:pointer;"><input type="checkbox" id="chkA11y"><span>Leitor de tela (acessibilidade)</span></label>
+    <label class="cfg-item cfg-switch" id="btnCfgA11y" for="chkA11y"><span class="cfg-ic">♿</span><span class="cfg-tx"><strong>Leitor de tela</strong><small>Descreve botões e campos para quem usa leitor de tela</small></span><input type="checkbox" id="chkA11y"></label>
     <button class="cfg-item" id="btnCfgGuia" type="button"><span class="cfg-ic">🧭</span><span class="cfg-tx"><strong>Guia rápido</strong><small>Como usar o app</small></span><span class="cfg-seta">›</span></button>
     <div class="cfg-titulo" id="cfgTituloAssin" style="display:none;">Assinatura</div>
     <button class="cfg-item" id="btnCfgAssin" type="button" style="display:none;"><span class="cfg-ic">💳</span><span class="cfg-tx"><strong>Minha assinatura</strong><small id="cfgAssinResumo">Vencimento, valor e PIX</small></span><span class="cfg-seta">›</span></button>
@@ -1745,6 +1757,7 @@
     <div class="input-group"><label>Valor adiantado</label><input type="text" class="money" id="adValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
     <p class="hint" id="adPrevia"></p>
     <button class="btn" id="btnSalvarAdiantamento">Registrar adiantamento</button>
+    <div id="adHistorico"></div>
   </div>
 </div>
 
@@ -3846,37 +3859,72 @@ async function iniciarPrimeiroAcesso() {
   const u = currentUser; if (!u || lsGet(chPrimeiro(u.id))) return;
   lsSet(chPrimeiro(u.id), '1'); // aparece uma única vez por aparelho; depois dá para mudar em Configurações
   const passos = [];
-  if (await bioDisponivel() && !lsGet(chBio(u.id))) passos.push('bio');
-  const sub = pushSuportado() ? await subAtualPush() : null;
-  if (!(pushSuportado() && Notification.permission === 'granted' && sub)) passos.push('notif');
-  if (passos.length) onbPasso(passos, 0); else nvGuiaPrimeira();
+  try { if (await bioDisponivel() && !lsGet(chBio(u.id))) passos.push('bio'); } catch (e) {}
+  try {
+    const sub = pushSuportado() ? await subAtualPush() : null;
+    if (!(pushSuportado() && Notification.permission === 'granted' && sub)) passos.push('notif');
+  } catch (e) {}
+  if (!ehInstalado()) passos.push('instalar');
+  passos.push('tema', 'pix', 'a11y', 'modulos');
+  onbPasso(passos, 0);
 }
 function onbPasso(passos, i) {
   const tipo = passos[i], corpo = $('onbCorpo');
-  const prox = () => { if (i + 1 < passos.length) onbPasso(passos, i + 1); else { fecharModal('modalOnboarding'); nvGuiaPrimeira(); } };
+  const ultimo = i + 1 >= passos.length;
+  const prox = () => { if (!ultimo) onbPasso(passos, i + 1); else { fecharModal('modalOnboarding'); nvGuiaPrimeira(); } };
   const cab = `<div class="onb-passos">Passo ${i + 1} de ${passos.length}</div>`;
+  const rod = (ok, nao) => `<button class="btn" id="onbOk" type="button">${ok}</button><button class="btn ghost" id="onbNao" type="button">${nao}</button><button class="btn ghost" id="onbPular" type="button">Pular o resto e começar</button>`;
+  let aoPular = null;
   if (tipo === 'bio') {
-    corpo.innerHTML = `${cab}<div class="onb-ic">🔐</div><h3>Entrar com ${esc(bioNome())}</h3><p>Cadastre agora e, nas próximas vezes, o app pede ${esc(bioNome())} ao abrir e sempre que você voltar a ele depois de minimizar ou bloquear o celular. Você pode mudar isso depois em Configurações.</p><button class="btn" id="onbOk" type="button">Cadastrar ${esc(bioNome())}</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`;
+    corpo.innerHTML = `${cab}<div class="onb-ic">🔐</div><h3>Entrar com ${esc(bioNome())}</h3><p>Cadastre agora e, nas próximas vezes, o app pede ${esc(bioNome())} ao abrir e sempre que você voltar a ele depois de minimizar ou bloquear o celular. Você pode mudar isso depois em Configurações.</p>${rod('Cadastrar ' + esc(bioNome()), 'Agora não')}`;
     $('onbOk').onclick = async () => {
       semBloqueioPor(60000);
       const b = $('onbOk'); b.disabled = true;
       try { await bioCadastrar(currentUser); notificar(`${ehIOS() ? 'Face ID' : 'Biometria'} cadastrado! O app vai pedir ao abrir.`, 'sucesso'); prox(); }
       catch (e) { alert('Não foi possível cadastrar: ' + bioErroTexto(e)); b.disabled = false; }
     };
-  } else {
+  } else if (tipo === 'notif') {
     const ok = pushSuportado();
     corpo.innerHTML = ok
-      ? `${cab}<div class="onb-ic">🔔</div><h3>Ativar notificações</h3><p>Receba lembretes de parcelas vencendo e de quem te deve. Ao tocar em ativar, enviamos um aviso agora para confirmar que funcionou. Os lembretes chegam todo dia às <b>12:00</b>; para mudar o horário ou desativar, é só entrar em <b>Configurações → Notificações</b>.</p><button class="btn" id="onbOk" type="button">Ativar notificações</button><button class="btn ghost" id="onbNao" type="button">Agora não</button>`
-      : `${cab}<div class="onb-ic">🔔</div><h3>Notificações</h3><p>Este navegador não recebe notificações. No iPhone, adicione o app à Tela de Início e abra por lá; então a opção de ativar aparece aqui.</p><button class="btn" id="onbNao" type="button">Entendi</button>`;
+      ? `${cab}<div class="onb-ic">🔔</div><h3>Ativar notificações</h3><p>Receba lembretes de parcelas vencendo e de quem te deve. Ao tocar em ativar, enviamos um aviso agora para confirmar que funcionou. Os lembretes chegam todo dia às <b>12:00</b>; para mudar o horário ou desativar, é só entrar em <b>Configurações → Notificações</b>.</p>${rod('Ativar notificações', 'Agora não')}`
+      : `${cab}<div class="onb-ic">🔔</div><h3>Notificações</h3><p>Este navegador não recebe notificações. No iPhone, adicione o app à Tela de Início e abra por lá; então a opção de ativar aparece aqui.</p>${rod('Entendi', 'Continuar')}`;
     if (ok) $('onbOk').onclick = async () => {
       const b = $('onbOk'); b.disabled = true;
       const feito = await ativarPush();
       b.disabled = false;
       if (feito) prox();
       else if (pushSuportado() && Notification.permission === 'denied') { notificar('Sem problema: as notificações ficaram desligadas. Para receber lembretes, libere nas configurações do navegador e ative em Configurações → Notificações.', 'info', 9000); prox(); }
+    }; else $('onbOk').onclick = prox;
+  } else if (tipo === 'instalar') {
+    corpo.innerHTML = `${cab}<div class="onb-ic">📲</div><h3>Instalar o app</h3><p>Instalando, o TTR fica na tela inicial do celular, abre em tela cheia e as notificações funcionam melhor.</p>${rod('Instalar agora', 'Agora não')}`;
+    $('onbOk').onclick = async () => { await instalarApp(); prox(); };
+  } else if (tipo === 'tema') {
+    corpo.innerHTML = `${cab}<div class="onb-ic">🎨</div><h3>Escolha o visual</h3><p>Toque em um tema para ver como fica. Dá para trocar quando quiser em Configurações.</p><div class="tema-grid">${TEMAS.map(t => `<button type="button" class="tema-op ${temaEfetivo(temaPref) === t.id ? 'ativo' : ''}" data-tema="${t.id}"><span>${t.ic} ${esc(t.nome)}</span></button>`).join('')}</div>${rod('Continuar', 'Manter o atual')}`;
+    corpo.querySelectorAll('[data-tema]').forEach(b => b.onclick = () => { aplicarTema(b.dataset.tema, false); corpo.querySelectorAll('[data-tema]').forEach(x => x.classList.toggle('ativo', x === b)); });
+    $('onbOk').onclick = prox;
+  } else if (tipo === 'pix') {
+    corpo.innerHTML = `${cab}<div class="onb-ic">💸</div><h3>Sua chave Pix</h3><p>Se você cobra pessoas pelo app, a chave vai junto em todas as cobranças. É opcional.</p><input id="onbPix" placeholder="CPF, e-mail, telefone ou chave aleatória" value="${esc(pixChave())}" autocomplete="off">${rod('Salvar e continuar', 'Agora não')}`;
+    $('onbOk').onclick = () => {
+      const v = $('onbPix').value.trim();
+      if (v) {
+        lsSet('ttr_pix_' + currentUser.id, v);
+        db.from('profiles').update({ pix_chave: v }).eq('id', currentUser.id).then(r => { if (!r.error) currentUser.pix_chave = v; }, () => {});
+        notificar('Chave Pix salva.', 'sucesso');
+      }
+      prox();
     };
+  } else if (tipo === 'a11y') {
+    corpo.innerHTML = `${cab}<div class="onb-ic">♿</div><h3>Leitor de tela</h3><p>Deixe ligado se você usa leitor de tela (TalkBack, VoiceOver): o app passa a descrever botões e campos. Se não usa, não muda nada para você.</p><label class="cfg-item cfg-switch" for="onbA11y"><span class="cfg-tx"><strong>Descrever botões e campos</strong></span><input type="checkbox" id="onbA11y" ${a11yLigada() ? 'checked' : ''}></label>${rod('Continuar', 'Deixar como está')}`;
+    $('onbA11y').onchange = () => { const c = $('chkA11y'); if (c) { c.checked = $('onbA11y').checked; c.dispatchEvent(new Event('change')); } };
+    $('onbOk').onclick = prox;
+  } else {
+    corpo.innerHTML = `${cab}<div class="onb-ic">🧩</div><h3>O que você quer usar?</h3><p>Ligue só o que faz sentido para você. Dá para mudar depois em Configurações → Módulos.</p>${Object.entries(MODULOS).map(([k, m]) => `<label class="mod-row ${moduloAtivo(k) ? 'on' : ''}"><span class="mod-ic">${m.icone}</span><span class="mod-tx"><strong>${esc(m.nome)}</strong><small>${esc(m.desc)}</small></span><input type="checkbox" data-mod="${k}" ${moduloAtivo(k) ? 'checked' : ''}></label>`).join('')}${rod('Concluir', 'Agora não')}`;
+    corpo.querySelectorAll('[data-mod]').forEach(c => c.onchange = () => { c.closest('.mod-row').classList.toggle('on', c.checked); definirModulo(c.dataset.mod, c.checked); });
+    $('onbOk').onclick = prox;
   }
   $('onbNao').onclick = () => { if (tipo === 'notif') notificar('Tudo bem! Você pode ativar as notificações quando quiser em Configurações → Notificações.', 'info', 7000); prox(); };
+  $('onbPular').onclick = () => { fecharModal('modalOnboarding'); nvGuiaPrimeira(); };
+  if (ultimo) $('onbPular').style.display = 'none';
   abrirModal('modalOnboarding');
 }
 
@@ -4008,7 +4056,7 @@ async function ativarPush() {
     $('notifAtivo').checked = true;         // liga os lembretes
     await salvarNotif(true);
     // aviso de confirmação: só diz que deu certo se a notificação realmente foi enviada
-    const { data, error: eTeste } = await db.functions.invoke('enviar-notificacoes', { body: { teste: true } });
+    bloquearTela(true, 'Enviando o aviso de teste…'); let data, eTeste; try { ({ data, error: eTeste } = await db.functions.invoke('enviar-notificacoes', { body: { teste: true } })); } finally { bloquearTela(false); }
     if (eTeste) throw eTeste;
     if (data && data.enviados) notificar('Notificações ativadas! Os lembretes chegam às ' + ($('notifHora').value || '12:00') + '. Para mudar o horário, vá em Configurações → Notificações.', 'sucesso', 7000);
     else notificar('Notificações ativadas, mas o aviso de confirmação não chegou. Confira as permissões do app.', 'aviso');
@@ -4064,7 +4112,7 @@ function mostrarAlertaVencimentos(forcar) {
   if (!venc.length && !hoje.length) return;
   _alertaVencMostrado = true;
   const soma = l => l.reduce((s, p) => s + faltaParcela(p), 0);
-  const item = (p, cls, sub) => `<div class="venc-item ${cls}"><div><div style="font-weight:600;">${esc(capIni(p.nome_compra))}${p.parcela_referencia && p.parcela_referencia !== '1/1' ? ' · ' + esc(p.parcela_referencia) : ''}</div><small>${esc(sub)} · ${esc(rotuloPagto(p))}</small></div><strong class="sensivel">${fm(faltaParcela(p))}</strong></div>`;
+  const item = (p, cls, sub) => `<div class="venc-item ${cls}" role="button" tabindex="0" data-pid="${esc(p.id)}"><div><div style="font-weight:600;">${esc(capIni(p.nome_compra))}${p.parcela_referencia && p.parcela_referencia !== '1/1' ? ' · ' + esc(p.parcela_referencia) : ''}</div><small>${esc(sub)} · ${esc(rotuloPagto(p))}</small></div><strong class="sensivel">${fm(faltaParcela(p))}</strong></div>`;
   let h = '';
   if (venc.length) h += `<div class="venc-sec venc">⚠️ Vencidas (${venc.length}) · <span class="sensivel">${fm(soma(venc))}</span></div>` + venc.map(p => item(p, 'venc', rotuloAtraso(diasAtraso(p)) + ' (' + dataBR(p.data_parcela) + ')')).join('');
   if (hoje.length) h += `<div class="venc-sec hoje">⏰ Vencem hoje (${hoje.length}) · <span class="sensivel">${fm(soma(hoje))}</span></div>` + hoje.map(p => item(p, 'hoje', 'Vence hoje')).join('');
@@ -4072,6 +4120,23 @@ function mostrarAlertaVencimentos(forcar) {
   $('tituloVencimentos').textContent = venc.length ? 'Parcelas vencidas' : 'Vencem hoje';
   abrirModal('modalVencimentos');
 }
+function irParaParcela(id) {
+  const p = state.compras.find(c => String(c.id) === String(id)); if (!p) return;
+  fecharModal('modalVencimentos');
+  state.mesesSelecionados = [p.mes_referencia];
+  state.filtroAtivo = 'all'; state.filtroMotivo = null; state.filtroPagto = rotuloPagto(p);
+  document.querySelectorAll('#filtros button').forEach(x => x.classList.toggle('active', x.dataset.filter === 'all'));
+  atualizarLabelMes();
+  mudarAba('inclusao');
+  renderInclusao();
+  setTimeout(() => {
+    if (ehCartaoCredito(p.tipo_pagamento)) { const l = $('listaPagamentos'); if (l) l.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    const el = document.querySelector(`#listaCompras [data-pid="${(window.CSS && CSS.escape) ? CSS.escape(String(p.id)) : String(p.id)}"]`);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('destaque'); setTimeout(() => el.classList.remove('destaque'), 2600); } else rolarParaLista();
+  }, 200);
+}
+document.addEventListener('click', e => { const it = e.target.closest && e.target.closest('#listaVencimentos .venc-item'); if (it) irParaParcela(it.dataset.pid); });
+document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('#listaVencimentos .venc-item')) { e.preventDefault(); irParaParcela(e.target.dataset.pid); } });
 function verVencimentos() {
   const { venc, hoje } = listaVencimentos();
   const meses = [...new Set([...venc, ...hoje].map(p => p.mes_referencia))].sort();
@@ -4111,13 +4176,13 @@ function cardParcela(p, modo) {
   else if (p.pagamento && dataBR(p.data_pagamento)) extra = `<div style="grid-column:1/-1;">✅ Pago em ${dataBR(p.data_pagamento)}</div>`;
   let acoes = '';
   const desf = `<button class="acao-btn txt" data-act="desfazer-pgto" data-id="${esc(p.id)}" title="Desfazer pagamento">↩️ Desfazer pagamento</button>`;
-  if (modo === 'pagas') acoes = desf;
-  else if (ehCartaoCredito(p.tipo_pagamento)) acoes = (p.pagamento || par ? desf : '') + (p.pagamento ? '' : `<span class="pago-cartao">💳 Paga pela fatura</span>`);
+  if (ehCartaoCredito(p.tipo_pagamento)) acoes = `<span class="pago-cartao">💳 ${p.pagamento ? 'Paga pela fatura' : 'Paga pela fatura · use Adiantar'}</span>`;
+  else if (modo === 'pagas') acoes = desf;
   else if (!p.pagamento) acoes = `<button class="btn-pagar" data-act="pagar-parcela" data-id="${esc(p.id)}">${par ? '✅ Pagar restante' : '✅ Pagar parcela'}</button>` + (par ? desf : '');
   else acoes = desf;
   if (modo === 'lista') acoes += `<button class="acao-btn txt" data-act="est-parcela" data-id="${esc(p.id)}" title="Estornar esta parcela">↪️ Estornar</button><button class="acao-btn txt" data-act="del-parcela" data-id="${esc(p.id)}" title="Excluir esta parcela" style="color:var(--danger-text);">🗑️ Excluir</button>`;
   const tagVenc = venc2 ? `<span class="venc-tag">⚠️ ${esc(rotuloAtraso(diasAtraso(p)))}</span>` : hoje2 ? '<span class="venc-tag hoje">⏰ Vence hoje</span>' : '';
-  return `<div class="gerenciar-item${venc2 ? ' vencida' : hoje2 ? ' hoje' : ''}"${p.pagamento && modo === 'lista' ? ' style="opacity:.78;"' : ''}>
+  return `<div class="gerenciar-item${venc2 ? ' vencida' : hoje2 ? ' hoje' : ''}" data-pid="${esc(p.id)}"${p.pagamento && modo === 'lista' ? ' style="opacity:.78;"' : ''}>
       <div class="ger-header"><span class="ger-title">${esc(capIni(p.nome_compra))}</span><span class="ger-value">${fm(p.valor_parcela)}</span></div>
       <div class="ger-details">
         <div>👤 ${esc(rotuloResp(p))}</div>
@@ -4183,9 +4248,20 @@ function validaCPF(cpf) {
    AUTENTICAÇÃO
    ========================================= */
 /* ---- chamada às funções do servidor (Edge Function "conta") ---- */
+/* enquanto espera o servidor, nenhum outro botão funciona (contador: várias esperas seguidas não se atropelam) */
+let _bloqueios = 0;
+function bloquearTela(on, texto) {
+  let el = document.getElementById('bloqueioAcao');
+  if (!el) { el = document.createElement('div'); el.id = 'bloqueioAcao'; el.setAttribute('role', 'alert'); el.innerHTML = '<div class="bq-box"><span class="bq-spin"></span><span id="bloqueioTxt">Aguarde…</span></div>'; document.body.appendChild(el); }
+  _bloqueios = Math.max(0, _bloqueios + (on ? 1 : -1));
+  if (on && texto) { const t = document.getElementById('bloqueioTxt'); if (t) t.textContent = texto; }
+  el.classList.toggle('on', _bloqueios > 0);
+}
+const TEXTO_ESPERA = { cadastro_codigo: 'Enviando o código para o seu e-mail…', reset_solicitar: 'Enviando o código para o seu e-mail…', enviar_convite: 'Enviando o e-mail…', pix: 'Gerando o PIX…', convidar: 'Gerando o código…', cadastrar: 'Criando a conta…', validar_codigo: 'Conferindo…', entrar: 'Entrando…', reset_confirmar: 'Salvando a nova senha…', exportar: 'Preparando seus dados…', excluir_conta: 'Excluindo a conta…' };
 async function invocarConta(acao, corpo) {
   // chamada direta (sem depender da sessão) e com limite de tempo: nunca fica "rodando" para sempre
   const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 30000);
+  const bloquear = acao !== 'conferir'; if (bloquear) bloquearTela(true, TEXTO_ESPERA[acao] || 'Aguarde…');
   let token = SUPABASE_KEY;   // quem já entrou manda a própria sessão (o servidor precisa saber quem é)
   try {
     const { data } = await Promise.race([dbReal.auth.getSession(), new Promise(r => setTimeout(() => r({ data: null }), 4000))]);
@@ -4202,7 +4278,7 @@ async function invocarConta(acao, corpo) {
     return j || {};
   } catch (e) {
     return { erro: 'falha', mensagem: e && e.name === 'AbortError' ? 'O servidor demorou demais para responder. Tente de novo.' : 'Sem conexão com o servidor. Tente de novo.' };
-  } finally { clearTimeout(timer); }
+  } finally { clearTimeout(timer); if (bloquear) bloquearTela(false); }
 }
 const SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 const fmtBRL = n => 'R$ ' + Number(n).toFixed(2).replace('.', ',');
@@ -5861,7 +5937,7 @@ function renderPagamentos(lista) {
   Object.entries(g).sort((a, b) => b[1].total - a[1].total).forEach(([tipo, d]) => {
     const pago = d.pagas === d.ids.length;
     const btn = pago ? '<button class="payment-btn paid">Pago</button>' : `<button class="payment-btn pending">${state.filtroPagto === tipo ? 'Mostrando abaixo' : 'Ver parcelas'}</button>`;
-    const adBtn = (d.cartao && !pago && !multi) ? `<button class="payment-btn ad" data-act="adiantar" data-id="${esc(tipo)}">💳 Adiantar</button>` : '';
+    const adBtn = (d.cartao && !multi) ? `<button class="payment-btn ad" data-act="adiantar" data-id="${esc(tipo)}">💳 Adiantar</button>` : '';
     const falta = Math.max(0, d.total - d.pago);
     const verbo = d.cartao ? 'Adiantou' : 'Pago';
     const sub = pago ? `<div class="payment-sub">Quitado · ${fm(d.total)}</div>`
@@ -5965,13 +6041,54 @@ function abrirAdiantamento(chave) {
     (g[t] = g[t] || { total: 0, pago: 0 });
     g[t].total += Number(c.valor_parcela) || 0; g[t].pago += valorPagoParcela(c);
   });
-  const abertos = Object.entries(g).filter(([, d]) => d.total - d.pago > 0.004).sort((a, b) => (b[1].total - b[1].pago) - (a[1].total - a[1].pago));
-  if (!abertos.length) return alert('Não há parcelas de cartão de crédito em aberto neste mês.');
+  const abertos = Object.entries(g).sort((a, b) => (b[1].total - b[1].pago) - (a[1].total - a[1].pago));
+  if (!abertos.length) return alert('Não há parcelas de cartão de crédito neste mês.');
   adOpcoes = abertos.map(a => a[0]);
   $('adTipo').value = adOpcoes.includes(chave) ? chave : (adOpcoes.includes(state.filtroPagto) ? state.filtroPagto : adOpcoes[0]);
   $('adValor').value = '';
   atualizarAdiantamento();
   abrirModal('modalAdiantamento');
+  adCarregarHist();
+}
+/* histórico de adiantamentos (tabela adiantamentos; se ela ainda não existir, guarda neste aparelho) */
+let adHist = [];
+const adChaveLocal = () => 'ttr_adiant_' + grupoId();
+function adLerLocal() { try { return JSON.parse(lsGet(adChaveLocal()) || '[]'); } catch (e) { return []; } }
+async function adCarregarHist() {
+  let lista = [];
+  try {
+    const { data, error } = await db.from('adiantamentos').select('*').eq('grupo_id', grupoId()).is('desfeito_em', null).order('criado_em', { ascending: false }).limit(200);
+    if (!error && data) lista = data;
+  } catch (e) {}
+  adHist = lista.concat(adLerLocal().filter(r => !r.desfeito_em));
+  adRenderHist();
+}
+function adRenderHist() {
+  const box = $('adHistorico'); if (!box) return;
+  const mes = state.mesesSelecionados[0], tipo = $('adTipo').value;
+  const l = adHist.filter(r => r.mes_referencia === mes && r.cartao === tipo).sort((a, b) => String(b.criado_em).localeCompare(String(a.criado_em)));
+  box.innerHTML = l.length ? `<div style="margin-top:14px;font-weight:700;font-size:13px;">Adiantamentos registrados</div>` + l.map(r => {
+    const d = new Date(r.criado_em);
+    const quando = isNaN(d) ? '' : d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="hist-ad"><div><strong class="sensivel">${fm(r.valor)}</strong><small>${esc(quando)}</small></div><button class="acao-btn txt" type="button" data-adesf="${esc(r.id)}">↩️ Desfazer</button></div>`;
+  }).join('') : '';
+}
+async function adDesfazer(id) {
+  const r = adHist.find(x => String(x.id) === String(id)); if (!r) return;
+  if (!confirm(`Desfazer o adiantamento de ${fm(r.valor)}? As parcelas voltam a ficar em aberto, como estavam antes.`)) return;
+  const itens = Array.isArray(r.itens) ? r.itens : [];
+  const res = await Promise.all(itens.map(it => {
+    const c = state.compras.find(x => String(x.id) === String(it.id)); if (!c) return { error: null };
+    const novo = Math.max(0, Math.round((valorPagoParcela(c) - Number(it.take)) * 100) / 100);
+    return db.from('compras').update({ pagamento: false, valor_pago: novo, data_pagamento: null }).eq('id', c.id).in('criado_por', emailsGrupo());
+  }));
+  const erro = res.find(x => x && x.error);
+  if (erro) { alert('Não foi possível desfazer: ' + erro.error.message); await carregarDados(); return; }
+  if (String(r.id).startsWith('loc_')) { const l = adLerLocal().filter(x => x.id !== r.id); lsSet(adChaveLocal(), JSON.stringify(l)); }
+  else await db.from('adiantamentos').update({ desfeito_em: new Date().toISOString() }).eq('id', r.id);
+  notificar(`Adiantamento de ${fm(r.valor)} desfeito. As parcelas voltaram ao que eram antes.`, 'sucesso');
+  await carregarDados();
+  atualizarAdiantamento(); adCarregarHist();
 }
 function atualizarAdiantamento() {
   const mes = state.mesesSelecionados[0], tipo = $('adTipo').value;
@@ -6007,6 +6124,10 @@ async function salvarAdiantamento() {
   btn.disabled = false; btn.textContent = 'Registrar adiantamento';
   const erro = res.find(r => r.error);
   if (erro) { alert('Erro ao registrar adiantamento: ' + erro.error.message); await carregarDados(); return; }
+  const rec = { grupo_id: grupoId(), cartao: tipo, mes_referencia: mes, valor: v, itens: plano.itens.map(it => ({ id: it.p.id, take: it.take / 100 })), feito_por: currentUser.email || null };
+  let salvoHist = false;
+  try { const { error } = await db.from('adiantamentos').insert(rec); salvoHist = !error; } catch (e) {}
+  if (!salvoHist) { const l = adLerLocal(); l.push({ ...rec, id: 'loc_' + Date.now(), criado_em: new Date().toISOString() }); lsSet(adChaveLocal(), JSON.stringify(l)); }
   fecharModal('modalAdiantamento');
   const q = plano.itens.filter(i => i.quita).length, par = plano.itens.some(i => !i.quita);
   notificar(`Adiantamento de ${fm(v)} registrado: ${q} parcela(s) quitada(s)${par ? ' e 1 parcial' : ''}.`, 'sucesso');
@@ -7846,7 +7967,8 @@ function ligarEventos() {
 
   $('btnGerenciarCompras').addEventListener('click', abrirModalGerenciarCompras);
   $('btnSalvarAdiantamento').addEventListener('click', salvarAdiantamento);
-  $('adTipo').addEventListener('change', atualizarAdiantamento);
+  $('adTipo').addEventListener('change', () => { atualizarAdiantamento(); adRenderHist(); });
+  $('adHistorico').addEventListener('click', e => { const b = e.target.closest('[data-adesf]'); if (b) adDesfazer(b.dataset.adesf); });
     $('btnPagasMes').addEventListener('click', abrirPagasMes);
   $('btnConfiguracoes').addEventListener('click', abrirConfiguracoes);
   impLigarEventos();
