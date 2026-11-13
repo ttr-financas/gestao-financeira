@@ -1,9 +1,10 @@
 {
+  "id": "./",
   "name": "TTR Gestão Financeira",
   "short_name": "G. Finanças",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#0e1116",
   "theme_color": "#0e1116",
   "icons": [
     {
@@ -19,10 +20,19 @@
       "purpose": "any"
     },
     {
-      "src": "icon-maskable-512.png",
+      "src": "maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "orientation": "portrait",
+  "lang": "pt-BR",
+  "categories": [
+    "finance",
+    "productivity"
+  ],
+  "display_override": [
+    "standalone"
   ]
 }
