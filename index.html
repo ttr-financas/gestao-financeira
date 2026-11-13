@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0a121f">
-<script>(function(){try{var t=localStorage.getItem("ttr_tema")||"dark";if(["dark","light","amethyst","esmeralda"].indexOf(t)<0)t="dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
+<script>(function(){try{var t=localStorage.getItem("ttr_tema")||"dark";if(["dark","light","amethyst","esmeralda","rubi","ambar"].indexOf(t)<0)t="dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-ico.png?v=2">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=2">
@@ -66,6 +66,30 @@
     --w: 255,255,255;
     --accent-text: #6ee7b7; --success-text: #86efac; --danger-text: #fb7185; --warn-text: #fcd34d;
     --header-bg: rgba(6,19,15,.74); --nav-bg: rgba(14,33,25,.88); --auth-bg: rgba(14,33,25,.84); --overlay: rgba(2,10,7,.74);
+    --chip-bg: rgba(0,0,0,.25); --track: rgba(255,255,255,.1);
+    --shadow: 0 12px 32px rgba(0,0,0,.4); --shadow-lg: 0 18px 44px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+  :root[data-theme="rubi"] {
+    --bg: #150709; --card: rgba(255,255,255,.045); --card-solid: #25100f; --card2: rgba(255,255,255,.075); --card3: #3a1a18;
+    --primary: #e11d48; --primary2: #f97316; --pr: 225,29,72; --pr2: 249,115,22;
+    --success: #4ade80; --danger: #ff6b6b; --warn: #f5b301; --orange: #fb923c; --teal: #2dd4bf;
+    --text: #fff1f2; --muted: #c4a0a4; --border: rgba(255,255,255,.09); --border-strong: rgba(255,255,255,.17);
+    --w: 255,255,255;
+    --accent-text: #fda4af; --success-text: #86efac; --danger-text: #ff8a8a; --warn-text: #fcd34d;
+    --header-bg: rgba(21,7,9,.74); --nav-bg: rgba(37,16,15,.88); --auth-bg: rgba(37,16,15,.84); --overlay: rgba(12,3,5,.74);
+    --chip-bg: rgba(0,0,0,.25); --track: rgba(255,255,255,.1);
+    --shadow: 0 12px 32px rgba(0,0,0,.4); --shadow-lg: 0 18px 44px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+  :root[data-theme="ambar"] {
+    --bg: #140d04; --card: rgba(255,255,255,.045); --card-solid: #22170a; --card2: rgba(255,255,255,.075); --card3: #342310;
+    --primary: #f59e0b; --primary2: #ea580c; --pr: 245,158,11; --pr2: 234,88,12;
+    --success: #4ade80; --danger: #f43f5e; --warn: #fde047; --orange: #fb923c; --teal: #2dd4bf;
+    --text: #fffbeb; --muted: #c2ae8b; --border: rgba(255,255,255,.09); --border-strong: rgba(255,255,255,.17);
+    --w: 255,255,255;
+    --accent-text: #fcd34d; --success-text: #86efac; --danger-text: #fb7185; --warn-text: #fde68a;
+    --header-bg: rgba(20,13,4,.74); --nav-bg: rgba(34,23,10,.88); --auth-bg: rgba(34,23,10,.84); --overlay: rgba(10,6,1,.74);
     --chip-bg: rgba(0,0,0,.25); --track: rgba(255,255,255,.1);
     --shadow: 0 12px 32px rgba(0,0,0,.4); --shadow-lg: 0 18px 44px rgba(0,0,0,.6);
     color-scheme: dark;
@@ -1212,7 +1236,7 @@
     <div class="form-grid">
       <div class="input-group full"><label>Nome da Compra</label><input type="text" id="cNome" placeholder="Ex: Supermercado..."></div>
       <div class="input-group"><label>Valor Total</label><input type="text" class="money" id="cValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
-      <div class="input-group"><label>Parcelas</label><input type="number" id="cParcelas" value="1" min="1" max="120"></div>
+      <div class="input-group"><label>Parcelas</label><select id="cParcelas"></select></div>
       <div class="input-group full"><label>Responsável</label><input type="text" id="cResponsavel" placeholder="Selecione"></div>
       <div class="full" id="divisaoBox" style="display:none;">
         <div class="div-titulo">Divisão da compra</div>
@@ -1392,6 +1416,7 @@
     <div class="input-group"><label>Objetivo mensal (opcional)</label><input type="text" class="money" id="porqObjetivo" inputmode="numeric" autocomplete="off" placeholder="Ex: R$ 300,00"></div>
     <p class="hint">Quanto você quer guardar por mês. O app compara com o guardado.</p>
     <button class="btn" id="btnSalvarPorquinho">Salvar</button>
+    <button class="btn ghost" id="btnExcluirPorquinho" type="button" style="display:none;margin-top:10px;color:var(--danger-text);">🗑️ Excluir porquinho</button>
   </div>
 </div>
 
@@ -2431,7 +2456,9 @@ const TEMAS = [
   { id: 'dark', nome: 'Escuro', ic: '🌙', cores: ['#0a121f', '#40927f', '#2e6a9e'] },
   { id: 'light', nome: 'Claro', ic: '☀️', cores: ['#f3f7f8', '#2f7d6d', '#27466d'] },
   { id: 'amethyst', nome: 'Ametista', ic: '🔮', cores: ['#100a1f', '#8b5cf6', '#ec4899'] },
-  { id: 'esmeralda', nome: 'Esmeralda', ic: '🌿', cores: ['#06130f', '#10b981', '#0d9488'] }
+  { id: 'esmeralda', nome: 'Esmeralda', ic: '🌿', cores: ['#06130f', '#10b981', '#0d9488'] },
+  { id: 'rubi', nome: 'Rubi', ic: '❤️', cores: ['#150709', '#e11d48', '#f97316'] },
+  { id: 'ambar', nome: 'Âmbar', ic: '🌅', cores: ['#140d04', '#f59e0b', '#ea580c'] }
 ];
 // padrão = Escuro (quem tinha "Automático" salvo volta para o Escuro)
 function lerTema() { try { const t = localStorage.getItem('ttr_tema'); return TEMAS.some(x => x.id === t) ? t : 'dark'; } catch (e) { return 'dark'; } }
@@ -2883,7 +2910,7 @@ async function salvarRecebimento() {
 }
 async function excluirRecebimento(idx) {
   const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (!d) return;
-  if (!await confirmar({ titulo: 'Excluir recebimento', mensagem: 'Deseja excluir este recebimento? O valor volta a ficar em aberto.', confirmarTexto: 'Excluir', tipo: 'perigo' })) return;
+  if (!await confirmar({ titulo: 'Desfazer pagamento', mensagem: 'Deseja desfazer este recebimento? O valor volta a ficar em aberto.', confirmarTexto: 'Desfazer', tipo: 'perigo' })) return;
   if (!await gravarRecebimentos(d, devRecebimentos(d).filter((_, i) => i !== idx))) return;
   renderReceberModal(); renderReceber();
 }
@@ -2976,7 +3003,7 @@ function renderVdLancamentos() {
       <div class="rec-meta sensivel"><span class="rec-total-mini">valor total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}</span> · recebido ${formatarMoeda(rec)}${v.observacao ? '<br>' + esc(v.observacao) : ''}${v.forma_pagamento ? '<br>' + vdFormaTag(v.forma_pagamento) : ''}</div>
       <div class="rec-bar"><div style="width:${pct}%"></div></div>
       ${lst}
-      <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Quitado</span>' : ''}<button class="btn-action primary" data-act="vd-abrir" data-id="${esc(v.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button></div>
+      <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Quitado</span>' : ''}<button class="btn-action primary" data-act="vd-abrir" data-id="${esc(v.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button>${rec > 0.004 ? `<button class="btn-action" data-act="vd-desfazer" data-id="${esc(v.id)}" title="Desfazer o último recebimento">↩️ Desfazer pagamento</button>` : ''}<button class="btn-action danger" data-act="vd-excluir" data-id="${esc(v.id)}" title="Excluir esta venda">🗑️ Excluir</button></div>
     </div>`;
   };
   box.innerHTML = arr.map(g => {
@@ -3026,7 +3053,7 @@ async function vdGravarRecebimentos(v, novo) {
 }
 async function vdExcluirRecebimento(idx) {
   const v = state.vendas.find(x => String(x.id) === String(state.vdId)); if (!v) return;
-  if (!await confirmar({ titulo: 'Excluir recebimento', mensagem: 'Deseja excluir este recebimento? O valor volta a ficar em aberto.', confirmarTexto: 'Excluir', tipo: 'perigo' })) return;
+  if (!await confirmar({ titulo: 'Desfazer pagamento', mensagem: 'Deseja desfazer este recebimento? O valor volta a ficar em aberto.', confirmarTexto: 'Desfazer', tipo: 'perigo' })) return;
   if (!await vdGravarRecebimentos(v, vdRecs(v).filter((_, i) => i !== idx))) return;
   renderVdReceberModal(); renderVendas();
 }
@@ -3209,7 +3236,7 @@ function renderVdReceberModal() {
   $('vdRecInfo').innerHTML = (pr ? `${pr.atrasada ? '⚠️ Vencida' : '⏰ Próxima'}: <strong>parcela ${esc(pr.ref)}</strong> · vence ${esc(dataBR(pr.venc))}<span class="rec-valor">🟡 ${formatarMoeda(pr.falta)}<small>valor da parcela</small></span><br>` : '✅ <strong>Tudo recebido.</strong><br>')
     + `Total ${formatarMoeda(v.valor_total)} · recebido ${formatarMoeda(vdRecebido(v))} · falta <strong>${formatarMoeda(vdRestante(v))}</strong>`;
   const rs = vdRecs(v).map((r, i) => [r, i]).reverse();
-  $('vdRecLista').innerHTML = rs.length ? rs.map(([r, i]) => `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">💵 Recebido${r.obs ? ' · ' + esc(r.obs) : ''}</div><div class="meta" style="font-size:12px;">${esc(dataBR(r.data))}${r.forma ? ' · ' + formaIcone(r.forma) + ' ' + esc(r.forma) : ''}</div></div><div class="valor sensivel" style="font-weight:700;">${formatarMoeda(r.valor)}</div><button class="btn-action danger" data-act="vd-delmov" data-idx="${i}" type="button">🗑️</button></div>`).join('')
+  $('vdRecLista').innerHTML = rs.length ? rs.map(([r, i]) => `<div class="item" style="padding:12px;"><div class="info" style="flex:1;"><div class="nome" style="font-size:14px;">💵 Recebido${r.obs ? ' · ' + esc(r.obs) : ''}</div><div class="meta" style="font-size:12px;">${esc(dataBR(r.data))}${r.forma ? ' · ' + formaIcone(r.forma) + ' ' + esc(r.forma) : ''}</div></div><div class="valor sensivel" style="font-weight:700;">${formatarMoeda(r.valor)}</div><button class="btn-action danger" data-act="vd-delmov" data-idx="${i}" type="button">↩️ Desfazer</button></div>`).join('')
     : '<p style="text-align:center;color:var(--muted);padding:16px;font-size:13px;">Nenhum recebimento ainda.</p>';
 }
 async function salvarVdRecebimento() {
@@ -3896,7 +3923,7 @@ function onbPasso(passos, i) {
       else if (pushSuportado() && Notification.permission === 'denied') { notificar('Sem problema: as notificações ficaram desligadas. Para receber lembretes, libere nas configurações do navegador e ative em Configurações → Notificações.', 'info', 9000); prox(); }
     }; else $('onbOk').onclick = prox;
   } else if (tipo === 'instalar') {
-    corpo.innerHTML = `${cab}<div class="onb-ic">📲</div><h3>Instalar o app</h3><p>Instalando, o TTR fica na tela inicial do celular, abre em tela cheia e as notificações funcionam melhor.</p>${rod('Instalar agora', 'Agora não')}`;
+    corpo.innerHTML = `${cab}<div class="onb-ic">📲</div><h3>Instalar o app</h3><p>Instalando, o TTR fica na tela inicial do celular, abre em tela cheia e as notificações funcionam melhor.</p><p><b>Já instalou pela tela de login?</b> Então é só tocar em <b>Agora não</b> para seguir.</p>${rod('Instalar agora', 'Agora não')}`;
     $('onbOk').onclick = async () => { await instalarApp(); prox(); };
   } else if (tipo === 'tema') {
     corpo.innerHTML = `${cab}<div class="onb-ic">🎨</div><h3>Escolha o visual</h3><p>Toque em um tema para ver como fica. Dá para trocar quando quiser em Configurações.</p><div class="tema-grid">${TEMAS.map(t => `<button type="button" class="tema-op ${temaEfetivo(temaPref) === t.id ? 'ativo' : ''}" data-tema="${t.id}"><span>${t.ic} ${esc(t.nome)}</span></button>`).join('')}</div>${rod('Continuar', 'Manter o atual')}`;
@@ -4635,7 +4662,7 @@ function renderAssinatura(a) {
   if (!['ok', 'ilimitado'].includes(a.estado)) carregarPix('assinPix');
 }
 function msgErroDia(m) {
-  const k = { teste_nao_altera: 'Você poderá trocar o dia depois do primeiro pagamento.', alterado_recentemente: 'Você já trocou o dia há pouco tempo. Tente de novo em até 25 dias.', pague_primeiro: 'Pague a fatura em aberto antes de trocar o dia.', sem_permissao: 'Só o líder do grupo pode fazer isso.', dia_invalido: 'Escolha um dia de 1 a 28.', cancelada: 'A assinatura está cancelada.' };
+  const k = { teste_nao_altera: 'Você poderá trocar o dia depois do primeiro pagamento.', alterado_recentemente: 'Você já trocou o dia há pouco tempo. Você só pode trocar de novo depois de 60 dias.', pague_primeiro: 'Pague a fatura em aberto antes de trocar o dia.', sem_permissao: 'Só o líder do grupo pode fazer isso.', dia_invalido: 'Escolha um dia de 1 a 28.', cancelada: 'A assinatura está cancelada.' };
   const c = Object.keys(k).find(x => String(m || '').includes(x)); return c ? k[c] : 'Não foi possível agora: ' + (m || 'erro');
 }
 async function assinAcao(ev) {
@@ -4915,7 +4942,7 @@ async function sair() {
    CARGA DE DADOS
    ========================================= */
 async function carregarDados() {
-  try { await nvCarregar(); await garantirMensalidadeTTR(); await nvGerarRecorrentes(); } catch (e) {}
+  try { await nvCarregar(); await garantirMensalidadeTTR(); await nvGerarRecorrentes(); await marcarMensalidadesPagas(); } catch (e) {}
   let todas = [];
   const pageSize = 1000;
   const emails = emailsGrupo();
@@ -5008,25 +5035,36 @@ function atualizarLabelMes() {
   const m = state.mesesSelecionados;
   $('labelMes').textContent = m.length === 1 ? formatarMes(m[0]) : `${m.length} meses`;
 }
-function toggleMultiMonth(e) {
+let _mesesExtra = [];
+function mesesComDados() {
+  const set = new Set([ymLocal(), ...state.mesesSelecionados, ..._mesesExtra]);
+  state.compras.forEach(c => { if (c.mes_referencia) set.add(String(c.mes_referencia).slice(0, 7)); });
+  try { state.vendas.forEach(v => vdParcelas(v).forEach(p => p.mes && set.add(p.mes))); } catch (e) {}
+  return [...set].filter(x => /^\d{4}-\d{2}$/.test(x)).sort();
+}
+function desenharMeses() {
+  const sel = new Set([...document.querySelectorAll('#monthListContainer input:checked')].map(i => i.value));
+  if (!document.querySelector('#monthListContainer input')) state.mesesSelecionados.forEach(m => sel.add(m));
+  const por = {};
+  mesesComDados().forEach(ym => { (por[ym.slice(0, 4)] = por[ym.slice(0, 4)] || []).push(ym); });
+  $('monthListContainer').innerHTML = Object.keys(por).sort().map(y => `<div class="year-group"><div class="year-title">${y}</div><div class="month-grid">${por[y].map(ym => `<label><input type="checkbox" value="${ym}" ${sel.has(ym) ? 'checked' : ''}> ${MESES_ABR[Number(ym.slice(5)) - 1]}</label>`).join('')}</div></div>`).join('');
+}
+async function toggleMultiMonth(e) {
   e.stopPropagation();
   const dd = $('multiMonthDropdown');
   if (dd.classList.contains('open')) return dd.classList.remove('open');
-  const ano = new Date().getFullYear();
-  const sel = new Set(state.mesesSelecionados);
-  let html = '';
-  for (let y = ano - 2; y <= ano + 3; y++) {
-    html += `<div class="year-group"><div class="year-title">${y}</div><div class="month-grid">`;
-    for (let m = 1; m <= 12; m++) {
-      const ym = `${y}-${String(m).padStart(2, '0')}`;
-      html += `<label><input type="checkbox" value="${ym}" ${sel.has(ym) ? 'checked' : ''}> ${MESES_ABR[m-1]}</label>`;
-    }
-    html += '</div></div>';
-  }
-  $('monthListContainer').innerHTML = html;
+  $('monthListContainer').innerHTML = '';
+  desenharMeses();
   dd.classList.add('open');
   const first = dd.querySelector('input:checked');
   if (first) first.closest('.year-group').scrollIntoView({ block: 'nearest' });
+  // meses que só têm renda ou teto cadastrados também entram
+  try {
+    const g = grupoId();
+    const rs = await Promise.all(['rendas', 'orcamentos'].map(t => db.from(t).select('mes_referencia').eq('grupo_id', g).limit(2000)));
+    const novos = [...new Set(rs.flatMap(r => (r.data || []).map(x => String(x.mes_referencia || '').slice(0, 7))))].filter(Boolean);
+    if (novos.some(m => !_mesesExtra.includes(m))) { _mesesExtra = novos; if (dd.classList.contains('open')) desenharMeses(); }
+  } catch (err) {}
 }
 function limparMesesSelecionados() { document.querySelectorAll('#monthListContainer input').forEach(i => i.checked = false); }
 function aplicarMesesSelecionados() {
@@ -5244,6 +5282,7 @@ async function abrirEditarCompra(idCompra) {
   $('editIdCompra').value = idCompra;
   $('cNome').value = c.nome_compra;
   setMoeda($('cValor'), data.reduce((s, p) => s + Number(p.valor_parcela), 0));
+  if (![...$('cParcelas').options].some(o => Number(o.value) === data.length)) $('cParcelas').add(new Option(data.length + 'x', String(data.length)));
   $('cParcelas').value = data.length;
   const extC = devedoresDaCompra(idCompra);
   const dividida = !!divisaoCompra(c) || ehAmbos(c) || extC.length > 0;
@@ -7025,6 +7064,12 @@ async function nvCarregar() {
 }
 /* ---- a mensalidade do TTR aparece sozinha como conta fixa na categoria "Assinaturas" (só para o líder do grupo) ---- */
 const MENSALIDADE_NOME = 'Mensalidade TTR', MENSALIDADE_CAT = 'Assinaturas';
+let _mensPagaAte = null;
+// a mensalidade de um mês já pago (vencimento avançou) aparece como paga na lista de parcelas
+async function marcarMensalidadesPagas() {
+  if (!_mensPagaAte || !currentUser) return;
+  try { await db.from('compras').update({ pagamento: true, data_pagamento: new Date().toISOString() }).ilike('nome_compra', MENSALIDADE_NOME).eq('pagamento', false).lt('mes_referencia', _mensPagaAte).in('criado_por', emailsGrupo()); } catch (e) {}
+}
 async function garantirMensalidadeTTR() {
   if (NV.semTabelas || !currentUser || !currentUser.lider) return;
   const a = assinatura || await consultarAssinatura();
@@ -7037,7 +7082,8 @@ async function garantirMensalidadeTTR() {
     if (!error) { const { data } = await db.from('categorias_orcamento').select('*').eq('grupo_id', g).order('nome'); if (data) categoriasOrcamento = data; }
   }
   const venc = a.vencimento ? new Date(a.vencimento) : new Date();
-  const fim = ymLocal(venc) + '-01';   // só aparece até o mês do vencimento: ao pagar, o vencimento avança e o mês seguinte entra
+  const fim = ymLocal(venc) + '-01';
+  _mensPagaAte = a.primeiro_pagamento ? null : ymLocal(venc);   // meses antes do vencimento já estão pagos   // só aparece até o mês do vencimento: ao pagar, o vencimento avança e o mês seguinte entra
   const ex = NV.rec.find(r => normalizarNome(r.nome) === normalizarNome(MENSALIDADE_NOME));
   if (ex) {
     const upd = {};
@@ -7562,7 +7608,7 @@ function renderPorquinhos() {
         <div class="porq-info"><div class="porq-nome">${esc(capIni(p.nome))}</div><div class="porq-badge">${p.visibilidade === 'individual' ? (porqSoDeposito(p) ? '🔒 Separado de ' + esc(capNome(p.criado_por || '')) + ' · você só pode guardar' : (p.compartilhado ? '👤 Só Eu · 👁️ o outro vê e só guarda' : '👤 Só Eu')) : '👥 Geral' + (p.criado_por ? ' · Criado por ' + esc(capNome(p.criado_por)) : '')}</div><div class="porq-saldo">${formatarMoeda(saldo)}</div></div>
         <div class="porq-tools">
           <button class="icon-btn" data-act="porq-ext" data-id="${esc(p.id)}" title="Extrato">📜</button>
-          ${porqDono(p) ? `<button class="icon-btn" data-act="porq-edit" data-id="${esc(p.id)}" title="Editar">✏️</button><button class="icon-btn" data-act="porq-del" data-id="${esc(p.id)}" title="Excluir">🗑️</button>` : ''}
+          ${porqDono(p) ? `<button class="icon-btn" data-act="porq-edit" data-id="${esc(p.id)}" title="Editar">✏️</button>` : ''}${porqDono(p) || currentUser.lider ? `<button class="icon-btn" data-act="porq-del" data-id="${esc(p.id)}" title="Excluir">🗑️</button>` : ''}
         </div>
       </div>
       ${barra}
@@ -7590,6 +7636,7 @@ function abrirModalPorquinho(id) {
   $('porqCompart').checked = !!(p && p.compartilhado);
   porqAtualizarCompart();
   selecionarEmojiPorq(p ? p.emoji : '🐷');
+  $('btnExcluirPorquinho').style.display = p ? '' : 'none';
   abrirModal('modalPorquinho');
 }
 // a opção de compartilhar só aparece quando o porquinho é separado ("Só Eu") e há outra pessoa no grupo
@@ -8013,6 +8060,7 @@ function ligarEventos() {
   $('btnCfgModulos').addEventListener('click', () => { fecharModal('modalConfiguracoes'); renderModulos(); abrirModal('modalModulos'); });
   $('vdTipo').addEventListener('change', vdAtualizarForm);
   $('vdStatus').addEventListener('change', vdAtualizarForm);
+  $('cParcelas').innerHTML = [...Array(24).keys()].map(i => i + 1).concat([30, 36, 48, 60, 72, 84, 96, 108, 120]).map(n => `<option value="${n}">${n === 1 ? 'À vista (1x)' : n + 'x'}</option>`).join('');
   $('vdParcelas').innerHTML = [...Array(12).keys()].map(i => i + 1).concat([18, 24, 36, 48]).map(n => `<option value="${n}">${n === 1 ? 'À vista (1x)' : n + 'x'}</option>`).join('');
   $('vdParcelas').addEventListener('change', vdPrevia); $('vdEntrada').addEventListener('input', vdPrevia);
   $('vdCliente').addEventListener('change', () => { const k = normalizarNome($('vdCliente').value), v = vdAtivas().slice().reverse().find(x => normalizarNome(x.cliente) === k && normGenero(x.genero)); if (v && !$('vdGenero').value) $('vdGenero').value = normGenero(v.genero); });
@@ -8030,6 +8078,7 @@ function ligarEventos() {
   $('btnNovoPorquinho').addEventListener('click', () => abrirModalPorquinho());
   $('btnSalvarPorquinho').addEventListener('click', salvarPorquinho);
   $('porqVisib').addEventListener('change', porqAtualizarCompart);
+  $('btnExcluirPorquinho').addEventListener('click', async () => { const id = $('porqId').value; if (!id) return; fecharModal('modalPorquinho'); await excluirPorquinho(id); });
   $('btnSalvarMov').addEventListener('click', salvarMov);
   $('porqEmojis').addEventListener('click', e => { const b = e.target.closest('[data-emoji]'); if (b) selecionarEmojiPorq(b.dataset.emoji); });
   $('buscaCompra').addEventListener('input', debounce(renderLista, 150));
@@ -8105,6 +8154,8 @@ function ligarEventos() {
       case 'vc-del': excluirCatalogo(id); break;
       case 'vd-copiar': vdCopiarCobranca(id); break;
       case 'vd-wpp': vdWhatsCobranca(id); break;
+      case 'vd-desfazer': { const v = state.vendas.find(x => String(x.id) === String(id)); if (v && vdRecs(v).length) { state.vdId = v.id; vdExcluirRecebimento(vdRecs(v).length - 1); } break; }
+      case 'vd-excluir': state.vdId = id; removerVenda(); break;
       case 'vd-delmov': vdExcluirRecebimento(parseInt(a.dataset.idx)); break;
     }
   });
