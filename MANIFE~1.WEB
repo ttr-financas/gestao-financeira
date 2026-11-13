@@ -4,8 +4,8 @@
   "short_name": "G. Finanças",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0e1116",
-  "theme_color": "#0e1116",
+  "background_color": "#0a121f",
+  "theme_color": "#0a121f",
   "icons": [
     {
       "src": "icon-192.png",
@@ -20,7 +20,7 @@
       "purpose": "any"
     },
     {
-      "src": "icon-maskable-512.png",
+      "src": "maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
