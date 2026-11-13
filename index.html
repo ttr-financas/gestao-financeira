@@ -314,7 +314,7 @@
   .gerenciar-item .ger-details div { background: var(--chip-bg); padding: 5px 9px; border-radius: 8px; word-break: break-word; }
   .gerenciar-item .ger-footer { display: flex; flex-wrap: wrap; gap: 6px; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; }
   .gerenciar-item .ger-status { font-size: 12px; font-weight: 700; }
-  .gerenciar-acoes { display: flex; gap: 6px; }
+  .gerenciar-acoes { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .acao-btn, .icon-btn { background: var(--card2); border: none; font-size: 16px; cursor: pointer; padding: 7px 9px; border-radius: 10px; }
   .acao-btn:hover, .icon-btn:hover { background: rgba(var(--w),.14); }
 
@@ -951,7 +951,7 @@
     </div>
     <div id="msgErro" class="msg-erro"></div>
     <div id="loginForm">
-      <div class="input-group"><label>E-mail, Nome ou CPF</label><input type="text" id="loginUser" placeholder="Digite seus dados de acesso" autocomplete="username"></div>
+      <div class="input-group"><label>E-mail, CPF ou nome e sobrenome</label><input type="text" id="loginUser" placeholder="Como você se cadastrou" autocomplete="username"></div>
       <div class="input-group"><label>Senha</label><div class="password-wrapper"><input type="password" id="loginSenha" placeholder="Digite sua senha" autocomplete="current-password"><button type="button" class="toggle-password" data-toggle="loginSenha" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
       <button class="btn" id="btnLogin">Entrar</button>
       <button class="btn secondary" id="btnCriarConta" type="button" style="margin-top:8px;">Criar conta</button>
@@ -961,9 +961,9 @@
     </div>
     <div id="recSenhaForm" style="display:none;">
       <h3 style="margin:0 0 6px;font-size:17px;">Recuperar acesso</h3>
-      <p class="hint" id="recSenhaDica" style="margin-top:0;">Informe pelo menos 2 dos 3 dados. Se conferirem, enviamos um código por e-mail.</p>
+      <p class="hint" id="recSenhaDica" style="margin-top:0;">Informe o CPF e o e-mail do cadastro. Enviaremos um código para esse e-mail.</p>
       <div id="recSenhaPasso1">
-        <div class="input-group"><label>Nome e sobrenome</label><input type="text" id="rsNome" autocomplete="off"></div>
+        <input type="hidden" id="rsNome">
         <div class="input-group"><label>CPF</label><input type="text" id="rsCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
         <div class="input-group"><label>E-mail</label><input type="email" id="rsEmail" autocomplete="off"></div>
         <button class="btn" id="btnRsVerificar" type="button">Enviar código por e-mail</button>
@@ -983,7 +983,7 @@
     <div id="cadContaForm" style="display:none;">
       <h3 id="ccTitulo" style="margin:0 0 10px;font-size:17px;">Criar conta</h3>
       <div id="ccAcesso">
-        <p class="hint" id="ccIntro" style="margin-top:0;">Tem código de teste ou convite? Digite com seu CPF. Sem código, você escolhe o plano e paga por PIX.</p>
+        <p class="hint" id="ccIntro" style="margin-top:0;">Tem código de teste ou convite? Digite com seu CPF. Sem código, você paga o primeiro mês por PIX.</p>
         <div class="input-group"><label id="ccCodigoLbl">Código de teste ou convite (opcional)</label><input type="text" id="ccCodigo" placeholder="TTR-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="18"></div>
         <div class="input-group"><label>CPF</label><input type="text" id="ccCpf" maxlength="14" inputmode="numeric" autocomplete="off"></div>
       </div>
@@ -2225,7 +2225,6 @@ let membrosGrupo = [];
 let todosUsuariosAdmin = [];
 let categoriasOrcamento = [];
 let orcamentosMes = [];
-let gruposPagamento = [];
 let mapaGerenciar = {};
 let catAtualId = null;
 let state = {
@@ -4111,9 +4110,12 @@ function cardParcela(p, modo) {
   if (par) extra = `<div>💸 Pago: ${fm(pago)}</div><div>⏳ Falta: ${fm(falta)}</div>`;
   else if (p.pagamento && dataBR(p.data_pagamento)) extra = `<div style="grid-column:1/-1;">✅ Pago em ${dataBR(p.data_pagamento)}</div>`;
   let acoes = '';
-  if (modo === 'pagas') acoes = `<button class="acao-btn txt" data-act="desfazer-pgto" data-id="${esc(p.id)}" title="Desfazer pagamento">↩️ Desfazer</button>`;
-  else if (!p.pagamento && ehCartaoCredito(p.tipo_pagamento)) acoes = `<span class="pago-cartao">💳 Paga pela fatura</span>`;
-  else if (!p.pagamento) acoes = `<button class="btn-pagar" data-act="pagar-parcela" data-id="${esc(p.id)}">${par ? '✅ Pagar restante' : '✅ Pagar parcela'}</button>`;
+  const desf = `<button class="acao-btn txt" data-act="desfazer-pgto" data-id="${esc(p.id)}" title="Desfazer pagamento">↩️ Desfazer pagamento</button>`;
+  if (modo === 'pagas') acoes = desf;
+  else if (ehCartaoCredito(p.tipo_pagamento)) acoes = (p.pagamento || par ? desf : '') + (p.pagamento ? '' : `<span class="pago-cartao">💳 Paga pela fatura</span>`);
+  else if (!p.pagamento) acoes = `<button class="btn-pagar" data-act="pagar-parcela" data-id="${esc(p.id)}">${par ? '✅ Pagar restante' : '✅ Pagar parcela'}</button>` + (par ? desf : '');
+  else acoes = desf;
+  if (modo === 'lista') acoes += `<button class="acao-btn txt" data-act="est-parcela" data-id="${esc(p.id)}" title="Estornar esta parcela">↪️ Estornar</button><button class="acao-btn txt" data-act="del-parcela" data-id="${esc(p.id)}" title="Excluir esta parcela" style="color:var(--danger-text);">🗑️ Excluir</button>`;
   const tagVenc = venc2 ? `<span class="venc-tag">⚠️ ${esc(rotuloAtraso(diasAtraso(p)))}</span>` : hoje2 ? '<span class="venc-tag hoje">⏰ Vence hoje</span>' : '';
   return `<div class="gerenciar-item${venc2 ? ' vencida' : hoje2 ? ' hoje' : ''}"${p.pagamento && modo === 'lista' ? ' style="opacity:.78;"' : ''}>
       <div class="ger-header"><span class="ger-title">${esc(capIni(p.nome_compra))}</span><span class="ger-value">${fm(p.valor_parcela)}</span></div>
@@ -4214,16 +4216,16 @@ function recSenhaDados() {
 function recSenhaMostrar(ativo) {
   $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = ativo ? 'block' : 'none'; $('cadContaForm').style.display = 'none';
   $('recSenhaPasso1').style.display = 'block'; $('recSenhaPasso2').style.display = 'none';
-  $('recSenhaDica').textContent = 'Informe pelo menos 2 dos 3 dados. Se conferirem, enviamos um código por e-mail.';
+  $('recSenhaDica').textContent = 'Informe o CPF e o e-mail do cadastro. Enviaremos um código para esse e-mail.';
   turnstileMostrar('rs', 'rsCaptcha', ativo);
   ['rsNome', 'rsCpf', 'rsEmail', 'rsCodigo', 'rsSenha', 'rsSenha2'].forEach(i => { $(i).value = ''; $(i).disabled = false; });
 }
 function mascaraEmail(e) { const [u, d] = String(e).split('@'); return (u || '').slice(0, 2) + '•••@' + (d || ''); }
 async function recSenhaVerificar(reenvio) {
   const d = recSenhaDados();
-  if ([d.nome, d.cpf, d.email].filter(Boolean).length < 2) return mostrarErro('Preencha pelo menos 2: nome, CPF ou e-mail.');
-  if (d.cpf && !validaCPF(d.cpf)) return mostrarErro('O CPF informado é inválido.');
-  if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return mostrarErro('O e-mail informado é inválido.');
+  if (!d.cpf || !d.email) return mostrarErro('Informe o CPF e o e-mail do cadastro.');
+  if (!validaCPF(d.cpf)) return mostrarErro('O CPF informado é inválido.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return mostrarErro('O e-mail informado é inválido.');
   if (capExige('rs')) return mostrarErro('Confirme que você não é um robô.');
   d.captcha = capTok.rs;
   const b = $('btnRsVerificar'); b.disabled = true; b.textContent = 'Enviando código...';
@@ -4255,7 +4257,7 @@ async function recSenhaSalvar() {
   const r = await invocarConta('reset_confirmar', { ...recSenhaDados(), codigo: cod, nova: s1 });
   b.disabled = false; b.textContent = 'Salvar nova senha';
   if (r.erro) return mostrarErro(r.mensagem);
-  const nome = $('rsNome').value.trim();
+  const nome = $('rsEmail').value.trim();
   recSenhaMostrar(false); $('loginUser').value = nome; $('loginSenha').value = '';
   notificar('Senha alterada! Entre com a nova senha.', 'sucesso', 6000);
 }
@@ -4329,8 +4331,8 @@ async function ccCarregarConfig() {
   try { const { data } = await db.rpc('config_publica'); ccTesteLigado = !data || data.teste_gratis !== false; } catch (e) { ccTesteLigado = true; }
   $('ccCodigoLbl').textContent = ccTesteLigado ? 'Código de teste ou convite (opcional)' : 'Código de convite (opcional)';
   $('ccIntro').innerHTML = ccTesteLigado
-    ? 'Tem código de teste ou convite? Digite com seu CPF. Sem código, você escolhe o plano e paga por PIX.'
-    : 'Tem código de convite? Digite com seu CPF. Sem código, você escolhe o plano e paga por PIX.';
+    ? 'Tem código de teste ou convite? Digite com seu CPF. Sem código, você paga o primeiro mês por PIX.'
+    : 'Tem código de convite? Digite com seu CPF. Sem código, você paga o primeiro mês por PIX.';
 }
 function cadContaMostrar(ativo) {
   $('loginForm').style.display = ativo ? 'none' : 'block'; $('recSenhaForm').style.display = 'none'; $('cadContaForm').style.display = ativo ? 'block' : 'none';
@@ -4353,7 +4355,7 @@ async function cadContaAcesso() {
   const info = $('ccInfo');
   if (r.tipo === 'teste') info.innerHTML = `🎁 <b>Teste grátis de ${r.dias} dias.</b> O primeiro pagamento é de ${fmtBRL(PRECO_1)}. Depois: ${fmtBRL(PRECO_1)} (1 pessoa) ou ${fmtBRL(PRECO_2)} (2), por PIX.`;
   else if (r.tipo === 'membro') info.innerHTML = `🤝 Convite de <b>${esc(capNome(r.lider))}</b>. Preencha seus dados e crie sua senha.`;
-  else info.innerHTML = `💳 Escolha o plano. O PIX aparece ao criar a conta.`;
+  else info.innerHTML = `💳 O primeiro pagamento é de ${fmtBRL(PRECO_1)}, por PIX. Ele aparece ao criar a conta.`;
   ccEtapaMostrar(1);
   setTimeout(() => { const el = $('ccNome'); if (el) el.focus(); }, 80);
 }
@@ -4418,7 +4420,7 @@ const LEGAL = {
 const LEGAL_TXT = {
   termos: () => `<h4>Termos de uso</h4><p class="hint">Última atualização: ${LEGAL.atualizado}</p>
 <p><b>1. Sobre o serviço.</b> O TTR Gestão Financeira (“TTR”) é um aplicativo para organizar finanças pessoais e da casa: orçamento, compras e parcelas, divisão de gastos, porquinhos (metas) e, opcionalmente, controle de vendas e serviços. Ele é oferecido por ${esc(LEGAL.responsavel)}.</p>
-<p><b>2. Conta.</b> Para criar uma conta você precisa ter 18 anos ou mais, usar um código de teste grátis (quando disponível), um código de convite do líder de um grupo ou escolher um plano pago, e informar dados verdadeiros (nome de usuário, CPF, telefone, e-mail e gênero). Você é responsável por manter a sua senha em segredo e por tudo o que acontece na sua conta. O primeiro usuário de um grupo é o “líder” e pode convidar mais 1 usuário ao mesmo grupo gerando um código ligado ao CPF da pessoa; ela cria o próprio acesso e senha e passa a ver os dados compartilhados do grupo.</p>
+<p><b>2. Conta.</b> Para criar uma conta você precisa ter 18 anos ou mais, usar um código de teste grátis (quando disponível), um código de convite do líder de um grupo ou criar a conta com pagamento, e informar dados verdadeiros (nome e sobrenome, CPF, telefone, e-mail e gênero). Você é responsável por manter a sua senha em segredo e por tudo o que acontece na sua conta. O primeiro usuário de um grupo é o “líder” e pode convidar mais 1 usuário ao mesmo grupo gerando um código ligado ao CPF da pessoa; ela cria o próprio acesso e senha e passa a ver os dados compartilhados do grupo.</p>
 <p><b>3. Teste grátis.</b> O teste dura o número de dias informado no código, a partir da criação da conta. Cada código só pode ser usado uma vez e cada CPF só pode ter uma conta.</p>
 <p><b>4. Mensalidade.</b> Depois do teste, o primeiro pagamento é sempre de R$ 9,90; depois, a mensalidade é de R$ 9,90 para 1 usuário ou R$ 13,90 para um grupo com 2 usuários (paga uma única vez pelo grupo), por PIX, e pode ser reajustada com aviso prévio. Se o plano pago for de 1 usuário e o líder quiser adicionar uma segunda pessoa, é cobrada na hora a diferença de R$ 4,00 e, a partir do mês seguinte, vale o valor de 2 usuários. O vencimento é sempre no mesmo dia do mês. O líder pode trocar o dia do vencimento (de 1 a 28); a diferença de dias é cobrada ou abatida, proporcionalmente, na fatura seguinte. Você recebe a fatura por e-mail e o QR Code no app a partir de 3 dias antes do vencimento. Confirmado o pagamento, o acesso é liberado por mais um mês.</p>
 <p><b>5. Atraso e suspensão.</b> Se o pagamento não for feito até 2 dias após o vencimento, a conta é suspensa: o acesso é bloqueado e seus dados ficam guardados, sem uso, até o pagamento ou o cancelamento. Pago o PIX, o acesso volta.</p>
@@ -4432,7 +4434,7 @@ const LEGAL_TXT = {
   privacidade: () => `<h4>Política de privacidade</h4><p class="hint">Última atualização: ${LEGAL.atualizado}</p>
 <p>Esta política explica como o TTR trata os seus dados pessoais, conforme a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018). O controlador dos dados é ${esc(LEGAL.responsavel)}.</p>
 <p><b>1. Quais dados coletamos.</b></p>
-<ul><li><b>Cadastro:</b> nome de usuário, CPF, telefone, e-mail, gênero e senha (guardada de forma protegida, nunca em texto aberto).</li>
+<ul><li><b>Cadastro:</b> nome e sobrenome, CPF, telefone, e-mail, gênero e senha (guardada de forma protegida, nunca em texto aberto).</li>
 <li><b>Dados que você lança no app:</b> compras, parcelas, orçamentos, rendas, porquinhos, cobranças a terceiros (nome e valores), clientes, vendas e serviços. Esses dados são seus; usamos apenas para o app funcionar.</li>
 <li><b>Assinatura e pagamento:</b> datas, valores, status e identificação dos PIX gerados. Não guardamos dados de cartão.</li>
 <li><b>Técnicos:</b> preferências do app (tema, notificações) guardadas no seu aparelho, e dados mínimos de acesso necessários à segurança.</li></ul>
@@ -4538,9 +4540,9 @@ function renderAssinatura(a) {
   if (!a || a.estado === 'ilimitado') { el.innerHTML = '<div class="info-box">Seu acesso não tem cobrança. Nada a pagar por aqui. 🎉</div>'; return; }
   const rot = { ok: ['Em dia', ''], aviso: ['Vence em breve', 'aviso'], vencida: ['Vencida', 'ruim'], suspensa: [a.primeiro_pagamento ? 'Aguardando o 1º pagamento' : 'Suspensa', 'ruim'], cancelada: ['Cancelada', 'ruim'] }[a.estado] || ['—', ''];
   let h = `<div class="info-box"><span class="assin-badge ${rot[1]}">${a.cancelada && a.estado === 'ok' ? 'Cancelada · ativa até o vencimento' : rot[0]}</span><br>
-    ${a.teste ? '<b>Teste grátis</b>' : '<b>Mensalidade</b>'} · ${Math.max(a.membros, a.vagas || 1) >= 2 ? '2 usuários no grupo' : '1 usuário'}<br>
+    ${a.teste ? '<b>Teste grátis</b>' : '<b>Mensalidade</b>'} · ${a.membros >= 2 ? '2 usuários no grupo' : '1 usuário no grupo'}<br>
     ${a.cancelada ? 'Acesso até' : 'Vencimento'}: <b>${fmtDataBR(a.vencimento)}</b>${a.teste ? '' : ` · todo dia <b>${a.dia_venc}</b>`}<br>
-    Valor mensal: <b>${fmtBRL(a.valor_base || a.valor)}</b>${Math.max(a.membros, a.vagas || 1) >= 2 ? ' <small>(paga uma vez só para os dois)</small>' : ''}
+    ${(a.teste || a.primeiro_pagamento) ? `Primeiro pagamento: <b>${fmtBRL(a.valor)}</b><br>Depois: <b>${fmtBRL(a.valor_base)}</b> por mês` : `Valor mensal: <b>${fmtBRL(a.valor_base || a.valor)}</b>`}${a.membros >= 2 ? ' <small>(paga uma vez só para os dois)</small>' : ''}
     ${Number(a.ajuste) ? `<br>Ajuste de troca de dia: <b>${sinalBRL(a.ajuste)}</b> <small>(entra na próxima fatura: ${fmtBRL(a.valor)})</small>` : ''}</div>`;
   if (a.cancelada && a.estado === 'ok') h += '<p class="hint">Assinatura cancelada: sem novas cobranças. Após o vencimento a conta é bloqueada, mas você pode baixar seus dados.</p>';
   else if (a.estado === 'ok') h += '<p class="hint">O QR Code do PIX aparece aqui 3 dias antes do vencimento. Você também recebe a fatura por e-mail.</p>';
@@ -5619,17 +5621,9 @@ function abrirModalCategorizar() {
       <div class="cat-select-wrapper">
         <select class="cat-select" data-idcompra="${esc(p.id_compra)}">${opts}</select>
       </div>
-      ${false ? `<div class="cat-faltam"><div class="cat-faltam-tit">⚠️ Para categorizar, preencha o que faltou nesta compra:</div><div class="imp-row">
-        ${p.motivo ? '' : `<input class="imp-in cat-fill" type="text" data-idcompra="${esc(p.id_compra)}" data-campo="motivo" placeholder="Motivo (obrigatório)" autocomplete="off">`}
-        ${p.tipo ? '' : `<input class="imp-in cat-fill" type="text" data-idcompra="${esc(p.id_compra)}" data-campo="tipo" placeholder="Tipo (obrigatório)" autocomplete="off">`}
-      </div></div>` : ''}
     </div>`;
   }).join('') : '<p style="text-align:center;color:var(--muted);padding:20px;">Tudo categorizado!</p>';
   
-  document.querySelectorAll('#listaPendentes .cat-fill').forEach(el => {
-    const m = el.dataset.campo === 'motivo';
-    criarCombo(el, { opcoes: () => m ? opcoesCompra.motivo : opcoesCompra.tipo, livre: true, rotuloCriar: m ? 'Novo motivo' : 'Novo tipo' });
-  });
   abrirModal('modalCategorizar');
 }
 async function salvarCategorizacao() {
@@ -5863,13 +5857,10 @@ function renderPagamentos(lista) {
     g[t].total += Number(p.valor_parcela); g[t].pago += valorPagoParcela(p); if (p.pagamento) g[t].pagas++; g[t].ids.push(p.id);
   });
   const multi = state.mesesSelecionados.length > 1;
-  gruposPagamento = [];
   let html = '';
   Object.entries(g).sort((a, b) => b[1].total - a[1].total).forEach(([tipo, d]) => {
     const pago = d.pagas === d.ids.length;
-    let btn = '';
-    if (pago) btn = '<button class="payment-btn paid">Pago</button>';
-    else if (!multi) { gruposPagamento.push(d.ids); btn = `<button class="payment-btn pending" data-act="pay" data-idx="${gruposPagamento.length - 1}">Pagamento realizado?</button>`; }
+    const btn = pago ? '<button class="payment-btn paid">Pago</button>' : `<button class="payment-btn pending">${state.filtroPagto === tipo ? 'Mostrando abaixo' : 'Ver parcelas'}</button>`;
     const adBtn = (d.cartao && !pago && !multi) ? `<button class="payment-btn ad" data-act="adiantar" data-id="${esc(tipo)}">💳 Adiantar</button>` : '';
     const falta = Math.max(0, d.total - d.pago);
     const verbo = d.cartao ? 'Adiantou' : 'Pago';
@@ -5879,15 +5870,6 @@ function renderPagamentos(lista) {
     html += `<div class="payment-group clickable${state.filtroPagto === tipo ? ' selecionado' : ''}" data-act="fpagto" data-id="${esc(tipo)}"><div><div class="payment-title">${esc(tipo)}</div><div class="payment-val">${formatarMoeda(falta)}</div>${sub}${subV}${d.cartao ? nvInfoCartao(tipo) : ''}</div><div class="payment-btns">${adBtn}${btn}</div></div>`;
   });
   $('listaPagamentos').innerHTML = html || '<p style="color:var(--muted);font-size:13px;">Nenhum pagamento neste mês.</p>';
-}
-
-async function marcarTipoPago(idx, btn) {
-  const ids = gruposPagamento[idx];
-  if (!ids) return;
-  btn.textContent = 'Processando...'; btn.disabled = true;
-  const { error } = await db.from('compras').update({ pagamento: true, data_pagamento: new Date().toISOString() }).in('id', ids);
-  if (error) alert('Erro ao atualizar: ' + error.message);
-  await carregarDados();
 }
 
 function aposMudarPagamento() {
@@ -5918,6 +5900,23 @@ async function desfazerPagamento(id) {
   if (error) return alert('Erro ao desfazer: ' + error.message);
   Object.assign(p, upd);
   aposMudarPagamento();
+}
+
+async function estornarParcela(id) {
+  const p = state.compras.find(c => String(c.id) === String(id)); if (!p) return;
+  if (!await confirmar({ titulo: 'Estornar parcela', mensagem: `Estornar a parcela ${p.parcela_referencia || ''} de "${p.nome_compra}"?\n\nEla sai dos relatórios e dos totais.`, confirmarTexto: 'Estornar', tipo: 'aviso' })) return;
+  const { error } = await db.from('compras').update({ status: 'Estornado' }).eq('id', p.id).in('criado_por', emailsGrupo());
+  if (error) return alert('Erro ao estornar: ' + error.message);
+  await db.from('historico_compras').insert([{ grupo_id: grupoId(), id_compra: p.id_compra, nome_compra: p.nome_compra, acao: 'Parcela estornada', detalhes: 'Parcela ' + (p.parcela_referencia || ''), alterado_por: currentUser.nome }]);
+  await carregarDados();
+}
+async function excluirParcela(id) {
+  const p = state.compras.find(c => String(c.id) === String(id)); if (!p) return;
+  if (!await confirmar({ titulo: 'Excluir parcela', mensagem: `Excluir a parcela ${p.parcela_referencia || ''} de "${p.nome_compra}"?\n\nEla será apagada e não dá para desfazer.`, confirmarTexto: 'Excluir', tipo: 'perigo' })) return;
+  const { error } = await db.from('compras').delete().eq('id', p.id).in('criado_por', emailsGrupo());
+  if (error) return alert('Erro ao excluir: ' + error.message);
+  await db.from('historico_compras').insert([{ grupo_id: grupoId(), id_compra: p.id_compra, nome_compra: p.nome_compra, acao: 'Parcela excluída', detalhes: 'Parcela ' + (p.parcela_referencia || ''), alterado_por: currentUser.nome }]);
+  await carregarDados();
 }
 
 /* ---- popup: parcelas pagas do mês ---- */
@@ -6443,7 +6442,7 @@ async function impSalvar() {
   // confirmação: quantas estão categorizadas e quantas irão para "Sem categorização" (ficam pendentes e visíveis no Planejamento)
   const nCat = sel.filter(impCategorizada).length, nPend = sel.length - nCat;
   const valPend = sel.filter(x => !impCategorizada(x)).reduce((s, x) => s + x.valor, 0);
-  const msg = `${nCat} de ${sel.length} compra(s) estão categorizadas (categoria, motivo e tipo).` + (nPend ? `\n\n${nPend} compra(s) (${formatarMoeda(valPend)} neste mês) irão para "Sem categorização" e poderão ser categorizadas depois, em Planejamento.` : '\n\nTodas estão categorizadas.');
+  const msg = `${nCat} de ${sel.length} compra(s) estão categorizadas.` + (nPend ? `\n\n${nPend} compra(s) (${formatarMoeda(valPend)} neste mês) irão para "Sem categorização" e poderão ser categorizadas depois, em Planejamento.` : '\n\nTodas estão categorizadas.');
   if (!await confirmar({ titulo: 'Confirmar importação', mensagem: msg, confirmarTexto: 'Importar', tipo: nPend ? 'aviso' : 'info' })) return;
   const usarDiv = sel.some(x => x._div && x._div.divisao) || state.compras.some(c => 'divisao' in c);
   const tipoPag = (state.compras.find(c => ehCartaoCredito(c.tipo_pagamento)) || {}).tipo_pagamento || 'Cartão de Crédito';
@@ -6916,15 +6915,19 @@ async function garantirMensalidadeTTR() {
     const { error } = await db.from('categorias_orcamento').insert([{ grupo_id: g, nome: MENSALIDADE_CAT }]);
     if (!error) { const { data } = await db.from('categorias_orcamento').select('*').eq('grupo_id', g).order('nome'); if (data) categoriasOrcamento = data; }
   }
+  const venc = a.vencimento ? new Date(a.vencimento) : new Date();
+  const fim = ymLocal(venc) + '-01';   // só aparece até o mês do vencimento: ao pagar, o vencimento avança e o mês seguinte entra
   const ex = NV.rec.find(r => normalizarNome(r.nome) === normalizarNome(MENSALIDADE_NOME));
   if (ex) {
-    if (ex.ativo !== false && Number(ex.valor) !== valor) { await db.from('recorrentes').update({ valor }).eq('id', ex.id); ex.valor = valor; }
+    const upd = {};
+    if (ex.ativo !== false && Number(ex.valor) !== valor) upd.valor = valor;
+    if (String(ex.fim || '').slice(0, 10) !== fim) upd.fim = fim;
+    if (Object.keys(upd).length) { await db.from('recorrentes').update(upd).eq('id', ex.id); Object.assign(ex, upd); }
     return;
   }
-  const venc = a.vencimento ? new Date(a.vencimento) : new Date();
   const dia = Math.min(Number(a.dia_venc) || venc.getDate() || 1, 28);
   const inicio = (a.teste ? ymLocal(venc) : ymLocal()) + '-01';
-  const { error } = await db.from('recorrentes').insert([{ grupo_id: g, nome: MENSALIDADE_NOME, valor, dia, responsavel: currentUser.nome, categoria: MENSALIDADE_CAT, tipo_pagamento: 'Pix', inicio, ativo: true }]);
+  const { error } = await db.from('recorrentes').insert([{ grupo_id: g, nome: MENSALIDADE_NOME, valor, dia, responsavel: currentUser.nome, categoria: MENSALIDADE_CAT, tipo_pagamento: 'Pix', inicio, fim, ativo: true }]);
   if (!error) await nvCarregar();
 }
 /* ---- contas fixas: gera a compra de cada mês (do início até o mês que vem), uma única vez por mês ---- */
@@ -7216,7 +7219,7 @@ function exportarPDF() {
   const tercPdf = somaTerceiros(l);
   const porResp = (membrosGrupo.length > 1 || tercPdf > 0.004) ? [...membrosGrupo.map(m => [m.nome, somaPessoa(l, m.nome)]), ...(tercPdf > 0.004 ? [['Terceiros', tercPdf]] : [])].filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]) : [];
   const filtros = [];
-  if (state.filtroMotivo) filtros.push('Motivo: ' + state.filtroMotivo);
+  if (state.filtroMotivo) filtros.push('Categoria: ' + state.filtroMotivo);
   if (state.filtroPagto) filtros.push('Pagamento: ' + state.filtroPagto);
   const fa = state.filtroAtivo;
   if (fa === 'pago') filtros.push('Somente pagas'); else if (fa === 'aberto') filtros.push('Somente não pagas'); else if (fa === 'vencida') filtros.push('Vencidas e que vencem hoje'); else if (fa !== 'all') filtros.push('Responsável: ' + fa);
@@ -7227,7 +7230,7 @@ function exportarPDF() {
   $('printArea').innerHTML = `
     <div class="rp-head">
       <div class="rp-brand"><div class="rp-logo"><img src="data:image/webp;base64,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" alt="Logo" draggable="false"></div><div><div class="rp-title">${NOME_APP}</div><div class="rp-sub">Relatório de despesas</div></div></div>
-      <div class="rp-meta"><div class="rp-period">${esc(periodo)}</div><div>Gerado em ${esc(agora)}</div><div>por ${esc(currentUser.nome)}</div></div>
+      <div class="rp-meta"><div class="rp-period">${esc(periodo)}</div><div>Gerado em ${esc(agora)}</div><div>por ${esc(capNome(currentUser.nome))}</div></div>
     </div>
     ${filtros.length ? `<div class="rp-filtros"><strong>Filtros aplicados:</strong> ${filtros.map(esc).join(' · ')}</div>` : ''}
     <div class="rp-kpis">
@@ -7242,8 +7245,8 @@ function exportarPDF() {
       ${bloco('Por responsável', porResp, '#7c5cff')}
     </div>
     <div class="rp-section">Detalhamento das parcelas</div>
-    <table class="rp-table"><thead><tr><th>Compra</th><th>Resp.</th><th>Motivo</th><th>Pagamento</th><th>Parc.</th><th>Venc.</th><th>Situação</th><th class="num">Valor</th></tr></thead><tbody>` +
-    l.map(p => `<tr><td>${esc(capIni(p.nome_compra))}</td><td>${esc(rotuloResp(p))}</td><td>${esc(capIni(p.motivo || ''))}</td><td>${esc(p.tipo_pagamento || p.nome_pagamento ? rotuloPagto(p) : '')}</td><td>${esc(p.parcela_referencia || '')}</td><td>${p.data_parcela ? p.data_parcela.split('-').reverse().join('/') : ''}</td><td><span class="rp-pill ${p.pagamento ? 'pago' : 'pend'}">${p.pagamento ? 'Pago' : parcelaVencida(p) ? 'Vencida' : parcialParcela(p) ? 'Parcial' : 'Pendente'}</span></td><td class="num">${formatarMoeda(p.valor_parcela)}</td></tr>`).join('') +
+    <table class="rp-table"><thead><tr><th>Compra</th><th>Resp.</th><th>Categoria</th><th>Pagamento</th><th>Parc.</th><th>Venc.</th><th>Situação</th><th class="num">Valor</th></tr></thead><tbody>` +
+    l.map(p => `<tr><td>${esc(capIni(p.nome_compra))}</td><td>${esc(rotuloResp(p))}</td><td>${esc(motivoDe(p))}</td><td>${esc(p.tipo_pagamento || p.nome_pagamento ? rotuloPagto(p) : '')}</td><td>${esc(p.parcela_referencia || '')}</td><td>${p.data_parcela ? p.data_parcela.split('-').reverse().join('/') : ''}</td><td><span class="rp-pill ${p.pagamento ? 'pago' : 'pend'}">${p.pagamento ? 'Pago' : parcelaVencida(p) ? 'Vencida' : parcialParcela(p) ? 'Parcial' : 'Pendente'}</span></td><td class="num">${formatarMoeda(p.valor_parcela)}</td></tr>`).join('') +
     `<tr class="rp-total"><td colspan="7">Total (${l.length} parcelas)</td><td class="num">${formatarMoeda(total)}</td></tr></tbody></table>
     <div class="rp-foot">${NOME_APP} · Documento gerado automaticamente</div>`;
 
@@ -7665,7 +7668,7 @@ async function cadastrarUsuario() {
   const emailIn = $('cadEmail').value.trim();
   const senha = $('cadSenha').value;
   const btn = $('btnCad');
-  if (!grupo || !nome || !senha || !cpf || !tel || !emailIn || !$('cadGenero').value) return alert('Todos os campos são obrigatórios: ID do Grupo, Nome, CPF, Telefone, E-mail, Gênero e Senha.');
+  if (!grupo || !nome || !senha || !cpf || !tel || !emailIn || !$('cadGenero').value) return alert('Todos os campos são obrigatórios: ID do Grupo, Nome e sobrenome, CPF, Telefone, E-mail, Gênero e Senha.');
   if (tel.replace(/\D/g, '').length < 10) return alert('Informe um telefone válido, com DDD.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailIn)) return alert('Informe um e-mail válido.');
   const genero = $('cadGenero').value;
@@ -7740,7 +7743,7 @@ function ligarEventos() {
   $('btnRecQuitar').addEventListener('click', () => { const d = state.devedores.find(x => String(x.id) === String(state.recDevId)); if (d) setMoeda($('recValor'), devRestante(d)); });
   $('btnRecRemover').addEventListener('click', removerDevedor);
   $('btnLogin').addEventListener('click', fazerLogin);
-  $('btnEsqueci').addEventListener('click', () => { recSenhaMostrar(true); $('rsNome').value = $('loginUser').value.trim().includes('@') ? '' : $('loginUser').value.trim(); });
+  $('btnEsqueci').addEventListener('click', () => { recSenhaMostrar(true); $('rsEmail').value = $('loginUser').value.trim().includes('@') ? $('loginUser').value.trim() : ''; });
   $('btnRsVoltar').addEventListener('click', () => recSenhaMostrar(false));
   $('btnRsVerificar').addEventListener('click', () => recSenhaVerificar());
   $('btnRsReenviar').addEventListener('click', recSenhaReenviar);
@@ -7773,13 +7776,13 @@ function ligarEventos() {
   ['ccCpf', 'nmCpf'].forEach(id => $(id).addEventListener('input', e => mascaraCPF(e.target)));
   ['ccTel'].forEach(id => $(id).addEventListener('input', e => mascaraTelefone(e.target)));
   /* Maiúsculas automáticas: nomes de pessoas = cada nome com inicial maiúscula; texto comum = só a 1ª letra. Ao sair do campo, ajusta o resto. */
-  const CAP_NOME = ['ccNome', 'rsNome', 'cadNome', 'admObs', 'vdCliente'];
+  const CAP_NOME = ['ccNome', 'cadNome', 'admObs', 'vdCliente'];
   const CAP_TEXTO = ['cNome', 'cNomePagamento', 'cTipoPagamento', 'novaCatNome', 'porqNome', 'movDesc', 'extraDesc', 'impCartao', 'exConta', 'cfNome', 'cfNomePagto', 'sdNome', 'recObs', 'vdDescricao', 'vdForma', 'vdObs', 'vdRecForma', 'vdRecObs', 'vcNome'];
   const capTexto = v => v.replace(/^(\s*)(\p{Ll})/u, (m, a, b) => a + b.toUpperCase());
   const aplicaCap = (el, fn) => { const v = fn(el.value); if (v !== el.value) { const p = el.selectionStart; el.value = v; try { el.setSelectionRange(p, p); } catch (x) {} } };
   CAP_NOME.forEach(id => { const el = $(id); if (!el) return; el.addEventListener('input', () => aplicaCap(el, capNome)); el.addEventListener('blur', () => { el.value = nomeProprio(el.value); }); });
   CAP_TEXTO.forEach(id => { const el = $(id); if (!el) return; el.addEventListener('input', () => aplicaCap(el, capTexto)); });
-  ['ccNome', 'rsNome'].forEach(id => $(id).addEventListener('input', e => {   // inicial maiúscula em cada nome, enquanto digita
+  ['ccNome'].forEach(id => $(id).addEventListener('input', e => {   // inicial maiúscula em cada nome, enquanto digita
     const t = e.target, v = capNome(t.value);
     if (v !== t.value) { const p = t.selectionStart; t.value = v; try { t.setSelectionRange(p, p); } catch (x) {} }
   }));
@@ -7949,10 +7952,11 @@ function ligarEventos() {
       case 'del': excluirCompraDefinitiva(id); break;
       case 'pagar-parcela': pagarParcela(id, a); break;
       case 'desfazer-pgto': desfazerPagamento(id); break;
+      case 'est-parcela': estornarParcela(id); break;
+      case 'del-parcela': excluirParcela(id); break;
       case 'adiantar': abrirAdiantamento(id); break;
       case 'renda-extra': abrirRendaExtra(); break;
       case 'extra-del': excluirExtra(id); break;
-      case 'pay': marcarTipoPago(parseInt(a.dataset.idx), a); break;
       case 'delcat': e.stopPropagation(); excluirCategoria(id); break;
       case 'cat': abrirDetalhesCategoria(id); break;
       case 'categorizar': abrirModalCategorizar(); break;
