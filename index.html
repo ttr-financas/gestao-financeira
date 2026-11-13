@@ -585,6 +585,7 @@
   .imp-card .check-row.imp-flag { margin: 10px 0 0; padding: 10px 12px; font-size: 13px; }
   .imp-div { margin-top: 8px; padding: 4px 12px 12px; border: 1px solid var(--border); border-radius: 12px; background: rgba(var(--w),.03); }
   .imp-div .btn-action { width: 100%; justify-content: center; }
+  .imp-card.categorizada { border-color: rgba(74,222,128,.55); border-left: 4px solid var(--success); background: linear-gradient(0deg, rgba(74,222,128,.07), rgba(74,222,128,.07)), var(--card2); }
   .imp-card { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 10px; }
   .imp-top { display: flex; align-items: center; gap: 10px; cursor: pointer; }
   .imp-top input { flex: none; width: 18px; height: 18px; }
@@ -1770,6 +1771,18 @@
     <div class="modal-header"><h3 id="tituloPagasMes">Parcelas pagas</h3><button class="close-btn" aria-label="Fechar" data-close="modalPagasMes">×</button></div>
     <div id="resumoPagasMes" class="hint"></div>
     <div id="listaPagasMes" style="max-height:60vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- MODAL TROCAR CATEGORIA DA PARCELA -->
+<div class="modal-overlay" id="modalCatParcela">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Trocar categoria</h3><button class="close-btn" aria-label="Fechar" data-close="modalCatParcela">×</button></div>
+    <input type="hidden" id="catPId">
+    <div class="info-box" id="catPInfo"></div>
+    <div class="input-group"><label>Nova categoria</label><select id="catPSel"></select></div>
+    <label class="check-row" id="catPTodasRow"><input type="checkbox" id="catPTodas" checked><span>Trocar em todas as parcelas desta compra</span></label>
+    <button class="btn" id="btnCatPSalvar" type="button">Salvar categoria</button>
   </div>
 </div>
 
@@ -4207,7 +4220,7 @@ function cardParcela(p, modo) {
   else if (modo === 'pagas') acoes = desf;
   else if (!p.pagamento) acoes = `<button class="btn-pagar" data-act="pagar-parcela" data-id="${esc(p.id)}">${par ? '✅ Pagar restante' : '✅ Pagar parcela'}</button>` + (par ? desf : '');
   else acoes = desf;
-  if (modo === 'lista') acoes += `<button class="acao-btn txt" data-act="est-parcela" data-id="${esc(p.id)}" title="Estornar esta parcela">↪️ Estornar</button><button class="acao-btn txt" data-act="del-parcela" data-id="${esc(p.id)}" title="Excluir esta parcela" style="color:var(--danger-text);">🗑️ Excluir</button>`;
+  if (modo === 'lista') acoes += `<button class="acao-btn txt" data-act="cat-parcela" data-id="${esc(p.id)}" title="Trocar a categoria">🏷️ Categoria</button><button class="acao-btn txt" data-act="est-parcela" data-id="${esc(p.id)}" title="Estornar esta parcela">↪️ Estornar</button>${ehCartaoCredito(p.tipo_pagamento) ? '' : `<button class="acao-btn txt" data-act="del-parcela" data-id="${esc(p.id)}" title="Excluir esta parcela" style="color:var(--danger-text);">🗑️ Excluir</button>`}`;
   const tagVenc = venc2 ? `<span class="venc-tag">⚠️ ${esc(rotuloAtraso(diasAtraso(p)))}</span>` : hoje2 ? '<span class="venc-tag hoje">⏰ Vence hoje</span>' : '';
   return `<div class="gerenciar-item${venc2 ? ' vencida' : hoje2 ? ' hoje' : ''}" data-pid="${esc(p.id)}"${p.pagamento && modo === 'lista' ? ' style="opacity:.78;"' : ''}>
       <div class="ger-header"><span class="ger-title">${esc(capIni(p.nome_compra))}</span><span class="ger-value">${fm(p.valor_parcela)}</span></div>
@@ -6027,6 +6040,7 @@ async function estornarParcela(id) {
 }
 async function excluirParcela(id) {
   const p = state.compras.find(c => String(c.id) === String(id)); if (!p) return;
+  if (ehCartaoCredito(p.tipo_pagamento)) return notificar('Parcela de cartão de crédito não se exclui. Se a compra foi um engano, use Estornar.', 'aviso');
   if (!await confirmar({ titulo: 'Excluir parcela', mensagem: `Excluir a parcela ${p.parcela_referencia || ''} de "${p.nome_compra}"?\n\nEla será apagada e não dá para desfazer.`, confirmarTexto: 'Excluir', tipo: 'perigo' })) return;
   const { error } = await db.from('compras').delete().eq('id', p.id).in('criado_por', emailsGrupo());
   if (error) return alert('Erro ao excluir: ' + error.message);
@@ -6047,6 +6061,31 @@ function renderPagasMes() {
     ? `Total pago: <strong style="color:var(--text);">${fm(totalPago)}</strong> · ${quitadas} quitada(s)${parciais ? ` · ${parciais} parcial(is)` : ''}`
     : '';
   $('listaPagasMes').innerHTML = l.length ? l.map(p => cardParcela(p, 'pagas')).join('') : '<p style="text-align:center;color:var(--muted);padding:20px;">Nenhuma parcela paga neste período.</p>';
+}
+
+/* ---- trocar a categoria de uma parcela (ou da compra inteira) ---- */
+function catPOpcoes(atual) { $('catPSel').innerHTML = impOptsSelect(categoriasOrcamento.map(c => c.nome), atual, 'Sem categoria', true); $('catPSel').value = atual || ''; }
+function abrirCatParcela(id) {
+  const p = state.compras.find(c => String(c.id) === String(id)); if (!p) return;
+  const total = state.compras.filter(c => c.id_compra === p.id_compra && isAtiva(c)).length;
+  $('catPId').value = p.id;
+  $('catPInfo').innerHTML = `<strong>${esc(capIni(p.nome_compra))}</strong> · parcela ${esc(p.parcela_referencia || '1/1')}<br>Categoria atual: <strong>${esc(capIni(p.categoria_orcamento || p.motivo || 'Sem categoria'))}</strong>`;
+  catPOpcoes(p.categoria_orcamento || '');
+  $('catPTodas').checked = true; $('catPTodasRow').style.display = total > 1 ? '' : 'none';
+  abrirModal('modalCatParcela');
+}
+async function salvarCatParcela() {
+  const p = state.compras.find(c => String(c.id) === String($('catPId').value)); if (!p) return;
+  const cat = $('catPSel').value === '__nova__' ? '' : $('catPSel').value;
+  const btn = $('btnCatPSalvar'); btn.disabled = true;
+  let q = db.from('compras').update({ categoria_orcamento: cat || null }).in('criado_por', emailsGrupo());
+  q = ($('catPTodas').checked && $('catPTodasRow').style.display !== 'none') ? q.eq('id_compra', p.id_compra) : q.eq('id', p.id);
+  const { error } = await q;
+  btn.disabled = false;
+  if (error) return alert('Não foi possível trocar a categoria: ' + error.message);
+  fecharModal('modalCatParcela');
+  notificar(cat ? `Categoria trocada para ${capIni(cat)}.` : 'Categoria removida.', 'sucesso');
+  await carregarDados();
 }
 
 /* ---- adiantar pagamento de um cartão ---- */
@@ -6146,6 +6185,26 @@ function atualizarAdiantamento() {
   prev.style.color = 'var(--success)';
   prev.textContent = `Vai quitar ${q} parcela(s)` + (par ? ` e pagar ${fm(par.take / 100)} de "${par.p.nome_compra}" (parcial).` : '.');
 }
+// registra um adiantamento (usado também pela importação de fatura); devolve { ok, msg }
+async function aplicarAdiantamento(mes, tipo, valor) {
+  if (!temColValorPago()) return { ok: false, msg: 'Não registrei o adiantamento: falta a coluna valor_pago no banco.' };
+  const abertas = parcelasAbertasCartao(mes, tipo);
+  const falta = abertas.reduce((t, c) => t + faltaParcela(c), 0);
+  const v = Math.min(valor, Math.round(falta * 100) / 100);
+  if (!(v > 0)) return { ok: false, msg: `Não há parcelas em aberto em ${formatarMes(mes)} neste cartão para receber o adiantamento de ${fm(valor)}.` };
+  const plano = planoAdiantamento(abertas, v);
+  const agora = new Date().toISOString();
+  const res = await Promise.all(plano.itens.map(it => db.from('compras')
+    .update(it.quita ? { pagamento: true, valor_pago: it.tot / 100, data_pagamento: agora } : { valor_pago: it.novoPago / 100 })
+    .eq('id', it.p.id).in('criado_por', emailsGrupo())));
+  const erro = res.find(r => r.error);
+  if (erro) return { ok: false, msg: 'Erro ao registrar o adiantamento: ' + erro.error.message };
+  const rec = { grupo_id: grupoId(), cartao: tipo, mes_referencia: mes, valor: v, itens: plano.itens.map(it => ({ id: it.p.id, take: it.take / 100 })), feito_por: currentUser.email || null };
+  let salvo = false;
+  try { const { error } = await db.from('adiantamentos').insert(rec); salvo = !error; } catch (e) {}
+  if (!salvo) { const l = adLerLocal(); l.push({ ...rec, id: 'loc_' + Date.now(), criado_em: agora }); lsSet(adChaveLocal(), JSON.stringify(l)); }
+  return { ok: true, msg: `Adiantamento de ${fm(v)} registrado` + (v < valor - 0.004 ? ` (os outros ${fm(valor - v)} passam do que havia em aberto neste mês).` : '.') };
+}
 async function salvarAdiantamento() {
   const mes = state.mesesSelecionados[0], tipo = $('adTipo').value;
   const v = lerMoeda($('adValor'));
@@ -6238,6 +6297,7 @@ function impParcela(desc, colParc) {
   if (mf && valido(+mf[1], +mf[2])) return { cur: +mf[1], total: +mf[2], nome };
   return { cur: 1, total: 1, nome: desc };
 }
+const IMP_PAGTO = /pagamento|pgto|pagto|payment/i;
 const IMP_IGNORAR = /pagamento (recebido|efetuado|de fatura|on.?line)|pgto|payment|saldo (anterior|restante)|total (da )?fatura|^total\b|encerramento|estorno|credito de|crédito de/i;
 
 
@@ -6378,8 +6438,9 @@ async function impAnalisar() {
   });
   const pos = brutos.filter(b => b.v > 0).length;
   const sinalCompra = pos >= brutos.length - pos ? 1 : -1;
-  imp.ignoradas = []; const lidos = [];
+  imp.ignoradas = []; imp.pagamentos = []; const lidos = [];
   brutos.forEach(b => {
+    if (Math.sign(b.v) !== sinalCompra && IMP_PAGTO.test(normalizarNome(b.desc)) && !/estorno/.test(normalizarNome(b.desc))) return imp.pagamentos.push({ desc: b.desc, valor: Math.round(Math.abs(b.v) * 100) / 100, data: m.data >= 0 ? impData(b.r[m.data], mes) : null, incluir: true });
     if (Math.sign(b.v) !== sinalCompra) return imp.ignoradas.push({ ...b, motivo: 'Crédito, estorno ou pagamento' });
     if (IMP_IGNORAR.test(normalizarNome(b.desc))) return imp.ignoradas.push({ ...b, motivo: 'Pagamento/saldo da fatura' });
     lidos.push(b);
@@ -6426,8 +6487,20 @@ async function impAnalisar() {
   impRender();
 }
 
-function impOptsSelect(lista, atual, vazio) {
-  return (vazio ? `<option value=""${!atual ? ' selected' : ''}>${esc(vazio)}</option>` : '') + lista.map(o => `<option value="${esc(o)}"${o === atual ? ' selected' : ''}>${esc(capNome(o))}</option>`).join('');
+function impOptsSelect(lista, atual, vazio, nova) {
+  return (vazio ? `<option value=""${!atual ? ' selected' : ''}>${esc(vazio)}</option>` : '') + lista.map(o => `<option value="${esc(o)}"${o === atual ? ' selected' : ''}>${esc(capNome(o))}</option>`).join('') + (nova ? '<option value="__nova__">➕ Nova categoria…</option>' : '');
+}
+// "➕ Nova categoria…" dentro da importação: cria na hora, escolhe para esta compra e já aparece nas outras
+async function impNovaCategoria(itens, listaEl, x, selEl) {
+  const txt = window.prompt('Nome da nova categoria:');
+  const nome = String(txt || '').replace(/\s+/g, ' ').trim();
+  if (!nome) { selEl.value = x.cat || ''; return false; }
+  try { x.cat = await garantirCategoria(nome); } catch (e) { alert('Não foi possível criar a categoria: ' + (e.message || e)); selEl.value = x.cat || ''; return false; }
+  listaEl.querySelectorAll('.imp-card[data-i]').forEach(c => {
+    const it = itens[+c.dataset.i], sl = c.querySelector('select[data-f="cat"]');
+    if (it && sl) sl.innerHTML = impOptsSelect(categoriasOrcamento.map(k => k.nome), it.cat, 'Categoria…', true);
+  });
+  return true;
 }
 /* ---- divisão da compra dentro do cartão da importação ---- */
 // padrão: as pessoas do grupo, já divididas igualmente (equivale a "Ambos"); a pessoa pode desmarcar alguém ou incluir gente de fora
@@ -6501,7 +6574,7 @@ function impLigarDivisao() {
 function impCard(x, i) {
   const meta = x.total > 1 ? `Parcela ${x.cur}/${x.total} · lança ${x.total - x.cur + 1} parcela(s) até ${formatarMes(addMes(imp.mes, x.total - x.cur))}` : 'À vista (1 parcela)';
   const data = x.dataCompra ? ` · 📅 ${dataBR(x.dataCompra)}` : '';
-  return `<div class="imp-card" data-i="${i}">
+  return `<div class="imp-card${impCategorizada(x) ? ' categorizada' : ''}" data-i="${i}">
     <label class="imp-top"><input type="checkbox" data-f="incluir"${x.incluir ? ' checked' : ''}><span class="imp-orig">${esc(x.desc)}</span><strong>${fm(x.valor)}</strong></label>
     <div class="imp-meta">${esc(meta)}${data}${x.lembrado ? ' · ✨ nome lembrado' : ''}</div>
     ${x.motivo ? `<div class="imp-alerta">⚠️ ${esc(x.motivo)}${x.achou ? ` (no app: ${esc(capIni(x.achou.nome))} · ${fm(x.achou.valor)})` : ''}</div>` : ''}
@@ -6510,7 +6583,7 @@ function impCard(x, i) {
     <div class="imp-pend" data-pend${impCategorizada(x) ? ' style="display:none"' : ''}>⏳ Sem categorização completa — ${x.incluir ? 'vai para "Sem categorização" se não for preenchida' : 'marque para importar'}</div>
     <div class="imp-row"${x.dividir ? ' style="grid-template-columns:1fr;"' : ''}>
       ${x.dividir ? '' : `<select data-f="resp" title="Responsável por esta compra">${impOptsSelect(opcoesResp, x.resp)}</select>`}
-      <select data-f="cat" title="Categoria">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Categoria…')}</select>
+      <select data-f="cat" title="Categoria">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Categoria…', true)}</select>
     </div>
     
     <label class="check-row imp-flag"><input type="checkbox" data-f="dividir"${x.dividir ? ' checked' : ''}><span>Dividir esta compra com outras pessoas</span></label>
@@ -6534,6 +6607,7 @@ function impRender() {
   let h = '';
   h += `<div class="imp-sec">🆕 Novas <span class="badge">${novas.length}</span></div>`;
   h += novas.length ? novas.map(([x, i]) => impCard(x, i)).join('') : '<p class="hint">Nenhuma compra nova neste arquivo.</p>';
+  if ((imp.pagamentos || []).length) h += `<div class="imp-sec">💰 Pagamentos recebidos <span class="badge">${imp.pagamentos.length}</span></div><p class="hint">Entram como <b>adiantamento</b> no cartão deste mês (abatem as parcelas da maior para a menor). Desmarque o que não quiser.</p>` + imp.pagamentos.map((g, k) => `<label class="imp-ja" style="cursor:pointer;"><span><input type="checkbox" data-pg="${k}"${g.incluir ? ' checked' : ''}> ${esc(capIni(g.desc))}${g.data ? '<small>' + esc(dataBR(g.data)) + '</small>' : ''}</span><strong>${fm(g.valor)}</strong></label>`).join('');
   if (poss.length) h += `<div class="imp-sec">❓ Possíveis duplicatas <span class="badge">${poss.length}</span></div><p class="hint">O app não tem certeza se já existem. Marque só as que quiser importar.</p>` + poss.map(([x, i]) => impCard(x, i)).join('');
   if (ja.length) h += `<details class="imp-det"><summary>✅ Já estão no app (${ja.length})</summary>${ja.map(([x]) => `<div class="imp-ja"><span>${esc(x.achou ? capIni(x.achou.nome) : x.nomeBase)}${x.total > 1 ? ' · ' + x.cur + '/' + x.total : ''}</span><strong>${fm(x.valor)}</strong></div>`).join('')}</details>`;
   if (imp.ignoradas.length) h += `<details class="imp-det"><summary>🚫 Linhas ignoradas (${imp.ignoradas.length})</summary>${imp.ignoradas.map(x => `<div class="imp-ja"><span>${esc(x.desc)}<small>${esc(x.motivo)}</small></span><strong>${fm(Math.abs(x.v))}</strong></div>`).join('')}</details>`;
@@ -6547,10 +6621,12 @@ function impAtualizarResumo() {
   const parcelas = sel.reduce((s, x) => s + (x.total - x.cur + 1), 0);
   const noMes = sel.reduce((s, x) => s + x.valor, 0), futuro = sel.reduce((s, x) => s + x.valor * (x.total - x.cur), 0);
   const ja = imp.itens.filter(x => x.status === 'existe').length;
-  $('impResumo').innerHTML = imp.itens.length ? `<div class="info-box">Arquivo: <strong>${imp.itens.length}</strong> compra(s) · <strong>${ja}</strong> já no app.<br>Selecionadas: <strong>${sel.length}</strong> compra(s) → <strong>${parcelas}</strong> parcela(s). Em ${esc(formatarMes(imp.mes))}: <strong>${fm(noMes)}</strong>${futuro > 0.004 ? ` · meses seguintes: <strong>${fm(futuro)}</strong>` : ''}</div>` : '';
+  const pgSel = (imp.pagamentos || []).filter(g => g.incluir), pgTot = pgSel.reduce((t, g) => t + g.valor, 0);
+  $('impResumo').innerHTML = (imp.itens.length || (imp.pagamentos || []).length) ? `<div class="info-box">Arquivo: <strong>${imp.itens.length}</strong> compra(s) · <strong>${ja}</strong> já no app.<br>Selecionadas: <strong>${sel.length}</strong> compra(s) → <strong>${parcelas}</strong> parcela(s). Em ${esc(formatarMes(imp.mes))}: <strong>${fm(noMes)}</strong>${futuro > 0.004 ? ` · meses seguintes: <strong>${fm(futuro)}</strong>` : ''}${pgSel.length ? `<br>Adiantamento de pagamentos recebidos: <strong>${fm(pgTot)}</strong>` : ''}</div>` : '';
   const cats = sel.filter(impCategorizada).length;
   const info = $('impRodapeInfo'); if (info) info.textContent = sel.length ? `${cats} de ${sel.length} categorizadas · ${sel.length - cats} irão para "Sem categorização"` : '';
-  const b = $('btnImpSalvar'); b.disabled = !sel.length; b.textContent = sel.length ? `Importar ${sel.length} compra(s)` : 'Nada selecionado';
+  const b = $('btnImpSalvar'), temItens = sel.length || pgSel.length; b.disabled = !temItens;
+  b.textContent = sel.length ? `Importar ${sel.length} compra(s)${pgSel.length ? ' + adiantamento' : ''}` : pgSel.length ? `Registrar adiantamento de ${fm(pgTot)}` : 'Nada selecionado';
 }
 
 function abrirImportacao() {
@@ -6587,7 +6663,8 @@ async function impSalvar() {
   const cartao = $('impCartao').value.trim(), dia = parseInt($('impDia').value);
   if (!cartao) return alert('Informe o nome do cartão (ex.: Nubank).');
   if (!(dia >= 1 && dia <= 31)) return alert('Dia de vencimento inválido.');
-  if (!sel.length) return;
+  const pgs = (imp.pagamentos || []).filter(g => g.incluir);
+  if (!sel.length && !pgs.length) return;
   const semNome = sel.find(x => !x.nome.trim()); if (semNome) return alert(`Informe o nome da compra "${semNome.desc}".`);
   const semResp = sel.find(x => !x.dividir && !x.resp); if (semResp) return alert(`Selecione o responsável de "${semResp.desc}".`);
   // compras marcadas para dividir: confere se a divisão fecha 100% e quem é de fora
@@ -6603,7 +6680,8 @@ async function impSalvar() {
   const nCat = sel.filter(impCategorizada).length, nPend = sel.length - nCat;
   const valPend = sel.filter(x => !impCategorizada(x)).reduce((s, x) => s + x.valor, 0);
   const msg = `${nCat} de ${sel.length} compra(s) estão categorizadas.` + (nPend ? `\n\n${nPend} compra(s) (${formatarMoeda(valPend)} neste mês) irão para "Sem categorização" e poderão ser categorizadas depois, em Planejamento.` : '\n\nTodas estão categorizadas.');
-  if (!await confirmar({ titulo: 'Confirmar importação', mensagem: msg, confirmarTexto: 'Importar', tipo: nPend ? 'aviso' : 'info' })) return;
+  const msgFinal = (sel.length ? msg : '') + (pgs.length ? `${sel.length ? '\n\n' : ''}Pagamentos recebidos (${formatarMoeda(pgs.reduce((t, g) => t + g.valor, 0))}) entram como adiantamento no cartão ${capNome(cartao)} em ${formatarMes(imp.mes)}.` : '');
+  if (!await confirmar({ titulo: 'Confirmar importação', mensagem: msgFinal, confirmarTexto: 'Importar', tipo: sel.length && nPend ? 'aviso' : 'info' })) return;
   const usarDiv = sel.some(x => x._div && x._div.divisao) || state.compras.some(c => 'divisao' in c);
   const tipoPag = (state.compras.find(c => ehCartaoCredito(c.tipo_pagamento)) || {}).tipo_pagamento || 'Cartão de Crédito';
   const btn = $('btnImpSalvar'); btn.disabled = true; btn.textContent = 'Importando...';
@@ -6635,7 +6713,7 @@ async function impSalvar() {
       if (error) throw error;
       feitos += lote.length;
     }
-    await db.from('historico_compras').insert(hist);
+    if (hist.length) await db.from('historico_compras').insert(hist);
     // pessoas de fora: cada uma vira uma cobrança em "Compras Divididas" (o total considera só as parcelas lançadas agora)
     for (const x of sel) if (x._div && x._div.externos.length) await sincronizarDevedores(x._id, capIni(x.nome.trim()), Math.round(x.valor * (x.total - x.cur + 1) * 100) / 100, x._div.externos);
   } catch (e) {
@@ -6645,8 +6723,13 @@ async function impSalvar() {
   }
   fecharModal('modalImportar');
   state.mesesSelecionados = [imp.mes];
-  notificar(`${sel.length} compra(s) importada(s): ${rows.length} parcela(s) lançadas.${semOriginal ? ' (Sem a coluna nome_original o app não lembra os nomes do banco.)' : ''}`, 'sucesso', 6000);
+  if (sel.length) notificar(`${sel.length} compra(s) importada(s): ${rows.length} parcela(s) lançadas.${semOriginal ? ' (Sem a coluna nome_original o app não lembra os nomes do banco.)' : ''}`, 'sucesso', 6000);
   await carregarDados();
+  if (pgs.length) {
+    const r = await aplicarAdiantamento(imp.mes, rotuloPagto({ tipo_pagamento: tipoPag, nome_pagamento: capNome(cartao) }), Math.round(pgs.reduce((t, g) => t + g.valor, 0) * 100) / 100);
+    notificar(r.msg, r.ok ? 'sucesso' : 'aviso', 8000);
+    await carregarDados();
+  }
 }
 function impLigarEventos() {
   impLigarDivisao();
@@ -6673,10 +6756,17 @@ function impLigarEventos() {
       if (x.dividir && !x.partes) x.partes = impPartesPadrao();
       impRedesenharCartao(card, x);
     }
+    else if (f === 'cat' && e.target.value === '__nova__') {
+      if (e.type === 'input') return;
+      impNovaCategoria(imp.itens, $('impLista'), x, e.target).then(() => { card.classList.toggle('categorizada', impCategorizada(x)); const pend = card.querySelector('[data-pend]'); if (pend) pend.style.display = impCategorizada(x) ? 'none' : ''; impAtualizarResumo(); });
+      return;
+    }
     else { x[f] = e.target.value; if (f === 'resp') x.respAuto = false; }
+    card.classList.toggle('categorizada', impCategorizada(x));
     const pend = card.querySelector('[data-pend]'); if (pend) pend.style.display = impCategorizada(x) ? 'none' : '';
     impAtualizarResumo();
   };
+  $('impLista').addEventListener('change', e => { const k = e.target.dataset && e.target.dataset.pg; if (k !== undefined && imp.pagamentos[+k]) { imp.pagamentos[+k].incluir = e.target.checked; impAtualizarResumo(); } });
   $('impLista').addEventListener('input', editar);
   $('impLista').addEventListener('change', editar);
 }
@@ -6912,7 +7002,7 @@ function exCardFatura(x, i) {
 }
 function exCard(x, i) {
   const data = ` · 📅 ${dataBR(x.data)}`;
-  return `<div class="imp-card" data-i="${i}">
+  return `<div class="imp-card${impCategorizada(x) ? ' categorizada' : ''}" data-i="${i}">
     <label class="imp-top"><input type="checkbox" data-f="incluir"${x.incluir ? ' checked' : ''}><span class="imp-orig">${esc(x.desc)}</span><strong>${fm(x.valor)}</strong></label>
     <div class="imp-meta">Saída da conta${data}${x.lembrado ? ' · ✨ nome lembrado' : ''}</div>
     <input class="imp-in" type="text" data-f="nome" value="${esc(x.nome)}" placeholder="Nome da compra" autocomplete="off">
@@ -6920,7 +7010,7 @@ function exCard(x, i) {
     <div class="imp-pend" data-pend${impCategorizada(x) ? ' style="display:none"' : ''}>⏳ Sem categorização completa — ${x.incluir ? 'vai para "Sem categorização" se não for preenchida' : 'marque para importar'}</div>
     <div class="imp-row">
       <select data-f="resp" title="Responsável">${impOptsSelect(opcoesResp, x.resp)}</select>
-      <select data-f="cat" title="Categoria">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Categoria…')}</select>
+      <select data-f="cat" title="Categoria">${impOptsSelect(categoriasOrcamento.map(c => c.nome), x.cat, 'Categoria…', true)}</select>
     </div>
     
     <div class="imp-row" style="grid-template-columns:1fr;"><select data-f="pagto" title="Forma de pagamento">${EX_TIPOS.map(t => `<option value="${esc(t)}"${t === x.pagto ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></div>
@@ -7036,7 +7126,13 @@ function exLigarEventos() {
       return;
     }
     else if (f === 'escolha') { x.escolha = parseInt(e.target.value); x.incluir = x.escolha >= 0; const cb = card.querySelector('[data-f="incluir"]'); if (cb) cb.checked = x.incluir; const p = card.querySelector('[data-previa]'); if (p) p.textContent = exPrevia(x); }
+    else if (f === 'cat' && e.target.value === '__nova__') {
+      if (e.type === 'input') return;
+      impNovaCategoria(ext.itens, $('exLista'), x, e.target).then(() => { card.classList.toggle('categorizada', impCategorizada(x)); const pend = card.querySelector('[data-pend]'); if (pend) pend.style.display = impCategorizada(x) ? 'none' : ''; exAtualizarResumo(); });
+      return;
+    }
     else { x[f] = e.target.value; if (f === 'resp') x.respAuto = false; }
+    card.classList.toggle('categorizada', impCategorizada(x));
     const pend = card.querySelector('[data-pend]'); if (pend) pend.style.display = impCategorizada(x) ? 'none' : '';
     exAtualizarResumo();
   };
@@ -7180,6 +7276,7 @@ function sugerirCategoria(texto) {
   const minhas = NV.regras.filter(r => r.ativo !== false && r.palavra).sort((a, b) => String(b.palavra).length - String(a.palavra).length);
   for (const r of minhas) if (n.includes(normalizarNome(r.palavra))) return { palavra: r.palavra, cat: r.categoria ? mCat(r.categoria) || r.categoria : '', motivo: r.motivo || '', tipo: r.tipo || '' };
   if (nvUsaPadroes()) for (const [ps, cat, motivo, tipo] of NV_PADROES) {
+    if (ps.includes('mercado') && /mercado ?(livre|pago)/.test(n)) continue;   // Mercado Livre / Mercado Pago não são supermercado
     const p = ps.find(x => n.includes(' ' + normalizarNome(x) + ' ') || n.includes(normalizarNome(x)));
     if (p) { const c = mCat(cat); if (c || motivo || tipo) return { palavra: p, cat: c, motivo, tipo }; }
   }
@@ -8014,6 +8111,13 @@ function ligarEventos() {
 
   $('btnGerenciarCompras').addEventListener('click', abrirModalGerenciarCompras);
   $('btnSalvarAdiantamento').addEventListener('click', salvarAdiantamento);
+  $('btnCatPSalvar').addEventListener('click', salvarCatParcela);
+  $('catPSel').addEventListener('change', async () => {
+    if ($('catPSel').value !== '__nova__') return;
+    const nome = String(window.prompt('Nome da nova categoria:') || '').replace(/\s+/g, ' ').trim();
+    if (!nome) return catPOpcoes('');
+    try { const c = await garantirCategoria(nome); catPOpcoes(c); } catch (e) { alert('Não foi possível criar a categoria: ' + (e.message || e)); catPOpcoes(''); }
+  });
   $('adTipo').addEventListener('change', () => { atualizarAdiantamento(); adRenderHist(); });
   $('adHistorico').addEventListener('click', e => { const b = e.target.closest('[data-adesf]'); if (b) adDesfazer(b.dataset.adesf); });
     $('btnPagasMes').addEventListener('click', abrirPagasMes);
@@ -8123,6 +8227,7 @@ function ligarEventos() {
       case 'del': excluirCompraDefinitiva(id); break;
       case 'pagar-parcela': pagarParcela(id, a); break;
       case 'desfazer-pgto': desfazerPagamento(id); break;
+      case 'cat-parcela': abrirCatParcela(id); break;
       case 'est-parcela': estornarParcela(id); break;
       case 'del-parcela': excluirParcela(id); break;
       case 'adiantar': abrirAdiantamento(id); break;
