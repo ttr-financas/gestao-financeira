@@ -6081,12 +6081,13 @@ function renderPagamentos(lista) {
     const pago = d.pagas === d.ids.length;
     const btn = pago ? '<button class="payment-btn paid">Pago</button>' : `<button class="payment-btn pending">${state.filtroPagto === tipo ? 'Mostrando abaixo' : 'Ver parcelas'}</button>`;
     const adBtn = (d.cartao && !multi) ? `<button class="payment-btn ad" data-act="adiantar" data-id="${esc(tipo)}">💳 Adiantar</button>` : '';
+    const pagarBtn = !pago && !(d.cartao && multi) ? `<button class="payment-btn ad" data-act="pagar-grupo" data-id="${esc(tipo)}">✅ Pagar</button>` : '';
     const falta = Math.max(0, d.total - d.pago);
     const verbo = d.cartao ? 'Adiantou' : 'Pago';
     const sub = pago ? `<div class="payment-sub">Quitado · ${fm(d.total)}</div>`
       : (d.pago > 0.004 ? `<div class="payment-sub ad">${verbo} ${fm(d.pago)} de ${fm(d.total)}</div>` : '');
     const subV = (!pago && d.venc) ? `<div class="payment-sub venc">⚠️ ${d.venc} parcela(s) vencida(s)</div>` : (!pago && d.hoje ? `<div class="payment-sub hoje">⏰ ${d.hoje} parcela(s) vence(m) hoje</div>` : '');
-    html += `<div class="payment-group clickable${state.filtroPagto === tipo ? ' selecionado' : ''}" data-act="fpagto" data-id="${esc(tipo)}"><div><div class="payment-title">${esc(tipo)}</div><div class="payment-val">${formatarMoeda(falta)}</div>${sub}${subV}${d.cartao ? nvInfoCartao(tipo) : ''}</div><div class="payment-btns">${adBtn}${btn}</div></div>`;
+    html += `<div class="payment-group clickable${state.filtroPagto === tipo ? ' selecionado' : ''}" data-act="fpagto" data-id="${esc(tipo)}"><div><div class="payment-title">${esc(tipo)}</div><div class="payment-val">${formatarMoeda(falta)}</div>${sub}${subV}${d.cartao ? nvInfoCartao(tipo) : ''}</div><div class="payment-btns">${pagarBtn}${adBtn}${btn}</div></div>`;
   });
   $('listaPagamentos').innerHTML = html || '<p style="color:var(--muted);font-size:13px;">Nenhum pagamento neste mês.</p>';
 }
@@ -6107,6 +6108,30 @@ async function pagarParcela(id, btn) {
   if (error) { btn.disabled = false; btn.textContent = '✅ Pagar parcela'; return alert('Erro ao pagar parcela: ' + error.message); }
   Object.assign(p, upd);
   notificar(`Parcela ${p.parcela_referencia || ''} de "${p.nome_compra}" paga!`, 'sucesso');
+  aposMudarPagamento();
+}
+
+// "Pagar" na forma de pagamento: cartão = quita o que falta da fatura (via adiantamento); demais = paga todas as parcelas abertas
+async function pagarGrupo(tipo) {
+  const l = state.compras.filter(c => state.mesesSelecionados.includes(c.mes_referencia) && isAtiva(c) && rotuloPagto(c) === tipo && !c.pagamento);
+  if (!l.length) return;
+  if (ehCartaoCredito(l[0].tipo_pagamento)) {
+    abrirAdiantamento(tipo);
+    const falta = l.reduce((t, c) => t + Math.max(0, (Number(c.valor_parcela) || 0) - valorPagoParcela(c)), 0);
+    if ($('adValor')) { $('adValor').value = formatarMoeda(falta); $('adValor').dispatchEvent(new Event('input', { bubbles: true })); }
+    return;
+  }
+  const total = l.reduce((t, c) => t + (Number(c.valor_parcela) || 0), 0);
+  if (!await confirmar({ titulo: 'Pagar ' + tipo, mensagem: `Marcar como pagas ${l.length} parcela(s) de ${tipo}, no total de ${formatarMoeda(total)}?`, confirmarTexto: 'Pagar tudo', tipo: 'info' })) return;
+  const agora = new Date().toISOString();
+  for (const p of l) {
+    const upd = { pagamento: true, data_pagamento: agora };
+    if ('valor_pago' in p) upd.valor_pago = Number(p.valor_parcela) || 0;
+    const { error } = await db.from('compras').update(upd).eq('id', p.id).in('criado_por', emailsGrupo());
+    if (error) { aposMudarPagamento(); return alert('Erro ao pagar: ' + error.message); }
+    Object.assign(p, upd);
+  }
+  notificar(`${l.length} parcela(s) de ${tipo} pagas!`, 'sucesso');
   aposMudarPagamento();
 }
 
@@ -8446,6 +8471,7 @@ function ligarEventos() {
       case 'est-parcela': estornarParcela(id); break;
       case 'del-parcela': excluirParcela(id); break;
       case 'adiantar': abrirAdiantamento(id); break;
+      case 'pagar-grupo': e.stopPropagation(); pagarGrupo(id); break;
       case 'renda-extra': abrirRendaExtra(); break;
       case 'extra-del': excluirExtra(id); break;
       case 'delcat': e.stopPropagation(); excluirCategoria(id); break;
