@@ -5795,6 +5795,7 @@ function abrirModalCategorizar() {
     }
     agrupadas[p.id_compra].valor_total += valorPessoa(p, state.filtroPessoa);
     agrupadas[p.id_compra].parcelas++;
+    agrupadas[p.id_compra].total_compra = (Number(p.valor_parcela) || 0) * (parseInt(String(p.parcela_referencia || '1/1').split('/')[1]) || 1);
     if (p.mes_referencia === mesSel && agrupadas[p.id_compra].mes_referencia !== mesSel) { const t = agrupadas[p.id_compra]; Object.assign(t, { ...p, valor_total: t.valor_total, parcelas: t.parcelas }); }
   });
   
@@ -5817,6 +5818,7 @@ function abrirModalCategorizar() {
       <div class="cat-details-grid">
         <div>👤 ${esc(rotuloResp(p))}</div>
         <div>📅 Venc: ${venc}</div>
+        <div>💰 Total da compra: ${formatarMoeda(p.total_compra)}</div>
         <div>🔢 Parcela ${esc(p.parcela_referencia || '1/1')}${p.parcelas > 1 ? ` · ${p.parcelas} pendentes` : ''}</div>
         ${compraEmLinha(p)}
       </div>
@@ -6748,7 +6750,7 @@ function impLigarDivisao() {
   });
 }
 function impCard(x, i) {
-  const meta = x.total > 1 ? `Parcela ${x.cur}/${x.total} · lança ${x.total - x.cur + 1} parcela(s) até ${formatarMes(addMes(imp.mes, x.total - x.cur))}` : 'À vista (1 parcela)';
+  const meta = x.total > 1 ? `Parcela ${x.cur}/${x.total} · total da compra ${fm(x.valor * x.total)}${x.cur > 1 ? ` · projeta ${x.cur - 1} parcela(s) anterior(es) (desde ${formatarMes(addMes(imp.mes, 1 - x.cur))}, já pagas)` : ''} · até ${formatarMes(addMes(imp.mes, x.total - x.cur))}` : 'À vista (1 parcela)';
   const data = x.dataCompra ? ` · 📅 ${dataBR(x.dataCompra)}` : '';
   return `<div class="imp-card${impCategorizada(x) ? ' categorizada' : ''}" data-i="${i}">
     <label class="imp-top"><input type="checkbox" data-f="incluir"${x.incluir ? ' checked' : ''}><span class="imp-orig">${esc(x.desc)}</span><strong>${fm(x.valor)}</strong></label>
@@ -6878,18 +6880,19 @@ async function impSalvar() {
   const rows = [], hist = [];
   sel.forEach(x => {
     const id = novoIdCompra(); x._id = id;
-    for (let k = x.cur; k <= x.total; k++) {
+    for (let k = 1; k <= x.total; k++) {
       const ym = addMes(imp.mes, k - x.cur); const [y, mo] = ym.split('-').map(Number);
+      const passada = k < x.cur; // parcelas anteriores à da fatura: já foram pagas, entram para o histórico ficar completo
       rows.push({
         id_compra: id, nome_compra: capIni(x.nome.trim()), valor_parcela: x.valor, responsavel: x._div ? x._div.responsavel : x.resp,
         ...(usarDiv ? { divisao: x._div ? x._div.divisao : null } : {}),
         categoria_orcamento: x.cat || null,
         tipo_pagamento: tipoPag, nome_pagamento: capNome(cartao), nome_original: x.nomeBase,
         data_compra: x.dataCompra || null, mes_referencia: ym, data_parcela: `${ym}-${pad2(Math.min(dia, new Date(y, mo, 0).getDate()))}`,
-        parcela_referencia: `${k}/${x.total}`, status: 'Ativo', pagamento: false, data_pagamento: null, criado_por: currentUser.email
+        parcela_referencia: `${k}/${x.total}`, status: 'Ativo', pagamento: passada, data_pagamento: passada ? new Date(`${ym}-${pad2(Math.min(dia, new Date(y, mo, 0).getDate()))}T12:00:00`).toISOString() : null, ...(passada && temColValorPago() ? { valor_pago: x.valor } : {}), criado_por: currentUser.email
       });
     }
-    hist.push({ grupo_id: grupoId(), id_compra: id, nome_compra: x.nome.trim(), acao: 'Importada', detalhes: `${x.total - x.cur + 1} parcela(s) · ${formatarMoeda(x.valor)} (fatura CSV)${x._div ? ' · dividida' + (x._div.externos.length ? ' com ' + x._div.externos.map(e => e.nome).join(', ') : '') : ''}`, alterado_por: currentUser.nome });
+    hist.push({ grupo_id: grupoId(), id_compra: id, nome_compra: x.nome.trim(), acao: 'Importada', detalhes: `${x.total} parcela(s)${x.cur > 1 ? ` (${x.cur - 1} anterior(es) projetada(s) para trás)` : ''} · ${formatarMoeda(x.valor)} (fatura CSV)${x._div ? ' · dividida' + (x._div.externos.length ? ' com ' + x._div.externos.map(e => e.nome).join(', ') : '') : ''}`, alterado_por: currentUser.nome });
   });
   let feitos = 0, semOriginal = false;
   try {
@@ -6914,7 +6917,7 @@ async function impSalvar() {
       }
     }
     // pessoas de fora: cada uma vira uma cobrança em "Compras Divididas" (o total considera só as parcelas lançadas agora)
-    for (const x of sel) if (x._div && x._div.externos.length) await sincronizarDevedores(x._id, capIni(x.nome.trim()), Math.round(x.valor * (x.total - x.cur + 1) * 100) / 100, x._div.externos);
+    for (const x of sel) if (x._div && x._div.externos.length) await sincronizarDevedores(x._id, capIni(x.nome.trim()), Math.round(x.valor * x.total * 100) / 100, x._div.externos);
   } catch (e) {
     btn.disabled = false; impAtualizarResumo();
     alert(/nome_pagamento/.test(e.message || '') ? 'Não foi possível importar: falta criar a coluna nome_pagamento no banco.' : /divisao/.test(e.message || '') ? 'Não foi possível importar: falta criar a coluna divisao no banco. Execute o SQL enviado e recarregue a página.' : `Erro ao importar${feitos ? ` (${feitos} de ${rows.length} parcelas já foram gravadas; confira em Gerenciar antes de tentar de novo)` : ''}: ${e.message || e}`);
