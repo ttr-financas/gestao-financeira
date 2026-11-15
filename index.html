@@ -5783,7 +5783,10 @@ async function salvarOrcamentoPadrao() {
 
 /* ---- Categorizar pendentes ---- */
 function abrirModalCategorizar() {
-  const pend = comprasDoMesPessoa(state.mesesSelecionados[0]).filter(c => !c.categoria_orcamento);
+  const mesSel = state.mesesSelecionados[0];
+  // todas as parcelas sem categoria (de qualquer mês), para nada ficar escondido
+  const pend = state.compras.filter(c => isAtiva(c) && daPessoa(c, state.filtroPessoa) && !c.categoria_orcamento)
+    .sort((x, y) => (x.mes_referencia === mesSel ? 0 : 1) - (y.mes_referencia === mesSel ? 0 : 1) || String(x.data_parcela || '').localeCompare(String(y.data_parcela || '')));
   
   const agrupadas = {};
   pend.forEach(p => {
@@ -5792,6 +5795,7 @@ function abrirModalCategorizar() {
     }
     agrupadas[p.id_compra].valor_total += valorPessoa(p, state.filtroPessoa);
     agrupadas[p.id_compra].parcelas++;
+    if (p.mes_referencia === mesSel && agrupadas[p.id_compra].mes_referencia !== mesSel) { const t = agrupadas[p.id_compra]; Object.assign(t, { ...p, valor_total: t.valor_total, parcelas: t.parcelas }); }
   });
   
   const opts = '<option value="">Selecione uma categoria...</option>' + 
@@ -5813,7 +5817,7 @@ function abrirModalCategorizar() {
       <div class="cat-details-grid">
         <div>👤 ${esc(rotuloResp(p))}</div>
         <div>📅 Venc: ${venc}</div>
-        <div>🔢 Parcela ${esc(p.parcela_referencia || '1/1')}</div>
+        <div>🔢 Parcela ${esc(p.parcela_referencia || '1/1')}${p.parcelas > 1 ? ` · ${p.parcelas} pendentes` : ''}</div>
         ${compraEmLinha(p)}
       </div>
       <div class="cat-select-wrapper">
