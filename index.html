@@ -360,8 +360,8 @@
   .cat-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
   .cat-details-grid div { background: var(--chip-bg); padding: 5px 9px; border-radius: 8px; word-break: break-word; }
   .cat-select-wrapper { background: rgba(var(--w),.05); border: 1px solid var(--border); border-radius: 12px; padding: 2px 6px; }
-  .cat-select { width: 100%; padding: 11px 6px; background: transparent; border: none; color: var(--text); outline: none; }
-  .cat-select option { background: var(--card-solid); color: var(--text); }
+  .cat-select, .resp-select { width: 100%; padding: 11px 6px; background: transparent; border: none; color: var(--text); outline: none; }
+  .cat-select option, .resp-select option { background: var(--card-solid); color: var(--text); }
   .aplicar-box { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; font-size: 13px; }
   .aplicar-box label { display: flex; align-items: center; gap: 6px; background: var(--card2); padding: 8px 12px; border-radius: 10px; }
   .aplicar-box input { accent-color: var(--primary); }
@@ -667,12 +667,12 @@
 
   /* campos alinhados e com a mesma altura */
   .input-group input, .input-group select, .password-wrapper input { min-height: 48px; }
-  .input-group select, .imp-card select, .cat-select {
+  .input-group select, .imp-card select, .cat-select, .resp-select {
     -webkit-appearance: none; appearance: none; padding-right: 36px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2393a0bd' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 14px center; background-size: 12px 8px;
   }
-  .cat-select { padding-left: 6px; }
+  .cat-select, .resp-select { padding-left: 6px; }
   .form-grid { gap: 14px 12px; align-items: start; }
   .form-grid .input-group label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .input-group input[type=date] { display: block; text-align: left; min-width: 0; }
@@ -1142,7 +1142,7 @@
     <div class="section-box">
       <h3>Faturas e Formas de Pagamento</h3>
       <div id="listaPagamentos"></div>
-      <button class="btn secondary" id="btnImportarFatura" type="button" style="margin-top:12px;">📥 Importar fatura (CSV)</button>
+      <button class="btn secondary" id="btnImportarFatura" type="button" style="margin-top:12px;">📥 Importar fatura (CSV, ou PDF)</button>
       <button class="btn secondary" id="btnImportarExtrato" type="button" style="margin-top:8px;">🏦 Importar extrato da conta</button>
     </div>
 
@@ -1300,7 +1300,12 @@
 <div class="modal-overlay" id="modalCategorizar">
   <div class="modal" role="dialog" aria-modal="true">
     <div class="modal-header"><h3>Categorizar Gastos</h3><button class="close-btn" aria-label="Fechar" data-close="modalCategorizar">×</button></div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:15px;">Selecione a categoria para cada compra abaixo:</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Escolha a categoria e, se precisar, quem é o responsável de cada compra. Para muitas de uma vez, use "Para todas" e depois ajuste só as diferentes.</p>
+    <div class="info-box" id="pendLote" style="display:none;margin-bottom:12px;">
+      <strong>Para todas as compras abaixo</strong>
+      <div class="imp-row" style="grid-template-columns:1fr 1fr;margin-top:8px;"><select id="loteCat" class="resp-select" style="border:1px solid var(--border);border-radius:12px;background:rgba(var(--w),.05);"></select><select id="loteResp" class="resp-select" style="border:1px solid var(--border);border-radius:12px;background:rgba(var(--w),.05);"></select></div>
+      <button class="btn secondary" id="btnLoteAplicar" type="button" style="margin-top:8px;">Aplicar a todas</button>
+    </div>
     <div id="listaPendentes" style="max-height:60vh;overflow-y:auto;margin-bottom:15px;"></div>
     <button class="btn" id="btnSalvarCategorizacao">Salvar Categorias</button>
   </div>
@@ -1463,14 +1468,14 @@
 <!-- MODAL IMPORTAR FATURA -->
 <div class="modal-overlay" id="modalImportar">
   <div class="modal" role="dialog" aria-modal="true">
-    <div class="modal-header"><h3>Importar fatura (CSV)</h3><button class="close-btn" aria-label="Fechar" data-close="modalImportar">×</button></div>
+    <div class="modal-header"><h3>Importar fatura (CSV ou PDF)</h3><button class="close-btn" aria-label="Fechar" data-close="modalImportar">×</button></div>
     <div class="form-grid">
       <div class="input-group"><label>Cartão</label><input type="text" id="impCartao" placeholder="Ex.: Nubank"></div>
       <div class="input-group"><label>Responsável</label><input type="text" id="impResp" placeholder="Selecione"></div>
       <div class="input-group"><label>Mês da fatura</label><input type="text" id="impMes"></div>
       <div class="input-group"><label>Dia do venc.</label><input type="text" inputmode="numeric" id="impDia" maxlength="2"></div>
     </div>
-        <input type="file" id="impArquivo" accept=".csv,.txt,text/csv,text/plain" style="display:none">
+        <input type="file" id="impArquivo" accept=".csv,.txt,.pdf,text/csv,text/plain,application/pdf" style="display:none">
     <button class="btn secondary" id="btnImpArquivo" type="button" style="margin-top:0;">📎 Escolher arquivo da fatura</button>
     <p class="hint" id="impArqNome" style="margin-top:8px;"></p>
     <div id="impColunas" style="display:none;"></div>
@@ -1488,8 +1493,8 @@
       <div class="input-group"><label>Conta</label><input type="text" id="exConta" placeholder="Ex.: Nubank"></div>
       <div class="input-group"><label>Responsável</label><input type="text" id="exResp" placeholder="Selecione"></div>
     </div>
-    <input type="file" id="exArquivo" accept=".csv,.txt,.ofx,.qfx,text/csv,text/plain" style="display:none">
-    <button class="btn secondary" id="btnExArquivo" type="button" style="margin-top:0;">📎 Escolher extrato (CSV ou OFX)</button>
+    <input type="file" id="exArquivo" accept=".csv,.txt,.ofx,.qfx,.pdf,text/csv,text/plain,application/pdf" style="display:none">
+    <button class="btn secondary" id="btnExArquivo" type="button" style="margin-top:0;">📎 Escolher extrato (CSV ou OFX; PDF só se precisar)</button>
     <p class="hint" id="exArqNome" style="margin-top:8px;"></p>
     <div id="exColunas" style="display:none;"></div>
     <div id="exResumo"></div>
@@ -5733,7 +5738,10 @@ function abrirModalCategorizar() {
     .map(c => `<option value="${esc(c.nome)}">${esc(capIni(c.nome))}</option>`).join('');
   
   const lista = Object.values(agrupadas);
-  
+  const optsResp = (atual) => { const nomes = [...opcoesResp]; if (atual && !nomes.some(n => normalizarNome(n) === normalizarNome(atual))) nomes.push(atual); return nomes.map(n => `<option value="${esc(n)}"${normalizarNome(n) === normalizarNome(atual || '') ? ' selected' : ''}>${esc(capNome(n))}</option>`).join(''); };
+  $('pendLote').style.display = lista.length > 1 ? '' : 'none';
+  $('loteCat').innerHTML = opts.replace('Selecione uma categoria...', 'Categoria (não mudar)');
+  $('loteResp').innerHTML = '<option value="">Responsável (não mudar)</option>' + optsResp('').replace(/ selected/g, '');
   $('listaPendentes').innerHTML = lista.length ? lista.map(p => {
     const venc = p.data_parcela ? p.data_parcela.split('-').reverse().slice(0, 2).join('/') : '-';
     return `<div class="categorizar-card">
@@ -5749,15 +5757,26 @@ function abrirModalCategorizar() {
       <div class="cat-select-wrapper">
         <select class="cat-select" data-idcompra="${esc(p.id_compra)}">${opts}</select>
       </div>
+      <div class="cat-select-wrapper" style="margin-top:8px;" title="Responsável">
+        <select class="resp-select" data-idcompra="${esc(p.id_compra)}" data-orig="${esc(p.responsavel || '')}">${optsResp(p.responsavel)}</select>
+      </div>
     </div>`;
   }).join('') : '<p style="text-align:center;color:var(--muted);padding:20px;">Tudo categorizado!</p>';
   
   abrirModal('modalCategorizar');
 }
+function aplicarLotePendentes() {
+  const cat = $('loteCat').value, resp = $('loteResp').value;
+  if (!cat && !resp) return alert('Escolha a categoria e/ou o responsável para aplicar.');
+  document.querySelectorAll('#listaPendentes .cat-select').forEach(sl => { if (cat) sl.value = cat; });
+  document.querySelectorAll('#listaPendentes .resp-select').forEach(sl => { if (resp) sl.value = resp; });
+  notificar('Aplicado a todas. Ajuste as que forem diferentes e toque em Salvar.', 'info', 5000);
+}
 async function salvarCategorizacao() {
   const mes = state.mesesSelecionados[0];
   const sels = [...document.querySelectorAll('.cat-select')].filter(s => s.value);
-  if (!sels.length) return alert('Nenhuma categoria selecionada.');
+  const mudancasResp = [...document.querySelectorAll('#listaPendentes .resp-select')].filter(r => normalizarNome(r.value) !== normalizarNome(r.dataset.orig));
+  if (!sels.length && !mudancasResp.length) return alert('Nada foi alterado: escolha uma categoria ou outro responsável.');
   // campos que ficaram em branco na inclusão da compra são obrigatórios para categorizar
   const extras = {};
   document.querySelectorAll('#listaPendentes .cat-fill').forEach(el => el.classList.remove('erro'));
@@ -5774,11 +5793,13 @@ async function salvarCategorizacao() {
   }
   const btn = $('btnSalvarCategorizacao'); btn.disabled = true;
   
-  const res = await Promise.all(sels.map(s => 
-    // categoriza TODAS as parcelas do grupo da compra (qualquer mês, qualquer responsável)
-    db.from('compras').update({ categoria_orcamento: s.value, ...(extras[s.dataset.idcompra] || {}) })
-      .eq('id_compra', s.dataset.idcompra)
-      .in('criado_por', emailsGrupo())
+  const temDiv = state.compras.some(c => 'divisao' in c);
+  const porCompra = {};
+  sels.forEach(sl => { porCompra[sl.dataset.idcompra] = { categoria_orcamento: sl.value, ...(extras[sl.dataset.idcompra] || {}) }; });
+  mudancasResp.forEach(r => { const o = (porCompra[r.dataset.idcompra] = porCompra[r.dataset.idcompra] || {}); o.responsavel = r.value; if (temDiv) o.divisao = null; });
+  const res = await Promise.all(Object.entries(porCompra).map(([idc, upd]) =>
+    // vale para TODAS as parcelas da compra (qualquer mês)
+    db.from('compras').update(upd).eq('id_compra', idc).in('criado_por', emailsGrupo())
   ));
   
   btn.disabled = false;
@@ -6245,6 +6266,70 @@ function impDecodificar(buf) {
   try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }
   catch (e) { return new TextDecoder('windows-1252').decode(buf); }
 }
+/* ---- leitura de PDF (fatura do cartão e extrato da conta) ---- */
+const PDF_JS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', PDF_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const ehPdf = f => !!f && (/pdf/i.test(f.type || '') || /\.pdf$/i.test(f.name || ''));
+async function pdfCarregarLib() {
+  if (window.pdfjsLib) return window.pdfjsLib;
+  await new Promise((ok, erro) => { const sc = document.createElement('script'); sc.src = PDF_JS; sc.onload = ok; sc.onerror = () => erro(new Error('sem conexão para carregar o leitor de PDF')); document.head.appendChild(sc); });
+  try { const t = await (await fetch(PDF_WORKER)).text(); window.pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([t], { type: 'text/javascript' })); }
+  catch (e) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER; }
+  return window.pdfjsLib;
+}
+async function pdfTextoLinhas(file) {
+  const lib = await pdfCarregarLib();
+  const dados = new Uint8Array(await file.arrayBuffer());
+  let doc = null, senha;
+  for (let t = 0; t < 3 && !doc; t++) {
+    try { doc = await lib.getDocument({ data: dados.slice(), password: senha }).promise; }
+    catch (e) {
+      if (e && e.name === 'PasswordException') { senha = window.prompt(e.code === 2 ? 'Senha incorreta. Digite a senha do PDF:' : 'Este PDF tem senha. Digite a senha para abrir:'); if (!senha) throw new Error('cancelado'); }
+      else throw e;
+    }
+  }
+  if (!doc) throw new Error('senha incorreta');
+  const linhas = [];
+  for (let n = 1; n <= doc.numPages; n++) {
+    const tc = await (await doc.getPage(n)).getTextContent();
+    const it = tc.items.filter(i => i.str && i.str.trim()).map(i => ({ s: i.str, x: i.transform[4], y: i.transform[5], w: i.width || 0 })).sort((a, b) => b.y - a.y || a.x - b.x);
+    let atual = [], yAtual = null;
+    const fecha = () => { if (!atual.length) return; atual.sort((a, b) => a.x - b.x); let l = ''; atual.forEach((c, k) => { const prev = atual[k - 1]; l += (k && (c.x - (prev.x + prev.w) > 1.2) ? ' ' : '') + c.s; }); linhas.push(l.replace(/\s+/g, ' ').trim()); atual = []; };
+    it.forEach(c => { if (yAtual === null || Math.abs(c.y - yAtual) > 3) { fecha(); yAtual = c.y; } atual.push(c); });
+    fecha();
+  }
+  return linhas;
+}
+const PDF_MESES = { jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6, jul: 7, ago: 8, set: 9, out: 10, nov: 11, dez: 12 };
+// transforma as linhas de texto do PDF em linhas de tabela (Data, Descrição, Valor), como se fosse um CSV
+function pdfParaRows(linhas) {
+  const anoDoc = (linhas.join(' ').match(/\b(20\d{2})\b/) || [])[1] || String(new Date().getFullYear());
+  const rows = [['Data', 'Descrição', 'Valor']];
+  const reVal = /(?:^|\s)([-−–]?)(?:R\$\s?)?([-−–]?)(\d{1,3}(?:\.\d{3})*,\d{2})([-−–]?)\s*$/;
+  linhas.forEach(l => {
+    let d, mo, a, resto, m = l.match(/^(\d{1,2})[\/.](\d{1,2})(?:[\/.](\d{2,4}))?\s+(.+)$/);
+    if (m) { d = +m[1]; mo = +m[2]; a = m[3]; resto = m[4]; }
+    else if ((m = l.match(/^(\d{1,2})\s+(?:de\s+)?(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)[a-zç]*\.?(?:\s+(?:de\s+)?(\d{4}))?\s+(.+)$/i))) { d = +m[1]; mo = PDF_MESES[m[2].toLowerCase()]; a = m[3]; resto = m[4]; }
+    else return;
+    if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return;
+    const v = resto.match(reVal); if (!v) return;
+    const desc = resto.slice(0, v.index).replace(/[•*·]+\s*\d{4}\b/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!desc) return;
+    const ano = !a ? anoDoc : a.length === 2 ? '20' + a : a;
+    rows.push([`${String(d).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${ano}`, desc, (v[1] || v[2] || v[4] ? '-' : '') + v[3]]);
+  });
+  return rows;
+}
+async function pdfLerRows(file) {
+  bloquearTela(true, 'Lendo o PDF…');
+  try {
+    const rows = pdfParaRows(await pdfTextoLinhas(file));
+    if (rows.length < 2) { alert('Não encontrei lançamentos neste PDF. Ele precisa ser a fatura ou o extrato em texto (não foto/escaneado). Se o banco oferece CSV ou OFX, esses funcionam melhor.'); return null; }
+    return rows;
+  } catch (e) {
+    if (!/cancelado/.test(e.message || '')) alert('Não consegui ler o PDF: ' + (e.message || e));
+    return null;
+  } finally { bloquearTela(false); }
+}
 function impParseCSV(txt) {
   txt = txt.replace(/^\uFEFF/, '');
   const prim = txt.split(/\r?\n/).find(l => l.trim()) || '';
@@ -6402,6 +6487,23 @@ async function impBuscarExistentes(mes) {
   return tudo.filter(isAtiva);
 }
 
+// Um pagamento que aparece na fatura é da fatura ANTERIOR (não importa) ou desta, ainda aberta (vira adiantamento):
+//  1) feito até o vencimento da fatura anterior → pagou a anterior;
+//  2) feito depois disso, mas com o valor igual ao total da anterior → pagou a anterior atrasada;
+//  3) feito depois do vencimento da anterior, com outro valor → abate esta fatura.
+function impClassificarPagamento(valor, data, mes) {
+  const dia = parseInt($('impDia').value) || 10;
+  const [y, mo] = mes.split('-').map(Number);
+  const ay = mo === 1 ? y - 1 : y, am = mo === 1 ? 12 : mo - 1;
+  const mesAnt = `${ay}-${pad2(am)}`;
+  const venc = `${mesAnt}-${pad2(Math.min(dia, new Date(ay, am, 0).getDate()))}`;
+  const cartao = normalizarNome($('impCartao').value || '');
+  const totalAnt = state.compras.filter(c => c.mes_referencia === mesAnt && ehCartaoCredito(c.tipo_pagamento) && (!cartao || normalizarNome(c.nome_pagamento || '') === cartao)).reduce((t, c) => t + Number(c.valor_parcela || 0), 0);
+  if (!data) return { desta: false, nota: 'sem data no arquivo: marque se for desta fatura' };
+  if (data <= venc) return { desta: false, nota: `feito até o vencimento da fatura anterior (${dataBR(venc)})` };
+  if (totalAnt > 0 && Math.abs(valor - totalAnt) <= Math.max(1, totalAnt * 0.01)) return { desta: false, nota: 'valor igual ao da fatura anterior (pago com atraso)' };
+  return { desta: true, nota: `depois do vencimento da anterior (${dataBR(venc)}): abate esta fatura` };
+}
 async function impAnalisar() {
   if (!imp.linhas.length) return;
   const mes = $('impMes').value;
@@ -6440,8 +6542,13 @@ async function impAnalisar() {
   const sinalCompra = pos >= brutos.length - pos ? 1 : -1;
   imp.ignoradas = []; imp.pagamentos = []; const lidos = [];
   brutos.forEach(b => {
-    if (Math.sign(b.v) !== sinalCompra && IMP_PAGTO.test(normalizarNome(b.desc)) && !/estorno/.test(normalizarNome(b.desc))) return imp.pagamentos.push({ desc: b.desc, valor: Math.round(Math.abs(b.v) * 100) / 100, data: m.data >= 0 ? impData(b.r[m.data], mes) : null, incluir: true });
-    if (Math.sign(b.v) !== sinalCompra) return imp.ignoradas.push({ ...b, motivo: 'Crédito, estorno ou pagamento' });
+    if (Math.sign(b.v) !== sinalCompra && IMP_PAGTO.test(normalizarNome(b.desc)) && !/estorno/.test(normalizarNome(b.desc))) {
+      // pagamento feito na fatura: decide se abate ESTA fatura (aberta) ou se era da anterior
+      const valor = Math.round(Math.abs(b.v) * 100) / 100, data = m.data >= 0 ? impData(b.r[m.data], mes) : null;
+      const cl = impClassificarPagamento(valor, data, mes);
+      return imp.pagamentos.push({ desc: b.desc, valor, data, incluir: cl.desta, nota: cl.nota });
+    }
+    if (Math.sign(b.v) !== sinalCompra) return imp.ignoradas.push({ ...b, motivo: 'Crédito ou estorno (não é importado)' });
     if (IMP_IGNORAR.test(normalizarNome(b.desc))) return imp.ignoradas.push({ ...b, motivo: 'Pagamento/saldo da fatura' });
     lidos.push(b);
   });
@@ -6607,7 +6714,7 @@ function impRender() {
   let h = '';
   h += `<div class="imp-sec">🆕 Novas <span class="badge">${novas.length}</span></div>`;
   h += novas.length ? novas.map(([x, i]) => impCard(x, i)).join('') : '<p class="hint">Nenhuma compra nova neste arquivo.</p>';
-  if ((imp.pagamentos || []).length) h += `<div class="imp-sec">💰 Pagamentos recebidos <span class="badge">${imp.pagamentos.length}</span></div><p class="hint">Entram como <b>adiantamento</b> no cartão deste mês (abatem as parcelas da maior para a menor). Desmarque o que não quiser.</p>` + imp.pagamentos.map((g, k) => `<label class="imp-ja" style="cursor:pointer;"><span><input type="checkbox" data-pg="${k}"${g.incluir ? ' checked' : ''}> ${esc(capIni(g.desc))}${g.data ? '<small>' + esc(dataBR(g.data)) + '</small>' : ''}</span><strong>${fm(g.valor)}</strong></label>`).join('');
+  if ((imp.pagamentos || []).length) h += `<div class="imp-sec">💰 Pagamentos recebidos <span class="badge">${imp.pagamentos.length}</span></div><p class="hint">O app separa o que pagou a fatura anterior (não importa) do que foi adiantamento desta fatura aberta (marcado: vira adiantamento e abate as parcelas da maior para a menor). Confira e ajuste se precisar.</p>` + imp.pagamentos.map((g, k) => `<label class="imp-ja" style="cursor:pointer;"><span><input type="checkbox" data-pg="${k}"${g.incluir ? ' checked' : ''}> ${esc(capIni(g.desc))}<small>${g.data ? esc(dataBR(g.data)) + ' · ' : ''}${esc(g.nota || '')}</small></span><strong>${fm(g.valor)}</strong></label>`).join('');
   if (poss.length) h += `<div class="imp-sec">❓ Possíveis duplicatas <span class="badge">${poss.length}</span></div><p class="hint">O app não tem certeza se já existem. Marque só as que quiser importar.</p>` + poss.map(([x, i]) => impCard(x, i)).join('');
   if (ja.length) h += `<details class="imp-det"><summary>✅ Já estão no app (${ja.length})</summary>${ja.map(([x]) => `<div class="imp-ja"><span>${esc(x.achou ? capIni(x.achou.nome) : x.nomeBase)}${x.total > 1 ? ' · ' + x.cur + '/' + x.total : ''}</span><strong>${fm(x.valor)}</strong></div>`).join('')}</details>`;
   if (imp.ignoradas.length) h += `<details class="imp-det"><summary>🚫 Linhas ignoradas (${imp.ignoradas.length})</summary>${imp.ignoradas.map(x => `<div class="imp-ja"><span>${esc(x.desc)}<small>${esc(x.motivo)}</small></span><strong>${fm(Math.abs(x.v))}</strong></div>`).join('')}</details>`;
@@ -6639,22 +6746,25 @@ function abrirImportacao() {
   $('impResp').value = opcoesResp.includes(currentUser.nome) ? currentUser.nome : (opcoesResp[0] || '');
   const rec = state.compras.filter(c => ehCartaoCredito(c.tipo_pagamento) && c.data_parcela).sort((a, b) => String(b.data_parcela).localeCompare(String(a.data_parcela)))[0];
   $('impDia').value = rec ? String(parseInt(rec.data_parcela.split('-')[2])) : '10';
-  $('impArqNome').textContent = 'Exporte a fatura do cartão em CSV no app do banco e escolha o arquivo aqui.';
+  $('impArqNome').textContent = 'Prefira o arquivo em CSV (leitura mais confiável). Use PDF só se o banco não oferecer CSV.';
   ['impColunas', 'impResumo', 'impLista'].forEach(id => { $(id).innerHTML = ''; }); $('impColunas').style.display = 'none'; $('impAviso').style.display = 'none';
   impAtualizarResumo();
   abrirModal('modalImportar');
 }
 async function impLerArquivo(file) {
   if (!file) return;
-  const txt = impDecodificar(await file.arrayBuffer());
-  const rows = impParseCSV(txt);
-  if (rows.length < 2) return alert('Não consegui ler linhas neste arquivo. Ele precisa ser um CSV (texto separado por vírgula ou ponto e vírgula).');
+  let rows;
+  if (ehPdf(file)) { rows = await pdfLerRows(file); if (!rows) return; }
+  else {
+    rows = impParseCSV(impDecodificar(await file.arrayBuffer()));
+    if (rows.length < 2) return alert('Não consegui ler linhas neste arquivo. Ele precisa ser um CSV ou PDF da fatura.');
+  }
   const h = impAcharCabecalho(rows);
   imp.linhas = rows; imp.iniDados = h + 1;
   imp.cab = h >= 0 ? rows[h] : (rows[0] || []).map((_, i) => 'Coluna ' + (i + 1));
   let salvo = null; try { salvo = (JSON.parse(localStorage.getItem(IMP_MAP_KEY) || '{}'))[impAssinatura(imp.cab)]; } catch (e) {}
   imp.map = salvo && typeof salvo === 'object' ? salvo : impDetectar(imp.cab);
-  $('impArqNome').textContent = `📄 ${file.name} · ${rows.length - imp.iniDados} linha(s)`;
+  $('impArqNome').textContent = `📄 ${file.name} · ${rows.length - imp.iniDados} linha(s)` + (ehPdf(file) ? ' · PDF: a leitura é menos precisa, confira os valores. Prefira o CSV.' : '');
   impRenderColunas();
   await impAnalisar();
 }
@@ -6859,30 +6969,32 @@ function abrirExtrato() {
   const rec = state.compras.filter(c => c.nome_pagamento && !ehCartaoCredito(c.tipo_pagamento) && normalizarNome(c.tipo_pagamento) !== 'dinheiro').sort((a, b) => String(b.data_parcela || '').localeCompare(String(a.data_parcela || '')))[0];
   $('exConta').value = rec ? capNome(String(rec.nome_pagamento).trim()) : '';
   $('exResp').value = opcoesResp.includes(currentUser.nome) ? currentUser.nome : (opcoesResp[0] || '');
-  $('exArqNome').textContent = 'Exporte o extrato da conta em CSV ou OFX no app do banco e escolha o arquivo aqui.';
+  $('exArqNome').textContent = 'Prefira CSV ou OFX (leitura mais confiável). Use PDF só se o banco não oferecer esses formatos.';
   ['exColunas', 'exResumo', 'exLista'].forEach(id => { $(id).innerHTML = ''; }); $('exColunas').style.display = 'none';
   exAtualizarResumo();
   abrirModal('modalExtrato');
 }
 async function exLerArquivo(file) {
   if (!file) return;
-  const txt = impDecodificar(await file.arrayBuffer());
+  const pdf = ehPdf(file);
+  const txt = pdf ? '' : impDecodificar(await file.arrayBuffer());
   ext.sinal = 'auto';
-  if (/<OFX|OFXHEADER/i.test(txt) && /<STMTTRN>/i.test(txt)) {
+  if (!pdf && /<OFX|OFXHEADER/i.test(txt) && /<STMTTRN>/i.test(txt)) {
     ext.formato = 'ofx'; ext.txs = exParseOFX(txt);
     if (!ext.txs.length) return alert('Não encontrei lançamentos neste arquivo OFX.');
     $('exArqNome').textContent = `📄 ${file.name} · ${ext.txs.length} lançamento(s)`;
     exRenderColunas();
     return exAnalisar();
   }
-  const rows = impParseCSV(txt);
-  if (rows.length < 2) return alert('Não consegui ler linhas neste arquivo. Use um CSV (separado por vírgula ou ponto e vírgula) ou um OFX.');
+  let rows;
+  if (pdf) { rows = await pdfLerRows(file); if (!rows) return; }
+  else { rows = impParseCSV(txt); if (rows.length < 2) return alert('Não consegui ler linhas neste arquivo. Use um CSV, um OFX ou um PDF do extrato.'); }
   const h = exAcharCabecalho(rows);
   ext.formato = 'csv'; ext.linhas = rows; ext.iniDados = h + 1;
   ext.cab = h >= 0 ? rows[h] : (rows[0] || []).map((_, i) => 'Coluna ' + (i + 1));
   let salvo = null; try { salvo = (JSON.parse(localStorage.getItem(EX_MAP_KEY) || '{}'))[impAssinatura(ext.cab)]; } catch (e) {}
   ext.map = salvo && typeof salvo === 'object' ? { ...ext.map, ...salvo } : exDetectar(ext.cab);
-  $('exArqNome').textContent = `📄 ${file.name} · ${rows.length - ext.iniDados} linha(s)`;
+  $('exArqNome').textContent = `📄 ${file.name} · ${rows.length - ext.iniDados} linha(s)` + (pdf ? ' · PDF: a leitura é menos precisa, confira os valores. Prefira CSV ou OFX.' : '');
   exRenderColunas();
   await exAnalisar();
 }
@@ -7419,7 +7531,7 @@ function nvPdfRel() {
 const NV_GUIA = [
   ['📋', 'Lance seus gastos', 'Use o + para registrar compras. Parcelou? O app cria todas as parcelas.'],
   ['🎯', 'Defina o orçamento', 'Crie categorias e um teto por mês. Os alertas avisam aos 80% e 100%.'],
-  ['📥', 'Importe fatura e extrato', 'Em Faturas, importe o CSV do cartão ou o extrato da conta (CSV ou OFX).'],
+  ['📥', 'Importe fatura e extrato', 'Em Faturas, importe a fatura do cartão (CSV é o mais confiável; PDF também funciona) ou o extrato da conta (CSV ou OFX; PDF também funciona).'],
   ['🔁', 'Contas fixas', 'Aluguel, internet, assinaturas: cadastre uma vez em Configurações e entram todo mês.']
 ];
 function abrirGuia(i) {
@@ -8104,6 +8216,7 @@ function ligarEventos() {
   $('btnSalvarTetos').addEventListener('click', salvarOrcamentoPadrao);
   $('btnAlterarTeto').addEventListener('click', abrirModalEditarOrcamentoAtual);
   $('btnSalvarEdicaoOrc').addEventListener('click', salvarEdicaoOrcamento);
+  $('btnLoteAplicar').addEventListener('click', aplicarLotePendentes);
   $('btnSalvarCategorizacao').addEventListener('click', salvarCategorizacao);
   $('btnHistorico').addEventListener('click', abrirModalHistorico);
   $('btnRendaExtra').addEventListener('click', abrirRendaExtra);
