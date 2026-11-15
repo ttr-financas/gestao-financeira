@@ -338,6 +338,7 @@
   .gerenciar-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
   .gerenciar-item .ger-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
   .gerenciar-item .ger-title { font-size: 15px; font-weight: 700; color: var(--text); word-break: break-word; }
+  .gerenciar-item .ger-parte { font-size: 12px; color: var(--muted); margin: -2px 0 6px; }
   .gerenciar-item .ger-value { font-size: 16px; font-weight: 800; color: var(--accent-text); white-space: nowrap; }
   .gerenciar-item .ger-details { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: var(--muted); }
   .gerenciar-item .ger-details div { background: var(--chip-bg); padding: 5px 9px; border-radius: 8px; word-break: break-word; }
@@ -599,6 +600,9 @@
   .imp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
   .imp-mais summary, .imp-det summary { font-size: 12px; color: var(--muted); cursor: pointer; padding: 8px 2px; }
   .imp-det { margin: 10px 0; }
+  @media print { .ptr-ind, #bloqueioAcao, #toastBox, .toast { display: none !important; } }
+  .imp-dup { font-size: 12px; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.35); border-radius: 12px; padding: 8px 10px; margin: 6px 0; }
+  .imp-dup select { width: 100%; margin-top: 8px; }
   .imp-ja { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 7px 4px; border-bottom: 1px solid var(--border); }
   .imp-ja small { display: block; color: var(--muted); font-size: 11px; }
   .pago-cartao { font-size: 12px; color: var(--muted); font-weight: 600; }
@@ -4226,9 +4230,13 @@ function cardParcela(p, modo) {
   else if (!p.pagamento) acoes = `<button class="btn-pagar" data-act="pagar-parcela" data-id="${esc(p.id)}">${par ? '✅ Pagar restante' : '✅ Pagar parcela'}</button>` + (par ? desf : '');
   else acoes = desf;
   if (modo === 'lista') acoes += `<button class="acao-btn txt" data-act="cat-parcela" data-id="${esc(p.id)}" title="Trocar a categoria">🏷️ Categoria</button><button class="acao-btn txt" data-act="est-parcela" data-id="${esc(p.id)}" title="Estornar esta parcela">↪️ Estornar</button>${ehCartaoCredito(p.tipo_pagamento) ? '' : `<button class="acao-btn txt" data-act="del-parcela" data-id="${esc(p.id)}" title="Excluir esta parcela" style="color:var(--danger-text);">🗑️ Excluir</button>`}`;
+  const pfil = modo === 'lista' ? pessoaFiltroAtiva() : null;
+  const minhaParte = pfil ? valorPessoa(p, pfil) : Number(p.valor_parcela);
+  const parteTxt = pfil && Math.abs(minhaParte - Number(p.valor_parcela)) > 0.004 ? `👥 Parte de ${esc(capNome(pfil))}: <b>${fm(minhaParte)}</b> do total de ${fm(p.valor_parcela)}` : '';
   const tagVenc = venc2 ? `<span class="venc-tag">⚠️ ${esc(rotuloAtraso(diasAtraso(p)))}</span>` : hoje2 ? '<span class="venc-tag hoje">⏰ Vence hoje</span>' : '';
   return `<div class="gerenciar-item${venc2 ? ' vencida' : hoje2 ? ' hoje' : ''}" data-pid="${esc(p.id)}"${p.pagamento && modo === 'lista' ? ' style="opacity:.78;"' : ''}>
-      <div class="ger-header"><span class="ger-title">${esc(capIni(p.nome_compra))}</span><span class="ger-value">${fm(p.valor_parcela)}</span></div>
+      <div class="ger-header"><span class="ger-title">${esc(capIni(p.nome_compra))}</span><span class="ger-value">${fm(minhaParte)}</span></div>
+      ${parteTxt ? `<div class="ger-parte">${parteTxt}</div>` : ''}
       <div class="ger-details">
         <div>👤 ${esc(rotuloResp(p))}</div>
         <div${venc2 ? ' style="color:var(--danger-text);font-weight:700;"' : ''}>📅 Venc: ${venc}</div>
@@ -5975,6 +5983,8 @@ function renderFiltrosAtivos() {
   el.innerHTML = `<div class="filtros-ativos">${chips.join('')}<button class="fchip limpar" data-act="limpar-filtros">Limpar tudo</button><div class="filtro-total">${l.length} parcela(s) · <strong>${formatarMoeda(total)}</strong></div></div>`;
 }
 
+// quando o filtro da lista é o nome de uma pessoa, os valores passam a ser só a parte dela (parcelas "Ambos"/divididas)
+const pessoaFiltroAtiva = () => { const f = state.filtroAtivo; return f && !['all', 'pago', 'aberto', 'vencida', 'terceiros'].includes(f) ? f : null; };
 function comprasFiltradas() {
   let l = state.compras.filter(c => state.mesesSelecionados.includes(c.mes_referencia) && isAtiva(c));
   if (state.filtroMotivo) l = l.filter(c => motivoDe(c) === state.filtroMotivo);
@@ -6567,16 +6577,17 @@ async function impAnalisar() {
     const nomeIgual = c => [c.nome_original, c.nome_compra].some(n => n && normalizarNome(n) === chave) || (ap && c.nome_compra && normalizarNome(c.nome_compra) === normalizarNome(ap.nome));
     const parcIgual = c => total === 1 ? true : c.parcela_referencia === `${cur}/${total}`;
     const livres = doCartao.filter(c => c.mes_referencia === mes && !c._usado);
-    let status = 'nova', motivo = '';
+    let status = 'nova', motivo = '', dupRows = [];
     let achou = livres.find(c => Math.abs(Number(c.valor_parcela) - valor) <= tol && parcIgual(c) && (nomeIgual(c) || (dataCompra && c.data_compra && String(c.data_compra).slice(0, 10) === dataCompra)));
     if (achou) { status = 'existe'; achou._usado = true; }
     else {
       achou = livres.find(c => parcIgual(c) && nomeIgual(c));
-      if (achou) { status = 'possivel'; motivo = 'Mesmo nome e parcela neste mês, mas com valor diferente'; achou._usado = true; }
-      else if (total > 1 && (achou = livres.find(c => Math.abs(Number(c.valor_parcela) - valor) <= tol && parcIgual(c)))) { status = 'possivel'; motivo = 'Mesmo valor e parcela neste mês, com outro nome'; achou._usado = true; }
-      else if (total > 1 && doCartao.some(c => c.mes_referencia !== mes && nomeIgual(c) && String(c.parcela_referencia || '').split('/')[1] === String(total))) { status = 'possivel'; motivo = 'Essa compra já existe em outros meses do app'; }
+      if (achou) { status = 'possivel'; motivo = 'Mesmo nome e parcela neste mês, mas com valor diferente'; achou._usado = true; dupRows = [achou]; }
+      else if (total > 1 && (achou = livres.find(c => Math.abs(Number(c.valor_parcela) - valor) <= tol && parcIgual(c)))) { status = 'possivel'; motivo = 'Mesmo valor e parcela neste mês, com outro nome'; achou._usado = true; dupRows = [achou]; }
+      else if (total > 1 && (dupRows = doCartao.filter(c => c.mes_referencia !== mes && nomeIgual(c) && String(c.parcela_referencia || '').split('/')[1] === String(total))).length) { status = 'possivel'; motivo = 'Essa compra já existe em outros meses do app'; }
     }
     itens.push({ desc: b.desc, nomeBase, valor, cur, total, dataCompra, status, motivo, achou: achou ? { nome: achou.nome_compra, valor: achou.valor_parcela } : null,
+      dups: dupRows.map(c => ({ idc: c.id_compra, nome: c.nome_compra, parcela: c.parcela_referencia, mes: c.mes_referencia, valor: c.valor_parcela })), dupAcao: 'nao',
       incluir: status === 'nova', lembrado: !!ap, nome: ap ? ap.nome : bonitoNome(nomeBase), resp: ap && ap.resp ? ap.resp : respPadrao, respAuto: !(ap && ap.resp),
       cat: ap && ap.cat ? ap.cat : (rg ? rg.cat : ''), motivoC: ap && ap.motivo ? ap.motivo : (rg ? rg.motivo : ''), tipoC: ap && ap.tipo ? ap.tipo : (rg ? rg.tipo : ''),
       puxou: ap && (ap.cat || ap.motivo || ap.tipo) ? ap.nome : (rg && (rg.cat || rg.motivo || rg.tipo) ? 'regra “' + rg.palavra + '”' : ''), // aviso no cartão: dados trazidos da compra de mesmo nome (editáveis)
@@ -6587,7 +6598,7 @@ async function impAnalisar() {
   const editados = {}; (imp.itens || []).forEach(x => { editados[chaveItem(x)] = x; });
   itens.forEach(x => {
     const a = editados[chaveItem(x)]; if (!a) return;
-    Object.assign(x, { nome: a.nome, resp: a.resp, respAuto: a.respAuto, cat: a.cat, motivoC: a.motivoC, tipoC: a.tipoC, dividir: a.dividir, partes: a.partes });
+    Object.assign(x, { nome: a.nome, resp: a.resp, respAuto: a.respAuto, cat: a.cat, motivoC: a.motivoC, tipoC: a.tipoC, dividir: a.dividir, partes: a.partes, dupAcao: a.dupAcao || 'nao' });
     if (x.status === a.status) x.incluir = a.incluir;
   });
   imp.itens = itens;
@@ -6684,7 +6695,9 @@ function impCard(x, i) {
   return `<div class="imp-card${impCategorizada(x) ? ' categorizada' : ''}" data-i="${i}">
     <label class="imp-top"><input type="checkbox" data-f="incluir"${x.incluir ? ' checked' : ''}><span class="imp-orig">${esc(x.desc)}</span><strong>${fm(x.valor)}</strong></label>
     <div class="imp-meta">${esc(meta)}${data}${x.lembrado ? ' · ✨ nome lembrado' : ''}</div>
-    ${x.motivo ? `<div class="imp-alerta">⚠️ ${esc(x.motivo)}${x.achou ? ` (no app: ${esc(capIni(x.achou.nome))} · ${fm(x.achou.valor)})` : ''}</div>` : ''}
+    ${x.motivo ? `<div class="imp-alerta">⚠️ ${esc(x.motivo)}${x.dups && x.dups.length ? '' : (x.achou ? ` (no app: ${esc(capIni(x.achou.nome))} · ${fm(x.achou.valor)})` : '')}</div>` : ''}
+    ${x.dups && x.dups.length ? `<div class="imp-dup"><strong>Já no app:</strong>${x.dups.slice(0, 6).map(d => `<div>• ${esc(capIni(d.nome))} · parcela ${esc(d.parcela || '1/1')} · ${esc(formatarMes(d.mes))} · ${fm(d.valor)}</div>`).join('')}${x.dups.length > 6 ? `<div>… e mais ${x.dups.length - 6}</div>` : ''}
+      <select data-f="dupAcao" title="O que fazer com a que já existe"><option value="nao"${x.dupAcao === 'nao' ? ' selected' : ''}>Não importar (manter só a do app)</option><option value="manter"${x.dupAcao === 'manter' ? ' selected' : ''}>Importar e manter as duas</option><option value="substituir"${x.dupAcao === 'substituir' ? ' selected' : ''}>Substituir: apagar a do app e importar esta</option></select></div>` : ''}
     <input class="imp-in" type="text" data-f="nome" value="${esc(x.nome)}" placeholder="Nome da compra" autocomplete="off">
     ${x.puxou ? `<div class="imp-nota">📌 Sugestão: <strong>${esc(x.puxou.startsWith('regra') ? x.puxou : capIni(x.puxou))}</strong>. Você pode editar abaixo.</div>` : ''}
     <div class="imp-pend" data-pend${impCategorizada(x) ? ' style="display:none"' : ''}>⏳ Sem categorização completa — ${x.incluir ? 'vai para "Sem categorização" se não for preenchida' : 'marque para importar'}</div>
@@ -6790,7 +6803,16 @@ async function impSalvar() {
   const nCat = sel.filter(impCategorizada).length, nPend = sel.length - nCat;
   const valPend = sel.filter(x => !impCategorizada(x)).reduce((s, x) => s + x.valor, 0);
   const msg = `${nCat} de ${sel.length} compra(s) estão categorizadas.` + (nPend ? `\n\n${nPend} compra(s) (${formatarMoeda(valPend)} neste mês) irão para "Sem categorização" e poderão ser categorizadas depois, em Planejamento.` : '\n\nTodas estão categorizadas.');
-  const msgFinal = (sel.length ? msg : '') + (pgs.length ? `${sel.length ? '\n\n' : ''}Pagamentos recebidos (${formatarMoeda(pgs.reduce((t, g) => t + g.valor, 0))}) entram como adiantamento no cartão ${capNome(cartao)} em ${formatarMes(imp.mes)}.` : '');
+  // "substituir": as parcelas que já existem (desta compra, deste mês em diante) só são apagadas DEPOIS que a importação der certo
+  const subs = sel.filter(x => x.dupAcao === 'substituir' && x.dups && x.dups.length);
+  let apagar = [];
+  if (subs.length) {
+    const idsC = [...new Set(subs.flatMap(x => x.dups.map(d => d.idc)).filter(Boolean))];
+    try { const r = await db.from('compras').select('id,id_compra,nome_compra,pagamento,valor_pago').in('id_compra', idsC).gte('mes_referencia', imp.mes).in('criado_por', emailsGrupo()); apagar = r.data || []; } catch (e) {}
+  }
+  const nPagas = apagar.filter(c => c.pagamento || Number(c.valor_pago) > 0).length;
+  const msgSubs = apagar.length ? `\n\nSubstituição: ${apagar.length} parcela(s) que já estão no app serão apagadas e trocadas pelas importadas${nPagas ? ` (atenção: ${nPagas} já tem pagamento registrado, que será perdido)` : ''}.` : '';
+  const msgFinal = (sel.length ? msg : '') + msgSubs + (pgs.length ? `${sel.length ? '\n\n' : ''}Pagamentos recebidos (${formatarMoeda(pgs.reduce((t, g) => t + g.valor, 0))}) entram como adiantamento no cartão ${capNome(cartao)} em ${formatarMes(imp.mes)}.` : '');
   if (!await confirmar({ titulo: 'Confirmar importação', mensagem: msgFinal, confirmarTexto: 'Importar', tipo: sel.length && nPend ? 'aviso' : 'info' })) return;
   const usarDiv = sel.some(x => x._div && x._div.divisao) || state.compras.some(c => 'divisao' in c);
   const tipoPag = (state.compras.find(c => ehCartaoCredito(c.tipo_pagamento)) || {}).tipo_pagamento || 'Cartão de Crédito';
@@ -6824,6 +6846,15 @@ async function impSalvar() {
       feitos += lote.length;
     }
     if (hist.length) await db.from('historico_compras').insert(hist);
+    if (apagar.length) {
+      const ids = apagar.map(c => c.id);
+      const { error: eDel } = await db.from('compras').delete().in('id', ids).in('criado_por', emailsGrupo());
+      if (eDel) notificar('Importei, mas não consegui apagar as parcelas antigas: ' + eDel.message, 'aviso', 9000);
+      else {
+        try { await db.from('devedores').delete().in('id_compra', [...new Set(apagar.map(c => c.id_compra))]); } catch (e) {}
+        try { await db.from('historico_compras').insert([...new Map(apagar.map(c => [c.id_compra, c])).values()].map(c => ({ grupo_id: grupoId(), id_compra: c.id_compra, nome_compra: c.nome_compra, acao: 'Substituída', detalhes: 'Trocada pela importação da fatura' }))); } catch (e) {}
+      }
+    }
     // pessoas de fora: cada uma vira uma cobrança em "Compras Divididas" (o total considera só as parcelas lançadas agora)
     for (const x of sel) if (x._div && x._div.externos.length) await sincronizarDevedores(x._id, capIni(x.nome.trim()), Math.round(x.valor * (x.total - x.cur + 1) * 100) / 100, x._div.externos);
   } catch (e) {
@@ -6860,7 +6891,11 @@ function impLigarEventos() {
     const f = e.target.dataset && e.target.dataset.f; if (!f) return;
     const card = e.target.closest('.imp-card'); if (!card) return;
     const x = imp.itens[+card.dataset.i]; if (!x) return;
-    if (f === 'incluir') x.incluir = e.target.checked;
+    if (f === 'incluir') {
+      x.incluir = e.target.checked;
+      if (x.dups && x.dups.length) { x.dupAcao = x.incluir ? (x.dupAcao === 'nao' ? 'manter' : x.dupAcao) : 'nao'; const sd = card.querySelector('[data-f="dupAcao"]'); if (sd) sd.value = x.dupAcao; }
+    }
+    else if (f === 'dupAcao') { x.dupAcao = e.target.value; x.incluir = x.dupAcao !== 'nao'; const cb = card.querySelector('[data-f="incluir"]'); if (cb) cb.checked = x.incluir; }
     else if (f === 'dividir') {
       x.dividir = e.target.checked;
       if (x.dividir && !x.partes) x.partes = impPartesPadrao();
@@ -7412,12 +7447,13 @@ async function nvSalvarRegra() {
 
 /* ---- cartões: limite, disponível e melhor dia de compra ---- */
 const nvCartoesCredito = () => uniqNorm(state.compras.filter(c => ehCartaoCredito(c.tipo_pagamento)).map(c => rotuloPagto(c)));
+const nvMelhorDia = f => { f = parseInt(f); return f >= 1 && f <= 31 ? (f >= 31 ? 1 : f + 1) : 0; };
 const nvCfgCartao = rot => NV.cartoes.find(c => normalizarNome(c.rotulo) === normalizarNome(rot));
 function nvUsadoCartao(rot) { return state.compras.filter(c => isAtiva(c) && ehCartaoCredito(c.tipo_pagamento) && !c.pagamento && rotuloPagto(c) === rot).reduce((s, c) => s + Math.max(0, (Number(c.valor_parcela) || 0) - valorPagoParcela(c)), 0); }
 function nvInfoCartao(rot) {
   const c = nvCfgCartao(rot); if (!c || !(Number(c.limite) > 0)) return '';
   const usado = nvUsadoCartao(rot), disp = Number(c.limite) - usado, pct = Math.min(100, Math.round(usado / c.limite * 100));
-  const melhor = Number(c.fechamento) ? (Number(c.fechamento) >= 31 ? 1 : Number(c.fechamento) + 1) : 0;
+  const melhor = nvMelhorDia(c.fechamento);
   return `<div class="payment-sub">Limite ${fm(c.limite)} · <b style="color:${disp < 0 ? 'var(--danger-text)' : 'var(--success-text)'}">disponível ${fm(disp)}</b> (${pct}% usado)${melhor ? ' · melhor dia de compra: ' + melhor : ''}</div>`;
 }
 function abrirCartoes() {
@@ -7425,8 +7461,10 @@ function abrirCartoes() {
   $('ctLista').innerHTML = NV.semTabelas ? '<p class="hint">Falta rodar o SQL novo no Supabase.</p>' : lista.length ? lista.map((rot, i) => { const c = nvCfgCartao(rot) || {};
     return `<div class="imp-card" data-rot="${esc(rot)}"><div class="imp-top" style="cursor:default;"><span class="imp-orig">${esc(rot)}</span><small>usado ${fm(nvUsadoCartao(rot))}</small></div>
       <div class="imp-row"><div class="input-group" style="margin:0;"><label>Limite (R$)</label><input type="text" class="money" inputmode="numeric" autocomplete="off" data-ct="limite" value="${c.limite ? nvMoedaIn(c.limite) : ''}" placeholder="R$ 0,00"></div>
-      <div class="input-group" style="margin:0;"><label>Dia do fechamento</label><input type="text" inputmode="numeric" maxlength="2" data-ct="fechamento" value="${c.fechamento || ''}" placeholder="Ex.: 5"></div></div></div>`; }).join('')
+      <div class="input-group" style="margin:0;"><label>Dia do fechamento</label><input type="text" inputmode="numeric" maxlength="2" data-ct="fechamento" value="${c.fechamento || ''}" placeholder="Ex.: 5"></div></div>
+      <div class="hint" data-melhor style="margin:8px 0 0;">${nvMelhorDia(c.fechamento) ? 'Melhor dia de compra: <b>' + nvMelhorDia(c.fechamento) + '</b> (o dia seguinte ao fechamento)' : 'Informe o dia do fechamento para ver o melhor dia de compra.'}</div></div>`; }).join('')
     : '<p class="hint">Nenhum cartão de crédito lançado ainda.</p>';
+  $('ctLista').oninput = e => { if (!(e.target.dataset && e.target.dataset.ct === 'fechamento')) return; const md = nvMelhorDia(e.target.value), h = e.target.closest('.imp-card').querySelector('[data-melhor]'); if (h) h.innerHTML = md ? 'Melhor dia de compra: <b>' + md + '</b> (o dia seguinte ao fechamento)' : 'Informe o dia do fechamento para ver o melhor dia de compra.'; };
   abrirModal('modalCartoes');
 }
 async function nvSalvarCartoes() {
@@ -7583,22 +7621,25 @@ function nvLigarEventos() {
 function exportarPDF() {
   const l = comprasFiltradas();
   if (!l.length) return alert('Nada para imprimir.');
-  const soma = arr => arr.reduce((s, p) => s + Number(p.valor_parcela || 0), 0);
-  const total = soma(l), pago = l.reduce((s, p) => s + valorPagoParcela(p), 0), pend = total - pago;
+  const pf = pessoaFiltroAtiva();   // filtro por pessoa: tudo no relatório passa a ser só a parte dela
+  const val = p => pf ? valorPessoa(p, pf) : Number(p.valor_parcela || 0);
+  const frac = p => { const t = Number(p.valor_parcela || 0); return t > 0 ? val(p) / t : 1; };
+  const soma = arr => arr.reduce((s, p) => s + val(p), 0);
+  const total = soma(l), pago = l.reduce((s, p) => s + valorPagoParcela(p) * frac(p), 0), pend = total - pago;
   const periodo = state.mesesSelecionados.map(formatarMes).join(', ');
-  const agrupar = fn => { const g = {}; l.forEach(p => { const k = fn(p); g[k] = (g[k] || 0) + Number(p.valor_parcela || 0); }); return Object.entries(g).sort((a, b) => b[1] - a[1]); };
+  const agrupar = fn => { const g = {}; l.forEach(p => { const k = fn(p); g[k] = (g[k] || 0) + val(p); }); return Object.entries(g).sort((a, b) => b[1] - a[1]); };
   const bloco = (titulo, arr, cor) => {
     if (!arr.length) return '';
     const max = arr[0][1] || 1;
     return `<div class="rp-box"><h4>${titulo}</h4>${arr.slice(0, 8).map(([k, v]) => `<div class="rp-bar"><div class="rp-bar-top"><span>${esc(k)}</span><span><strong>${formatarMoeda(v)}</strong> <em>${total > 0 ? Math.round(v / total * 100) : 0}%</em></span></div><div class="rp-track"><div style="width:${(v / max * 100).toFixed(1)}%;background:${cor}"></div></div></div>`).join('')}</div>`;
   };
   const tercPdf = somaTerceiros(l);
-  const porResp = (membrosGrupo.length > 1 || tercPdf > 0.004) ? [...membrosGrupo.map(m => [m.nome, somaPessoa(l, m.nome)]), ...(tercPdf > 0.004 ? [['Terceiros', tercPdf]] : [])].filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]) : [];
+  const porResp = pf ? [] : (membrosGrupo.length > 1 || tercPdf > 0.004) ? [...membrosGrupo.map(m => [m.nome, somaPessoa(l, m.nome)]), ...(tercPdf > 0.004 ? [['Terceiros', tercPdf]] : [])].filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]) : [];
   const filtros = [];
   if (state.filtroMotivo) filtros.push('Categoria: ' + state.filtroMotivo);
   if (state.filtroPagto) filtros.push('Pagamento: ' + state.filtroPagto);
   const fa = state.filtroAtivo;
-  if (fa === 'pago') filtros.push('Somente pagas'); else if (fa === 'aberto') filtros.push('Somente não pagas'); else if (fa === 'vencida') filtros.push('Vencidas e que vencem hoje'); else if (fa !== 'all') filtros.push('Responsável: ' + fa);
+  if (fa === 'pago') filtros.push('Somente pagas'); else if (fa === 'aberto') filtros.push('Somente não pagas'); else if (fa === 'vencida') filtros.push('Vencidas e que vencem hoje'); else if (fa !== 'all') filtros.push('Responsável: ' + capNome(fa) + ' (valores = só a parte dele(a))');
   const busca = ($('buscaCompra').value || '').trim();
   if (busca) filtros.push('Busca: "' + busca + '"');
   const agora = new Date().toLocaleString('pt-BR');
@@ -7622,8 +7663,8 @@ function exportarPDF() {
     </div>
     <div class="rp-section">Detalhamento das parcelas</div>
     <table class="rp-table"><thead><tr><th>Compra</th><th>Resp.</th><th>Categoria</th><th>Pagamento</th><th>Parc.</th><th>Venc.</th><th>Situação</th><th class="num">Valor</th></tr></thead><tbody>` +
-    l.map(p => `<tr><td>${esc(capIni(p.nome_compra))}</td><td>${esc(rotuloResp(p))}</td><td>${esc(motivoDe(p))}</td><td>${esc(p.tipo_pagamento || p.nome_pagamento ? rotuloPagto(p) : '')}</td><td>${esc(p.parcela_referencia || '')}</td><td>${p.data_parcela ? p.data_parcela.split('-').reverse().join('/') : ''}</td><td><span class="rp-pill ${p.pagamento ? 'pago' : 'pend'}">${p.pagamento ? 'Pago' : parcelaVencida(p) ? 'Vencida' : parcialParcela(p) ? 'Parcial' : 'Pendente'}</span></td><td class="num">${formatarMoeda(p.valor_parcela)}</td></tr>`).join('') +
-    `<tr class="rp-total"><td colspan="7">Total (${l.length} parcelas)</td><td class="num">${formatarMoeda(total)}</td></tr></tbody></table>
+    l.map(p => `<tr><td>${esc(capIni(p.nome_compra))}</td><td>${esc(rotuloResp(p))}</td><td>${esc(motivoDe(p))}</td><td>${esc(p.tipo_pagamento || p.nome_pagamento ? rotuloPagto(p) : '')}</td><td>${esc(p.parcela_referencia || '')}</td><td>${p.data_parcela ? p.data_parcela.split('-').reverse().join('/') : ''}</td><td><span class="rp-pill ${p.pagamento ? 'pago' : 'pend'}">${p.pagamento ? 'Pago' : parcelaVencida(p) ? 'Vencida' : parcialParcela(p) ? 'Parcial' : 'Pendente'}</span></td><td class="num">${formatarMoeda(val(p))}${pf && Math.abs(val(p) - Number(p.valor_parcela)) > 0.004 ? `<br><span style="font-size:8px;font-weight:400;color:#64748b;">parte de ${formatarMoeda(p.valor_parcela)}</span>` : ''}</td></tr>`).join('') +
+    `<tr class="rp-total"><td colspan="7">Total${pf ? ' — parte de ' + esc(capNome(pf)) : ''} (${l.length} parcelas)</td><td class="num">${formatarMoeda(total)}</td></tr></tbody></table>
     <div class="rp-foot">${NOME_APP} · Documento gerado automaticamente</div>`;
 
   const nomeArquivo = 'TTR-Gestao-Financeira-' + state.mesesSelecionados.join('_');
@@ -8480,7 +8521,7 @@ ajustarAcessibilidade(); if (!a11yLigada()) a11yDesfazer(); a11yAtualizarTela();
   // puxar para atualizar: recarrega só os dados, a tela e o desbloqueio continuam como estavam
   let y0 = null, dy = 0, busy = false, ind = null;
   const livre = () => !document.querySelector('.modal-overlay.open, .app-dialog-overlay.open, #lockScreen.open, .float-panel') && window.scrollY <= 0 && !!currentUser && !_bloqueado;
-  const mk = () => { ind = document.createElement('div'); ind.setAttribute('aria-hidden', 'true'); ind.style.cssText = 'position:fixed;top:0;left:50%;transform:translate(-50%,-48px);z-index:3000;background:var(--card-solid,#1a1f29);color:var(--text,#fff);border:1px solid var(--border-strong,#333);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform .2s;pointer-events:none;'; document.body.appendChild(ind); };
+  const mk = () => { ind = document.createElement('div'); ind.className = 'ptr-ind'; ind.setAttribute('data-html2canvas-ignore', 'true'); ind.setAttribute('aria-hidden', 'true'); ind.style.cssText = 'position:fixed;top:0;left:50%;transform:translate(-50%,-48px);z-index:3000;background:var(--card-solid,#1a1f29);color:var(--text,#fff);border:1px solid var(--border-strong,#333);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform .2s;pointer-events:none;'; document.body.appendChild(ind); };
   document.addEventListener('touchstart', e => { y0 = (e.touches.length === 1 && livre() && !busy) ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
   document.addEventListener('touchmove', e => {
     if (y0 === null) return; dy = e.touches[0].clientY - y0;
@@ -8491,10 +8532,10 @@ ajustarAcessibilidade(); if (!a11yLigada()) a11yDesfazer(); a11yAtualizarTela();
   document.addEventListener('touchend', async () => {
     if (y0 === null) return; const ok = dy > 80; y0 = null;
     if (!ind) return; ind.style.transition = 'transform .2s';
-    if (!ok) { ind.style.transform = 'translate(-50%,-48px)'; return; }
+    if (!ok) { ind.style.transform = 'translate(-50%,-48px)'; const i0 = ind; ind = null; setTimeout(() => i0.remove(), 250); return; }
     busy = true; ind.textContent = 'Atualizando...'; ind.style.transform = 'translate(-50%,16px)';
     try { await carregarDados(); } catch (e) {}
-    ind.style.transform = 'translate(-50%,-48px)'; busy = false;
+    ind.style.transform = 'translate(-50%,-48px)'; busy = false; const i1 = ind; ind = null; setTimeout(() => i1.remove(), 250);
   });
 })();
 /* botão "voltar" do celular fecha o popup aberto (como num app nativo) em vez de sair/recarregar */
