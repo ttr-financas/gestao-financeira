@@ -1180,6 +1180,7 @@
     <div class="section-head"><h3>Compras Divididas</h3><button class="chip-btn" id="btnRecHistorico" type="button">📜 Histórico</button></div>
     <p class="hint">Compras divididas com pessoas de fora. A parte delas fica aqui até pagarem.</p>
     <div class="rec-resumo" id="recResumo"></div>
+    <details class="vd-card rec-painel" id="recPainel" style="display:none;"><summary style="cursor:pointer;font-weight:800;">📊 Painel e histórico de recebimentos</summary><div id="recPainelCorpo"></div></details>
     <div class="filtro-pessoa" id="recFiltro">
       <button class="active" data-recf="aberto">A receber</button>
       <button data-recf="quitado">Pagas</button>
@@ -2723,6 +2724,51 @@ async function sincronizarDevedores(idCompra, nome, total, externos) {
 // parcela(s) da pessoa no mês selecionado
 const devParcMes = (d, mes) => devParcelas(d).filter(p => p.mes === mes);
 const devParcMesAberta = (d, mes) => devParcMes(d, mes).find(p => !p.quitada) || null;
+/* ---- painel com gráficos de Compras Divididas ---- */
+let recCharts = [];
+function renderRecPainel(mes) {
+  const det = $('recPainel'), box = $('recPainelCorpo'); if (!det || !box) return;
+  recCharts.forEach(c => { try { c.destroy(); } catch (e) {} }); recCharts = [];
+  const todos = state.devedores.filter(d => compraAtivaId(d.id_compra) || devRecebido(d) > 0.004);
+  if (!todos.length) { det.style.display = 'none'; return; }
+  det.style.display = '';
+  const hoje = hojeISO();
+  const cobrado = todos.reduce((t, d) => t + (Number(d.valor_total) || 0), 0), recebido = todos.reduce((t, d) => t + devRecebido(d), 0), aberto = todos.reduce((t, d) => t + devRestante(d), 0);
+  const atraso = todos.reduce((t, d) => t + devParcelas(d).filter(p => p.atrasada).reduce((s, p) => s + p.falta, 0), 0);
+  const taxa = cobrado > 0 ? Math.round(recebido / cobrado * 100) : 0;
+  // por mês: cobrado = parcelas do mês; recebido = pagamentos registrados naquele mês
+  const meses = [-7, -6, -5, -4, -3, -2, -1, 0, 1, 2].map(i => addMes(mes, i));
+  const cobMes = m => todos.reduce((t, d) => t + devParcelas(d).filter(p => p.mes === m).reduce((s, p) => s + p.valor, 0), 0);
+  const recMes = m => todos.reduce((t, d) => t + devRecebimentos(d).filter(r => String(r.data || '').slice(0, 7) === m).reduce((s, r) => s + (Number(r.valor) || 0), 0), 0);
+  const recTodos = {}; todos.forEach(d => devRecebimentos(d).forEach(r => { const m = String(r.data || '').slice(0, 7); if (m) recTodos[m] = (recTodos[m] || 0) + (Number(r.valor) || 0); }));
+  const mesesRec = Object.keys(recTodos).sort();
+  const media = mesesRec.length ? recebido / mesesRec.length : 0;
+  // por pessoa
+  const pes = {}; todos.forEach(d => { const k = normalizarNome(d.pessoa), o = pes[k] = pes[k] || { nome: d.pessoa, tot: 0, rec: 0, atr: 0 }; o.tot += Number(d.valor_total) || 0; o.rec += devRecebido(d); o.atr += devParcelas(d).filter(p => p.atrasada).reduce((s, p) => s + p.falta, 0); });
+  const lista = Object.values(pes).sort((a, b) => (b.tot - b.rec) - (a.tot - a.rec));
+  const maiorDev = lista[0] && lista[0].tot - lista[0].rec > 0.004 ? lista[0] : null;
+  const maxTot = Math.max(...lista.map(x => x.tot), 0.01);
+  // acumulado de tudo que já entrou
+  let acc = 0; const acum = mesesRec.map(m => { acc += recTodos[m]; return acc; });
+  box.innerHTML = `<div class="hist-kpis" style="margin-top:12px;"><div><span>Total cobrado</span><strong class="sensivel">${formatarMoeda(cobrado)}</strong></div><div><span>Recebido (${taxa}%)</span><strong class="sensivel" style="color:var(--success-text);">${formatarMoeda(recebido)}</strong></div><div><span>A receber</span><strong class="sensivel">${formatarMoeda(aberto)}</strong></div></div>
+    <div class="hist-kpis"><div><span>Em atraso</span><strong class="sensivel" style="color:${atraso > 0.004 ? 'var(--danger-text)' : 'var(--success-text)'};">${atraso > 0.004 ? formatarMoeda(atraso) : '🎉 nada'}</strong></div><div><span>Média recebida/mês</span><strong class="sensivel">${formatarMoeda(media)}</strong></div><div><span>Quem mais deve</span><strong>${maiorDev ? esc(capNome(maiorDev.nome)) : '—'}</strong></div></div>
+    <h4 style="margin:10px 0 6px;font-size:13px;">Cobrado x recebido por mês <small style="color:var(--muted);font-weight:400;">7 meses atrás até 2 à frente</small></h4><div class="vd-chart"><canvas id="recChartMeses"></canvas></div>
+    ${mesesRec.length > 1 ? `<h4 style="margin:14px 0 6px;font-size:13px;">Total recebido acumulado <small style="color:var(--muted);font-weight:400;">desde o primeiro pagamento</small></h4><div class="vd-chart"><canvas id="recChartAcum"></canvas></div>` : ''}
+    <h4 style="margin:14px 0 6px;font-size:13px;">Por pessoa <small style="color:var(--muted);font-weight:400;">quanto já pagou do que foi cobrado</small></h4>
+    ${lista.map(x => `<div class="vd-linha"><span class="n">${esc(capNome(x.nome))}${x.atr > 0.004 ? ' ⚠️' : ''}</span><div class="vd-trilho" title="${Math.round(x.rec / (x.tot || 1) * 100)}% pago"><div style="width:${x.tot / maxTot * 100}%;background:rgba(129,140,248,.35);position:relative;"><div style="width:${x.tot > 0 ? Math.min(100, x.rec / x.tot * 100) : 0}%;height:100%;background:var(--success);border-radius:inherit;"></div></div></div><b class="sensivel">${formatarMoeda(x.tot - x.rec)}</b></div>`).join('')}
+    <p class="hint" style="margin:6px 0 0;">Barra verde = já recebido; o valor ao lado é o que falta. ⚠️ = tem parcela atrasada.</p>`;
+  if (typeof Chart === 'undefined') return;
+  const eixo = { x: { grid: { display: false }, ticks: { font: { size: 10 }, color: corTema('--muted') } }, y: { beginAtZero: true, ticks: { font: { size: 10 }, color: corTema('--muted'), callback: v => v >= 1000 ? (v / 1000) + 'k' : v }, grid: { color: 'rgba(127,127,127,.15)' } } };
+  const base = { responsive: true, maintainAspectRatio: false, animation: false, scales: eixo };
+  recCharts.push(new Chart($('recChartMeses').getContext('2d'), { type: 'bar',
+    data: { labels: meses.map(m => formatarMes(m).split(' / ')[0]), datasets: [
+      { label: 'Cobrado', data: meses.map(cobMes), backgroundColor: 'rgba(129,140,248,.7)', borderRadius: 4, maxBarThickness: 16 },
+      { label: 'Recebido', data: meses.map(recMes), backgroundColor: '#22c55e', borderRadius: 4, maxBarThickness: 16 }] },
+    options: { ...base, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 }, color: corTema('--muted') } }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${formatarMoeda(c.parsed.y)}` } } } } }));
+  if ($('recChartAcum')) recCharts.push(new Chart($('recChartAcum').getContext('2d'), { type: 'line',
+    data: { labels: mesesRec.map(m => formatarMes(m).split(' / ')[0] + '/' + m.slice(2, 4)), datasets: [{ label: 'Recebido acumulado', data: acum, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,.15)', fill: true, tension: .3, pointRadius: 3 }] },
+    options: { ...base, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => formatarMoeda(c.parsed.y) } } } } }));
+}
 function renderReceber() {
   const box = $('listaReceber'), res = $('recResumo'); if (!box) return;
   document.querySelectorAll('#recFiltro button').forEach(b => b.classList.toggle('active', b.dataset.recf === state.filtroReceber));
@@ -2732,6 +2778,7 @@ function renderReceber() {
     return;
   }
   const mes = state.mesesSelecionados[0], nomeMes = formatarMes(mes);
+  try { renderRecPainel(mes); } catch (e) { console.warn('painel', e); }
   // só entra o que tem parcela real neste mês
   const doMes = state.devedores.filter(d => compraAtivaId(d.id_compra)).map(d => ({ d, pm: devParcMes(d, mes) })).filter(x => x.pm.length);
   const emAberto = x => x.pm.some(p => !p.quitada);
@@ -2785,7 +2832,7 @@ function renderReceber() {
     return `<div class="rec-item">
       <div class="rec-item-top"><span>${esc(capIni(d.nome_compra))}</span><span class="v sensivel">${pagoMes ? '✅ Paga' : formatarMoeda(faltaDoMes)}</span></div>
       ${destaque}
-      <div class="rec-meta sensivel">Parte ${pronDe(d.genero)}: ${esc(fmtPct(d.percentual))}% · <span class="rec-total-mini">valor total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}</span><br><span class="rec-total-mini">Recebido ${formatarMoeda(rec)} · falta no total ${formatarMoeda(rest)}</span></div>
+      <div class="rec-meta sensivel">${compraEmIdCompra(d.id_compra) ? '🛒 Compra em ' + esc(compraEmIdCompra(d.id_compra)) + '<br>' : ''}Parte ${pronDe(d.genero)}: ${esc(fmtPct(d.percentual))}% · <span class="rec-total-mini">valor total ${formatarMoeda(total)}${ps.length > 1 ? ` em ${ps.length}x` : ''}</span><br><span class="rec-total-mini">Recebido ${formatarMoeda(rec)} · falta no total ${formatarMoeda(rest)}</span></div>
       <div class="rec-bar"><div style="width:${pct}%"></div></div>
       ${lst}
       <div class="rec-item-acoes">${quit ? '<span class="rec-quitado">✅ Compra quitada</span>' : ''}<button class="btn-action primary" data-act="rec-abrir" data-id="${esc(d.id)}">${quit ? 'Ver histórico' : '💵 Receber'}</button></div>
@@ -4161,7 +4208,7 @@ function mostrarAlertaVencimentos(forcar) {
   if (!venc.length && !hoje.length) return;
   _alertaVencMostrado = true;
   const soma = l => l.reduce((s, p) => s + faltaParcela(p), 0);
-  const item = (p, cls, sub) => `<div class="venc-item ${cls}" role="button" tabindex="0" data-pid="${esc(p.id)}"><div><div style="font-weight:600;">${esc(capIni(p.nome_compra))}${p.parcela_referencia && p.parcela_referencia !== '1/1' ? ' · ' + esc(p.parcela_referencia) : ''}</div><small>${esc(sub)} · ${esc(rotuloPagto(p))}</small></div><strong class="sensivel">${fm(faltaParcela(p))}</strong></div>`;
+  const item = (p, cls, sub) => `<div class="venc-item ${cls}" role="button" tabindex="0" data-pid="${esc(p.id)}"><div><div style="font-weight:600;">${esc(capIni(p.nome_compra))}${p.parcela_referencia && p.parcela_referencia !== '1/1' ? ' · ' + esc(p.parcela_referencia) : ''}</div><small>${esc(sub)} · ${esc(rotuloPagto(p))}${compraEm(p) ? ' · 🛒 compra ' + esc(compraEm(p)) : ''}</small></div><strong class="sensivel">${fm(faltaParcela(p))}</strong></div>`;
   let h = '';
   if (venc.length) h += `<div class="venc-sec venc">⚠️ Vencidas (${venc.length}) · <span class="sensivel">${fm(soma(venc))}</span></div>` + venc.map(p => item(p, 'venc', rotuloAtraso(diasAtraso(p)) + ' (' + dataBR(p.data_parcela) + ')')).join('');
   if (hoje.length) h += `<div class="venc-sec hoje">⏰ Vencem hoje (${hoje.length}) · <span class="sensivel">${fm(soma(hoje))}</span></div>` + hoje.map(p => item(p, 'hoje', 'Vence hoje')).join('');
@@ -4213,6 +4260,10 @@ function dataBR(v) {
 }
 
 // mesmo layout do "Gerenciar Compras"
+// data em que a compra foi feita (vazia se o lançamento não tem)
+const compraEm = p => { const d = p && p.data_compra ? String(p.data_compra).slice(0, 10) : ''; return /^\d{4}-\d{2}-\d{2}$/.test(d) ? dataBR(d) : ''; };
+const compraEmLinha = p => compraEm(p) ? `<div>🛒 Compra: ${esc(compraEm(p))}</div>` : '';
+const compraEmIdCompra = idc => { const c = state.compras.find(x => String(x.id_compra) === String(idc) && x.data_compra); return c ? compraEm(c) : ''; };
 function cardParcela(p, modo) {
   const venc = p.data_parcela ? p.data_parcela.split('-').reverse().slice(0, 2).join('/') : '-';
   const par = parcialParcela(p);
@@ -4242,6 +4293,7 @@ function cardParcela(p, modo) {
         <div${venc2 ? ' style="color:var(--danger-text);font-weight:700;"' : ''}>📅 Venc: ${venc}</div>
         <div>📝 ${esc(capIni(p.categoria_orcamento || p.motivo || 'Sem categoria'))}</div>
         <div>🔢 Parcela ${esc(p.parcela_referencia || '1/1')}</div>
+        ${compraEmLinha(p)}
         <div>💳 ${esc(rotuloPagto(p))}</div>
         ${extra}
       </div>
@@ -5573,6 +5625,7 @@ function abrirDetalhesCategoria(catId) {
         <div>📅 Venc: ${venc}</div>
         <div>📝 ${esc(capIni(p.categoria_orcamento || p.motivo || 'Sem categoria'))}</div>
         <div>🔢 Parcela ${esc(p.parcela_referencia || '1/1')}</div>
+        ${compraEmLinha(p)}
         <div>${p.pagamento ? '✅ Pago' : '⏳ Pendente'}</div>
       </div>
     </div>`;
@@ -5761,6 +5814,7 @@ function abrirModalCategorizar() {
         <div>👤 ${esc(rotuloResp(p))}</div>
         <div>📅 Venc: ${venc}</div>
         <div>🔢 Parcela ${esc(p.parcela_referencia || '1/1')}</div>
+        ${compraEmLinha(p)}
       </div>
       <div class="cat-select-wrapper">
         <select class="cat-select" data-idcompra="${esc(p.id_compra)}">${opts}</select>
@@ -7663,7 +7717,7 @@ function exportarPDF() {
     </div>
     <div class="rp-section">Detalhamento das parcelas</div>
     <table class="rp-table"><thead><tr><th>Compra</th><th>Resp.</th><th>Categoria</th><th>Pagamento</th><th>Parc.</th><th>Venc.</th><th>Situação</th><th class="num">Valor</th></tr></thead><tbody>` +
-    l.map(p => `<tr><td>${esc(capIni(p.nome_compra))}</td><td>${esc(rotuloResp(p))}</td><td>${esc(motivoDe(p))}</td><td>${esc(p.tipo_pagamento || p.nome_pagamento ? rotuloPagto(p) : '')}</td><td>${esc(p.parcela_referencia || '')}</td><td>${p.data_parcela ? p.data_parcela.split('-').reverse().join('/') : ''}</td><td><span class="rp-pill ${p.pagamento ? 'pago' : 'pend'}">${p.pagamento ? 'Pago' : parcelaVencida(p) ? 'Vencida' : parcialParcela(p) ? 'Parcial' : 'Pendente'}</span></td><td class="num">${formatarMoeda(val(p))}${pf && Math.abs(val(p) - Number(p.valor_parcela)) > 0.004 ? `<br><span style="font-size:8px;font-weight:400;color:#64748b;">parte de ${formatarMoeda(p.valor_parcela)}</span>` : ''}</td></tr>`).join('') +
+    l.map(p => `<tr><td>${esc(capIni(p.nome_compra))}${compraEm(p) ? `<br><span style="font-size:8px;font-weight:400;color:#64748b;">compra em ${esc(compraEm(p))}</span>` : ''}</td><td>${esc(rotuloResp(p))}</td><td>${esc(motivoDe(p))}</td><td>${esc(p.tipo_pagamento || p.nome_pagamento ? rotuloPagto(p) : '')}</td><td>${esc(p.parcela_referencia || '')}</td><td>${p.data_parcela ? p.data_parcela.split('-').reverse().join('/') : ''}</td><td><span class="rp-pill ${p.pagamento ? 'pago' : 'pend'}">${p.pagamento ? 'Pago' : parcelaVencida(p) ? 'Vencida' : parcialParcela(p) ? 'Parcial' : 'Pendente'}</span></td><td class="num">${formatarMoeda(val(p))}${pf && Math.abs(val(p) - Number(p.valor_parcela)) > 0.004 ? `<br><span style="font-size:8px;font-weight:400;color:#64748b;">parte de ${formatarMoeda(p.valor_parcela)}</span>` : ''}</td></tr>`).join('') +
     `<tr class="rp-total"><td colspan="7">Total${pf ? ' — parte de ' + esc(capNome(pf)) : ''} (${l.length} parcelas)</td><td class="num">${formatarMoeda(total)}</td></tr></tbody></table>
     <div class="rp-foot">${NOME_APP} · Documento gerado automaticamente</div>`;
 
