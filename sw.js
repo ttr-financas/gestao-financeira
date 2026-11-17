@@ -1,7 +1,7 @@
 // Service worker do TTR Gestão Financeira: notificações push + cópia do app para abrir sem internet.
 // Precisa ficar na MESMA pasta do HTML, no mesmo endereço https.
 // Arquivos usados: icon-192.png (ícone grande) e badge-96.png (silhueta da barra de status do Android).
-const CACHE = 'ttr-app-v26';
+const CACHE = 'ttr-app-v27';
 // Guarda o app e as bibliotecas externas JÁ NA INSTALAÇÃO (não só nas próximas visitas), para abrir sem internet desde o primeiro uso.
 const LOCAIS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'apple-ico.png', 'vendor/supabase.min.js', 'vendor/chart.umd.min.js'];
 const EXTERNOS = [
@@ -30,6 +30,8 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET' || !/^https?:/.test(req.url)) return;
   const url = new URL(req.url);
   if (/\.supabase\.(co|in)$/.test(url.hostname)) return;
+  // Vídeos dos tutoriais: sempre direto da rede (são grandes e o navegador pede em pedaços), nunca guardados no cache.
+  if (url.pathname.includes('/tutoriais/') || req.headers.has('range')) return;
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     try {

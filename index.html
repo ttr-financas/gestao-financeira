@@ -955,6 +955,24 @@
   .vd-forma-tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; background: rgba(var(--pr),.14); color: var(--accent-text); margin-top: 4px; }
   .cat-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; }
   .cat-item .info { flex: 1; min-width: 0; } .cat-item .info small { display: block; color: var(--muted); font-size: 11.5px; }
+
+  /* ===== Tutoriais em vídeo ===== */
+  .tut-overlay { z-index: 1200; }
+  .tut-intro { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+  .tut-grupo { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 16px 2px 8px; }
+  .tut-card { display: flex; align-items: center; gap: 12px; width: 100%; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px 8px 8px; color: var(--text); font: inherit; text-align: left; cursor: pointer; margin-bottom: 8px; }
+  .tut-card:hover, .tut-card:focus-visible { border-color: var(--primary); outline: none; }
+  .tut-thumb { position: relative; width: 54px; height: 96px; flex-shrink: 0; border-radius: 9px; overflow: hidden; background: #000 center/cover no-repeat; }
+  .tut-thumb::after { content: '▶'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; background: rgba(0,0,0,.28); }
+  .tut-tx { flex: 1; min-width: 0; }
+  .tut-tx strong { display: block; font-size: 14.5px; line-height: 1.3; }
+  .tut-tx small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+  .tut-visto { font-size: 11.5px; font-weight: 700; color: #4ade80; white-space: nowrap; }
+  .tut-player { text-align: center; }
+  .tut-player video { display: block; width: 100%; max-width: 360px; max-height: 68vh; aspect-ratio: 9 / 16; margin: 0 auto; border-radius: 18px; background: #000; object-fit: contain; }
+  .tut-nav { display: flex; gap: 8px; margin-top: 12px; }
+  .tut-nav .btn { flex: 1; margin: 0; }
+  .tut-login { display: flex; align-items: center; justify-content: center; gap: 8px; }
 </style>
 </head>
 <body>
@@ -997,6 +1015,7 @@
       <button class="btn" id="btnLogin">Entrar</button>
       <button class="btn secondary" id="btnCriarConta" type="button" style="margin-top:8px;">Criar conta</button>
       <button class="btn ghost" id="btnEsqueci" type="button">Esqueci minha senha</button>
+      <button class="btn secondary tut-login" id="btnTutLogin" type="button" style="margin-top:8px;">▶ Como começar: assista ao vídeo</button>
       <button class="btn secondary" type="button" data-instalar data-instalar-btn style="display:none;margin-top:8px;">📲 Instalar o app</button>
       <div class="ttr-def" data-ttr="nome" style="margin-top:14px;"></div>
     </div>
@@ -1554,6 +1573,21 @@
   <button class="btn" id="btnSdAdd" type="button">Adicionar</button>
 </div></div>
 <!-- RELATÓRIOS -->
+
+<div class="modal-overlay tut-overlay" id="modalTutoriais"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="tutTitulo">
+  <div class="modal-header"><h3 id="tutTitulo">🎬 Tutoriais em vídeo</h3><button class="close-btn" aria-label="Fechar" data-close="modalTutoriais">×</button></div>
+  <p class="tut-intro">Escolha o que você quer aprender. Cada vídeo mostra o passo a passo nas telas do app.</p>
+  <div id="tutLista"></div>
+</div></div>
+<div class="modal-overlay tut-overlay" id="modalTutVideo"><div class="modal tut-player" role="dialog" aria-modal="true" aria-labelledby="tutVideoTitulo">
+  <div class="modal-header"><h3 id="tutVideoTitulo">Tutorial</h3><button class="close-btn" aria-label="Fechar" data-close="modalTutVideo">×</button></div>
+  <video id="tutVideo" controls playsinline preload="metadata" controlsList="nodownload"></video>
+  <div class="tut-nav">
+    <button class="btn secondary" id="btnTutAnterior" type="button">‹ Anterior</button>
+    <button class="btn secondary" id="btnTutTodos" type="button">☰ Todos</button>
+    <button class="btn" id="btnTutProximo" type="button">Próximo ›</button>
+  </div>
+</div></div>
 <div class="modal-overlay" id="modalRelatorios"><div class="modal" role="dialog" aria-modal="true">
   <div class="modal-header"><h3>Relatórios</h3><button class="close-btn" aria-label="Fechar" data-close="modalRelatorios" aria-label="Fechar">×</button></div>
   <div class="filtros" id="relPeriodo" style="margin-bottom:12px;"><button data-p="3">3 meses</button><button data-p="6" class="active">6 meses</button><button data-p="12">12 meses</button></div>
@@ -1588,6 +1622,8 @@
 <div class="modal-overlay" id="modalConfiguracoes">
   <div class="modal" role="dialog" aria-modal="true">
     <div class="modal-header"><h3>Configurações</h3><button class="close-btn" aria-label="Fechar" data-close="modalConfiguracoes">×</button></div>
+    <div class="cfg-titulo">Ajuda</div>
+    <button class="cfg-item" id="btnCfgTutoriais" type="button"><span class="cfg-ic">🎬</span><span class="cfg-tx"><strong>Tutoriais em vídeo</strong><small>Aprenda cada parte do app em 1 ou 2 minutos</small></span><span class="cfg-seta">›</span></button>
     <div data-instalar style="display:none;"><div class="cfg-titulo">Aplicativo</div>
     <button class="cfg-item" type="button" data-instalar-btn><span class="cfg-ic">📲</span><span class="cfg-tx"><strong>Instalar o app no celular</strong><small>Ícone na tela inicial, abre em tela cheia</small></span><span class="cfg-seta">›</span></button></div>
     <div class="cfg-titulo">Avisos</div>
@@ -8641,6 +8677,74 @@ ajustarAcessibilidade(); if (!a11yLigada()) a11yDesfazer(); a11yAtualizarTela();
   });
 })();
 registrarSW();
+</script>
+<script>
+/* ===== Tutoriais em vídeo (pasta tutoriais/ ao lado do index.html) ===== */
+(function () {
+  const TUTORIAIS = [
+    { id: 'apresentacao', grupo: 'Comece por aqui', tit: 'Conheça o TTR em 2 minutos', mod: 'Apresentação', dur: '2:23' },
+    { id: 't01', grupo: 'Comece por aqui', tit: 'Primeiros passos: criar conta e primeiro acesso', mod: 'Tutorial 1', dur: '1:48' },
+    { id: 't02', grupo: 'Planejamento', tit: 'Planejamento a dois: convite, renda e limites', mod: 'Tutorial 2', dur: '2:12' },
+    { id: 't10', grupo: 'Planejamento', tit: 'Seu mês sob controle: gráficos e alertas', mod: 'Tutorial 10', dur: '1:33' },
+    { id: 't03', grupo: 'Inclusão e gastos', tit: 'Lance suas compras e divida com quem quiser', mod: 'Tutorial 3', dur: '1:36' },
+    { id: 't04', grupo: 'Inclusão e gastos', tit: 'Importe a fatura e o extrato', mod: 'Tutorial 4', dur: '1:24' },
+    { id: 't05', grupo: 'Inclusão e gastos', tit: 'Parcelas do mês, vencimentos e PDF', mod: 'Tutorial 5', dur: '1:10' },
+    { id: 't06', grupo: 'Porquinho', tit: 'Guarde dinheiro para cada sonho', mod: 'Tutorial 6', dur: '0:51' },
+    { id: 't07', grupo: 'Compras divididas', tit: 'Cobre quem te deve, com a sua chave Pix', mod: 'Tutorial 7', dur: '0:57' },
+    { id: 't08', grupo: 'Vendas e serviços', tit: 'Catálogo, vendas e painel de caixa', mod: 'Tutorial 8', dur: '0:56' },
+    { id: 't09', grupo: 'Configurações', tit: 'Contas fixas, cartões, relatórios e assinatura', mod: 'Tutorial 9', dur: '1:02' }
+  ];
+  const PASTA = 'tutoriais/';
+  const el = id => document.getElementById(id);
+  const vistos = () => { try { return JSON.parse(localStorage.getItem('ttr_tut_vistos') || '[]'); } catch (e) { return []; } };
+  const marcarVisto = id => { try { const v = vistos(); if (!v.includes(id)) { v.push(id); localStorage.setItem('ttr_tut_vistos', JSON.stringify(v)); } } catch (e) {} };
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let atual = 0;
+
+  function renderLista() {
+    const v = vistos(); let html = '', grupo = '';
+    TUTORIAIS.forEach((t, i) => {
+      if (t.grupo !== grupo) { grupo = t.grupo; html += '<div class="tut-grupo">' + esc(grupo) + '</div>'; }
+      html += '<button class="tut-card" type="button" data-tut="' + i + '" aria-label="Assistir: ' + esc(t.tit) + ', ' + esc(t.dur) + '">'
+        + '<span class="tut-thumb" style="background-image:url(\'' + PASTA + t.id + '.jpg\')"></span>'
+        + '<span class="tut-tx"><strong>' + esc(t.tit) + '</strong><small>' + esc(t.mod) + ' · ' + esc(t.dur) + ' min</small></span>'
+        + (v.includes(t.id) ? '<span class="tut-visto">✓ Visto</span>' : '') + '</button>';
+    });
+    el('tutLista').innerHTML = html;
+  }
+  function tocar(i) {
+    atual = (i + TUTORIAIS.length) % TUTORIAIS.length;
+    const t = TUTORIAIS[atual], vd = el('tutVideo');
+    el('tutVideoTitulo').textContent = t.tit;
+    vd.poster = PASTA + t.id + '.jpg';
+    vd.src = PASTA + t.id + '.mp4';
+    el('btnTutAnterior').disabled = atual === 0;
+    el('btnTutProximo').disabled = atual === TUTORIAIS.length - 1;
+    abrirModal('modalTutVideo');
+    const p = vd.play(); if (p && p.catch) p.catch(() => {});
+  }
+  window.abrirTutoriais = function () { renderLista(); abrirModal('modalTutoriais'); };
+  window.abrirTutorial = function (id) { const i = TUTORIAIS.findIndex(t => t.id === id); tocar(i < 0 ? 0 : i); };
+
+  function ligar() {
+    if (!el('modalTutVideo')) return;
+    const vd = el('tutVideo');
+    el('tutLista').addEventListener('click', e => { const b = e.target.closest('[data-tut]'); if (b) tocar(+b.dataset.tut); });
+    el('btnTutAnterior').addEventListener('click', () => tocar(atual - 1));
+    el('btnTutProximo').addEventListener('click', () => tocar(atual + 1));
+    el('btnTutTodos').addEventListener('click', () => { vd.pause(); fecharModal('modalTutVideo'); window.abrirTutoriais(); });
+    vd.addEventListener('timeupdate', () => { if (vd.duration && vd.currentTime / vd.duration > 0.8) marcarVisto(TUTORIAIS[atual].id); });
+    vd.addEventListener('ended', () => { marcarVisto(TUTORIAIS[atual].id); renderLista(); });
+    // fechou o player (botão ×, toque fora ou voltar do celular) → para o vídeo e libera o download
+    new MutationObserver(() => { if (!el('modalTutVideo').classList.contains('open') && vd.getAttribute('src')) { vd.pause(); vd.removeAttribute('src'); vd.load(); renderLista(); } })
+      .observe(el('modalTutVideo'), { attributes: true, attributeFilter: ['class'] });
+    const cfg = el('btnCfgTutoriais');
+    if (cfg) cfg.addEventListener('click', () => { fecharModal('modalConfiguracoes'); window.abrirTutoriais(); });
+    const login = el('btnTutLogin');
+    if (login) login.addEventListener('click', () => window.abrirTutorial('t01'));
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ligar); else ligar();
+})();
 </script>
 </body>
 </html>
