@@ -4442,7 +4442,7 @@ const TEXTO_ESPERA = { cadastro_codigo: 'Enviando o código para o seu e-mail…
 async function invocarConta(acao, corpo) {
   // chamada direta (sem depender da sessão) e com limite de tempo: nunca fica "rodando" para sempre
   const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 30000);
-  const bloquear = acao !== 'conferir'; if (bloquear) bloquearTela(true, TEXTO_ESPERA[acao] || 'Aguarde…');
+  const bloquear = acao !== 'conferir' && acao !== 'avisar_sugestao'; if (bloquear) bloquearTela(true, TEXTO_ESPERA[acao] || 'Aguarde…');
   let token = SUPABASE_KEY;   // quem já entrou manda a própria sessão (o servidor precisa saber quem é)
   try {
     const { data } = await Promise.race([dbReal.auth.getSession(), new Promise(r => setTimeout(() => r({ data: null }), 4000))]);
@@ -5150,11 +5150,17 @@ async function enviarSugestao() {
   const texto = $('sugTexto').value.trim();
   if (texto.length < 5) return alert('Escreva a sua mensagem (pelo menos algumas palavras).');
   const b = $('btnSugEnviar'); b.disabled = true; b.textContent = 'Enviando...';
-  const { error } = await db.from('sugestoes').insert([{ user_id: currentUser.id, nome: currentUser.nome, email: currentUser.email, grupo_id: currentUser.grupo_id, tipo: $('sugTipo').value, mensagem: texto }]);
+  const linhaSug = [{ user_id: currentUser.id, nome: currentUser.nome, email: currentUser.email, grupo_id: currentUser.grupo_id, tipo: $('sugTipo').value, mensagem: texto }];
+  let { data: sugNova, error } = await db.from('sugestoes').insert(linhaSug).select('id');
+  // se o banco não deixar a pessoa ler a própria mensagem de volta, grava do jeito antigo (só não manda o aviso por e-mail)
+  if (error && (error.code === '42501' || /row-level security|permission/i.test(error.message || ''))) ({ data: sugNova, error } = await db.from('sugestoes').insert(linhaSug));
   b.disabled = false; b.textContent = 'Enviar';
   if (error) return alert('Não foi possível enviar agora. Tente de novo em instantes.');
   $('sugTexto').value = ''; $('sugContador').textContent = '0/1000';
   notificar('Mensagem enviada! Obrigado.', 'sucesso');
+  // avisa por e-mail (por trás, sem travar a tela; se falhar, a mensagem continua salva no app)
+  const idSug = sugNova && sugNova[0] && sugNova[0].id;
+  if (idSug) invocarConta('avisar_sugestao', { id: idSug }).catch(() => {});
   carregarSugestoes();
 }
 
