@@ -313,6 +313,7 @@
   .alert-orc { margin-bottom: 14px; padding: 10px 12px; border-radius: 14px; background: rgba(245,179,1,.10); border: 1px solid rgba(245,179,1,.4); font-size: 13px; }
   .alert-orc-item { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; padding: 3px 0; color: var(--warn-text); }
   .alert-orc-item.estourou { color: var(--danger-text); }
+  .alert-orc-mais summary { list-style: none; } .alert-orc-mais summary::-webkit-details-marker { display: none; } .alert-orc-mais[open] summary { display: none; }
   .rel-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 420px; }
   .rel-table th, .rel-table td { padding: 7px 6px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
   .rel-table th:first-child, .rel-table td:first-child { text-align: left; position: sticky; left: 0; background: var(--card-solid); }
@@ -7722,7 +7723,7 @@ function nvRenderResumoSaldo() {
 function nvAlertasOrcamento(lista) {
   const box = $('alertaOrcamentoContainer'); if (!box) return;
   const aten = lista.filter(a => a.orc > 0 && a.pct >= 80).sort((a, b) => b.pct - a.pct);
-  box.innerHTML = aten.length ? `<div class="alert-orc">${aten.slice(0, 4).map(a => `<div class="alert-orc-item ${a.pct >= 100 ? 'estourou' : ''}"><span>${a.pct >= 100 ? '🚨' : '⚠️'} <b>${esc(capIni(a.nome))}</b>: ${a.pct}% do orçamento</span><span>${fm(a.gasto)} de ${fm(a.orc)}</span></div>`).join('')}${aten.length > 4 ? `<div class="hint" style="margin:4px 0 0;">e mais ${aten.length - 4}…</div>` : ''}</div>` : '';
+  box.innerHTML = aten.length ? `<div class="alert-orc">${aten.slice(0, 4).map(a => `<div class="alert-orc-item ${a.pct >= 100 ? 'estourou' : ''}"><span>${a.pct >= 100 ? '🚨' : '⚠️'} <b>${esc(capIni(a.nome))}</b>: ${a.pct}% do orçamento</span><span>${fm(a.gasto)} de ${fm(a.orc)}</span></div>`).join('')}${aten.length > 4 ? `<details class="alert-orc-mais"><summary class="hint" style="margin:4px 0 0;cursor:pointer;">e mais ${aten.length - 4}… <u>ver todas</u></summary>${aten.slice(4).map(a => `<div class="alert-orc-item ${a.pct >= 100 ? 'estourou' : ''}"><span>${a.pct >= 100 ? '🚨' : '⚠️'} <b>${esc(capIni(a.nome))}</b>: ${a.pct}% do orçamento</span><span>${fm(a.gasto)} de ${fm(a.orc)}</span></div>`).join('')}</details>` : ''}</div>` : '';
   if (state.mesesSelecionados[0] !== ymLocal()) return;
   try {
     const chave = 'ttr_alerta_orc_' + currentUser.id + '_' + ymLocal(); const vistos = JSON.parse(localStorage.getItem(chave) || '{}'); const novos = [];
