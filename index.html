@@ -7533,21 +7533,34 @@ async function garantirMensalidadeTTR() {
     const { error } = await db.from('categorias_orcamento').insert([{ grupo_id: g, nome: MENSALIDADE_CAT }]);
     if (!error) { const { data } = await db.from('categorias_orcamento').select('*').eq('grupo_id', g).order('nome'); if (data) categoriasOrcamento = data; }
   }
-  const venc = a.vencimento ? new Date(a.vencimento) : new Date();
+  // '2026-12-18' vira data local (new Date direto lê como UTC e no Brasil cai no dia anterior)
+  const mv = String(a.vencimento || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const venc = mv ? new Date(+mv[1], +mv[2] - 1, +mv[3]) : a.vencimento ? new Date(a.vencimento) : new Date();
   const fim = ymLocal(venc) + '-01';
   _mensPagaAte = a.primeiro_pagamento ? null : ymLocal(venc);   // meses antes do vencimento já estão pagos   // só aparece até o mês do vencimento: ao pagar, o vencimento avança e o mês seguinte entra
+  // no teste grátis a primeira mensalidade só existe no mês em que o teste acaba, no dia em que ele acaba
+  const dia = a.teste ? Math.min(venc.getDate() || 1, 28) : Math.min(Number(a.dia_venc) || venc.getDate() || 1, 28);
+  const inicio = (a.teste ? ymLocal(venc) : ymLocal()) + '-01';
   const ex = NV.rec.find(r => normalizarNome(r.nome) === normalizarNome(MENSALIDADE_NOME));
   if (ex) {
     const upd = {};
     if (ex.ativo !== false && Number(ex.valor) !== valor) upd.valor = valor;
     if (String(ex.fim || '').slice(0, 10) !== fim) upd.fim = fim;
+    if (a.teste && String(ex.inicio || '').slice(0, 10) !== inicio) upd.inicio = inicio;
+    if (a.teste && Number(ex.dia) !== dia) upd.dia = dia;
     if (Object.keys(upd).length) { await db.from('recorrentes').update(upd).eq('id', ex.id); Object.assign(ex, upd); }
+    if (a.teste) await limparMensalidadeAntesDoTeste(inicio.slice(0, 7));
     return;
   }
-  const dia = Math.min(Number(a.dia_venc) || venc.getDate() || 1, 28);
-  const inicio = (a.teste ? ymLocal(venc) : ymLocal()) + '-01';
   const { error } = await db.from('recorrentes').insert([{ grupo_id: g, nome: MENSALIDADE_NOME, valor, dia, responsavel: currentUser.nome, categoria: MENSALIDADE_CAT, tipo_pagamento: 'Pix', inicio, fim, ativo: true }]);
   if (!error) await nvCarregar();
+}
+// conta criada no teste grátis: apaga a mensalidade (não paga) que tenha sido lançada antes do mês em que o teste acaba
+async function limparMensalidadeAntesDoTeste(ymInicio) {
+  try {
+    const { data } = await db.from('compras').select('id, id_compra').ilike('nome_compra', MENSALIDADE_NOME).eq('pagamento', false).lt('mes_referencia', ymInicio).in('criado_por', emailsGrupo());
+    if (data && data.length) await db.from('compras').delete().in('id', data.map(x => x.id)).in('criado_por', emailsGrupo());
+  } catch (e) {}
 }
 /* ---- contas fixas: gera a compra de cada mês (do início até o mês que vem), uma única vez por mês ---- */
 async function nvGerarRecorrentes() {
