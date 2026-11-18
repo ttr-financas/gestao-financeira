@@ -899,6 +899,15 @@
   .sug-quem { font-size: 11px; color: var(--muted); margin: 3px 0 8px; word-break: break-word; }
   .sug-msg { font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
   .sug-acoes { margin-top: 10px; }
+  .sug-resp { margin-top: 10px; border-left: 3px solid var(--primary, #40927f); background: rgba(64,146,127,.10); border-radius: 0 12px 12px 0; padding: 10px 12px; }
+  .sug-resp.nova { background: rgba(64,146,127,.20); }
+  .sug-resp-top { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 700; color: var(--accent-text, #86d4c1); margin-bottom: 4px; }
+  .sug-resp-top span:last-child { color: var(--muted); font-weight: 500; }
+  .sug-resp-txt { font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+  .sug-tag { background: var(--accent-text, #86d4c1); color: #0a121f; border-radius: 999px; padding: 1px 7px; font-size: 10px; margin-left: 4px; }
+  .sug-responder { margin-top: 10px; }
+  .sug-responder textarea { width: 100%; box-sizing: border-box; min-height: 80px; padding: 10px 12px; background: rgba(var(--w),.05); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font: inherit; font-size: 16px; resize: vertical; line-height: 1.45; }
+  .sug-badge { display: inline-block; margin-left: 8px; background: var(--danger, #ff6b6b); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 700; vertical-align: middle; }
 
   /* gráfico compacto Gasto x Orçado */
   .gxo-card { background: var(--card, rgba(127,127,127,.08)); border: 1px solid var(--border, rgba(127,127,127,.25)); border-radius: 16px; padding: 10px 12px; margin: 12px 0; }
@@ -4442,7 +4451,7 @@ const TEXTO_ESPERA = { cadastro_codigo: 'Enviando o código para o seu e-mail…
 async function invocarConta(acao, corpo) {
   // chamada direta (sem depender da sessão) e com limite de tempo: nunca fica "rodando" para sempre
   const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 30000);
-  const bloquear = acao !== 'conferir' && acao !== 'avisar_sugestao'; if (bloquear) bloquearTela(true, TEXTO_ESPERA[acao] || 'Aguarde…');
+  const bloquear = !['conferir', 'avisar_sugestao', 'avisar_resposta'].includes(acao); if (bloquear) bloquearTela(true, TEXTO_ESPERA[acao] || 'Aguarde…');
   let token = SUPABASE_KEY;   // quem já entrou manda a própria sessão (o servidor precisa saber quem é)
   try {
     const { data } = await Promise.race([dbReal.auth.getSession(), new Promise(r => setTimeout(() => r({ data: null }), 4000))]);
@@ -5114,6 +5123,7 @@ async function carregarDados() {
   await carregarDevedores();
   await carregarVendas();
   carregarModulos(); aplicarModulos();
+  verificarRespostasSugestoes();
   preencherDatalists();
   atualizarLabelMes();
   // Só renderiza a aba ativa
@@ -5136,15 +5146,57 @@ async function carregarSugestoes() {
   const adm = !!(currentUser && currentUser.is_admin), box = $('sugLista');
   $('sugListaTitulo').textContent = adm ? 'Sugestões recebidas (todos os usuários)' : 'Minhas sugestões';
   box.innerHTML = '<p class="hint">Carregando…</p>';
-  const { data, error } = await db.from('sugestoes').select('*').order('criado_em', { ascending: false }).limit(100);
+  let q = db.from('sugestoes').select('*').order('criado_em', { ascending: false }).limit(100);
+  if (!adm) q = q.eq('user_id', currentUser.id);   // cada pessoa vê só as próprias mensagens (o banco também garante isso)
+  const { data, error } = await q;
   if (error) { box.innerHTML = '<p class="hint">Não foi possível carregar a lista agora. Tente de novo em instantes.</p>'; return; }
+  const fData = v => { const dt = new Date(v); return isNaN(dt) ? '' : dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
   box.innerHTML = (data || []).length ? data.map(r => {
-    const dt = new Date(r.criado_em), quando = isNaN(dt) ? '' : dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    return `<div class="sug-item ${r.status === 'resolvida' ? 'ok' : ''}"><div class="sug-top"><strong>${SUG_TIPOS[r.tipo] || esc(r.tipo)}</strong><span class="sug-st">${r.status === 'resolvida' ? '✅ Resolvida' : '🕐 Nova'}</span></div>
-      <div class="sug-quem">${adm ? `De <b>${esc(capNome(r.nome || ''))}</b>${r.email ? ' · ' + esc(r.email) : ''}${r.grupo_id ? ' · grupo ' + esc(r.grupo_id) : ''} · ` : ''}${esc(quando)}</div>
-      <div class="sug-msg">${esc(r.mensagem)}</div>
-      ${adm ? `<div class="sug-acoes"><button type="button" class="btn-action" data-sug="${esc(r.id)}" data-st="${r.status === 'resolvida' ? 'nova' : 'resolvida'}">${r.status === 'resolvida' ? 'Reabrir' : 'Marcar como resolvida'}</button></div>` : ''}</div>`;
+    const resp = (r.resposta || '').trim(), nova = !adm && resp && r.resposta_vista === false;
+    const st = r.status === 'resolvida' ? '✅ Resolvida' : resp ? '💬 Respondida' : '🕐 Nova';
+    const blocoResp = resp ? `<div class="sug-resp${nova ? ' nova' : ''}"><div class="sug-resp-top">💬 Resposta do TTR${nova ? ' <span class="sug-tag">nova</span>' : ''}<span>${esc(fData(r.respondido_em))}</span></div><div class="sug-resp-txt">${esc(resp)}</div></div>` : '';
+    const caixaAdm = adm ? `<div class="sug-responder" data-sug-box="${esc(r.id)}" ${resp ? 'hidden' : ''}><textarea rows="3" maxlength="2000" placeholder="Escreva a resposta para ${esc(capNome((r.nome || '').split(' ')[0] || 'a pessoa'))}…">${esc(resp)}</textarea>
+        <div class="sug-acoes"><button type="button" class="btn-action" data-sug-resp="${esc(r.id)}">Enviar resposta</button>${resp ? ` <button type="button" class="btn-action" data-sug-cancel="${esc(r.id)}">Cancelar</button>` : ''}</div></div>` : '';
+    return `<div class="sug-item ${r.status === 'resolvida' ? 'ok' : ''}"><div class="sug-top"><strong>${SUG_TIPOS[r.tipo] || esc(r.tipo)}</strong><span class="sug-st">${st}</span></div>
+      <div class="sug-quem">${adm ? `De <b>${esc(capNome(r.nome || ''))}</b>${r.email ? ' · ' + esc(r.email) : ''}${r.grupo_id ? ' · grupo ' + esc(r.grupo_id) : ''} · ` : ''}${esc(fData(r.criado_em))}</div>
+      <div class="sug-msg">${esc(r.mensagem)}</div>${blocoResp}${caixaAdm}
+      ${adm ? `<div class="sug-acoes">${resp ? `<button type="button" class="btn-action" data-sug-editar="${esc(r.id)}">Editar resposta</button> ` : ''}<button type="button" class="btn-action" data-sug="${esc(r.id)}" data-st="${r.status === 'resolvida' ? 'nova' : 'resolvida'}">${r.status === 'resolvida' ? 'Reabrir' : 'Marcar como resolvida'}</button></div>` : ''}</div>`;
   }).join('') : '<p class="hint">Nenhuma mensagem ainda.</p>';
+  if (!adm && (data || []).some(r => r.resposta && r.resposta_vista === false)) {
+    try { await db.rpc('marcar_respostas_vistas'); } catch (e) {}
+    marcarBadgeSugestoes(0);
+  }
+}
+// admin responde a mensagem; a pessoa vê a resposta na lista dela e recebe um e-mail
+async function responderSugestao(id) {
+  const box = document.querySelector(`[data-sug-box="${CSS.escape(String(id))}"]`); if (!box) return;
+  const txt = box.querySelector('textarea').value.trim();
+  if (txt.length < 2) return notificar('Escreva a resposta antes de enviar.', 'erro');
+  const bt = box.querySelector('[data-sug-resp]'); bt.disabled = true; bt.textContent = 'Enviando...';
+  const { error } = await db.from('sugestoes').update({ resposta: txt, respondido_em: new Date().toISOString(), respondido_por: currentUser.nome, resposta_vista: false }).eq('id', id);
+  bt.disabled = false; bt.textContent = 'Enviar resposta';
+  if (error) return notificar(/column|schema cache/i.test(error.message || '') ? 'Rode o SQL novo (20261118_respostas_sugestoes.sql) no Supabase.' : 'Não foi possível salvar a resposta. Tente de novo.', 'erro');
+  invocarConta('avisar_resposta', { id }).catch(() => {});
+  notificar('Resposta enviada! A pessoa vê no app e recebe por e-mail.', 'sucesso');
+  carregarSugestoes();
+}
+// bolinha em Configurações › Sugestões quando chega resposta nova
+function marcarBadgeSugestoes(n) {
+  const bt = $('btnCfgSugestoes'); if (!bt) return;
+  let bd = bt.querySelector('.sug-badge');
+  if (!n) { if (bd) bd.remove(); return; }
+  if (!bd) { bd = document.createElement('span'); bd.className = 'sug-badge'; bt.querySelector('.cfg-tx strong').appendChild(bd); }
+  bd.textContent = n === 1 ? '1 resposta' : n + ' respostas';
+}
+let _respAvisadas = false;
+async function verificarRespostasSugestoes() {
+  if (!currentUser || currentUser.is_admin) return;
+  try {
+    const { data, error } = await db.from('sugestoes').select('id').eq('user_id', currentUser.id).eq('resposta_vista', false).not('resposta', 'is', null);
+    if (error) return;
+    const n = (data || []).length; marcarBadgeSugestoes(n);
+    if (n && !_respAvisadas) { _respAvisadas = true; notificar(n === 1 ? '💬 Respondemos a sua mensagem! Veja em Configurações › Sugestões e problemas.' : `💬 Você tem ${n} respostas novas em Configurações › Sugestões e problemas.`, 'sucesso', 7000); }
+  } catch (e) {}
 }
 async function enviarSugestao() {
   const texto = $('sugTexto').value.trim();
@@ -8522,6 +8574,9 @@ function ligarEventos() {
   $('btnSugEnviar').addEventListener('click', enviarSugestao);
   $('sugTexto').addEventListener('input', e => { $('sugContador').textContent = e.target.value.length + '/1000'; });
   $('sugLista').addEventListener('click', async e => {
+    const r = e.target.closest('[data-sug-resp]'); if (r) return responderSugestao(r.dataset.sugResp);
+    const ed = e.target.closest('[data-sug-editar]'), cc = e.target.closest('[data-sug-cancel]');
+    if (ed || cc) { const bx = document.querySelector(`[data-sug-box="${CSS.escape((ed || cc).dataset.sugEditar || (ed || cc).dataset.sugCancel)}"]`); if (bx) { bx.hidden = !!cc; if (ed) bx.querySelector('textarea').focus(); } return; }
     const b = e.target.closest('[data-sug]'); if (!b) return;
     const { error } = await db.from('sugestoes').update({ status: b.dataset.st }).eq('id', b.dataset.sug);
     if (error) return alert('Erro ao atualizar: ' + error.message);
