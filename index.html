@@ -5522,8 +5522,11 @@ async function carregarOrcamento() {
   setTxt('pizzaRendaBruta', formatarMoeda(bruta));
   setTxt('pizzaOrcado', formatarMoeda(totalOrcado));
   const pagoGasto = comprasDoMesPessoa(mes).reduce((t, c) => t + pagoPessoa(c, filtro), 0);
-  setTxt('pizzaGasto', formatarMoeda(Math.max(0, gasto - pagoGasto)));
-  setTxt('pizzaGastoSub', pagoGasto > 0.004 ? `Pago ${formatarMoeda(pagoGasto)} de ${formatarMoeda(gasto)}` : `Total do mês ${formatarMoeda(gasto)}`);
+  // o valor em laranja é sempre o gasto real do mês; o que já foi pago e o que falta ficam embaixo
+  const faltaGasto = Math.max(0, gasto - pagoGasto);
+  setTxt('pizzaGasto', formatarMoeda(gasto));
+  $('pizzaGastoSub').innerHTML = gasto < 0.005 ? '' : faltaGasto < 0.005 ? '✅ Tudo pago'
+    : `Pago <span style="white-space:nowrap">${formatarMoeda(pagoGasto)}</span><br>Falta pagar <b style="color:var(--text);white-space:nowrap">${formatarMoeda(faltaGasto)}</b>`;
   setTxt('pizzaPorq', formatarMoeda(guardado));
   const terceiros = somaTerceiros(comprasDoMesPessoa(mes));
   $('statTerceiros').style.display = terceiros > 0.004 ? '' : 'none';
