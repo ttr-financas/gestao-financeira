@@ -1159,7 +1159,7 @@
       <div class="gxo-head"><strong>Provisão (sobras e faltas)</strong><span id="provPeriodo"></span></div>
       <div class="gxo-linha prov-total"><span>Total</span><div class="gxo-trilho"><div class="gxo-barra" id="provBarTotal"></div></div><b class="sensivel" id="provValTotal"></b></div>
       <div class="prov-chart" id="provChartWrap"><canvas id="provChart"></canvas></div>
-      <div class="prov-leg" id="provLeg">Cada barra é a sobra (verde) ou falta (vermelho) do período, a partir do mês da primeira renda. Meses de semestres e anos já fechados aparecem somados.</div>
+      <div class="prov-leg" id="provLeg">Cada barra é a sobra (verde) ou falta (vermelho) do período, a partir do mês da primeira renda. Meses de semestres e anos já fechados aparecem somados. Meses à frente só entram quando já têm gastos lançados.</div>
       <div class="prov-sem-renda" id="provSemRenda" hidden>Cadastre a sua renda no Planejamento para começar a acompanhar a provisão.</div>
       <button type="button" class="prov-btn-antes" id="provBtnAntes" hidden></button>
       <div class="prov-antes" id="provAntes" hidden>
@@ -5786,9 +5786,12 @@ async function renderProvisao(mesFim, filtro) {
   $('provChartWrap').style.display = temRenda && typeof Chart !== 'undefined' ? '' : 'none';
   $('provLeg').hidden = !temRenda; $('provSemRenda').hidden = temRenda;
   if (temRenda) {
-    const grupos = provAgrupar(faixa(primeiraRenda, mesFim), mesFim, sobraMes);
+    // meses à frente sem nenhum gasto lançado só teriam a renda (sobra "de mentira"): ficam fora do gráfico e do total
+    const mesesUsados = faixa(primeiraRenda, mesFim).filter(m => m <= hoje || comprasDoMesPessoa(m).length > 0);
+    const ultimoUsado = mesesUsados[mesesUsados.length - 1];
+    const grupos = mesesUsados.length ? provAgrupar(mesesUsados, mesFim, sobraMes) : [];
     const total = grupos.reduce((t, g) => t + g.v, 0);
-    $('provPeriodo').textContent = primeiraRenda === mesFim ? formatarMes(mesFim) : `${formatarMes(primeiraRenda)} até ${formatarMes(mesFim)}`;
+    $('provPeriodo').textContent = !ultimoUsado ? '' : primeiraRenda === ultimoUsado ? formatarMes(ultimoUsado) : `${formatarMes(primeiraRenda)} até ${formatarMes(ultimoUsado)}`;
     const maior = Math.max(Math.abs(total), ...grupos.map(g => Math.abs(g.v)), 0.01);
     const bar = $('provBarTotal');
     bar.style.width = (Math.abs(total) / maior * 100) + '%';
