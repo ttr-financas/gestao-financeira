@@ -924,6 +924,11 @@
   .prov-total b { font-size: 13px; }
   .prov-chart { position: relative; height: 150px; margin-top: 10px; }
   .prov-leg { font-size: 10.5px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+  .prov-sem-renda { font-size: 12.5px; color: var(--muted); margin: 6px 0 2px; }
+  .prov-btn-antes { margin-top: 10px; width: 100%; background: rgba(127,127,127,.10); border: 1px dashed var(--border, rgba(127,127,127,.35)); color: var(--muted); border-radius: 10px; padding: 9px 10px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; text-align: left; }
+  .prov-antes { margin-top: 8px; }
+  .prov-aviso { font-size: 11.5px; line-height: 1.45; background: rgba(245,179,1,.10); border: 1px solid rgba(245,179,1,.35); border-radius: 10px; padding: 8px 10px; color: var(--text); }
+  .prov-chart.antes { height: 120px; }
 
   /* ===== módulos opcionais ===== */
   body:not(.mod-porquinhos) .so-porquinhos, body:not(.mod-receber) .so-receber, body:not(.mod-vendas) .so-vendas { display: none !important; }
@@ -1150,7 +1155,14 @@
       <div class="gxo-head"><strong>Provisão (sobras e faltas)</strong><span id="provPeriodo"></span></div>
       <div class="gxo-linha prov-total"><span>Total</span><div class="gxo-trilho"><div class="gxo-barra" id="provBarTotal"></div></div><b class="sensivel" id="provValTotal"></b></div>
       <div class="prov-chart" id="provChartWrap"><canvas id="provChart"></canvas></div>
-      <div class="prov-leg">Cada barra é a sobra (verde) ou falta (vermelho) do período. Meses de semestres e anos já fechados aparecem somados.</div>
+      <div class="prov-leg" id="provLeg">Cada barra é a sobra (verde) ou falta (vermelho) do período, a partir do mês da primeira renda. Meses de semestres e anos já fechados aparecem somados.</div>
+      <div class="prov-sem-renda" id="provSemRenda" hidden>Cadastre a sua renda no Planejamento para começar a acompanhar a provisão.</div>
+      <button type="button" class="prov-btn-antes" id="provBtnAntes" hidden></button>
+      <div class="prov-antes" id="provAntes" hidden>
+        <div class="prov-aviso">⚠️ <b>Informação incompleta.</b> Estes meses vêm antes da sua primeira renda no app. Aparecem só as parcelas que caíram neles (por exemplo, de faturas importadas no meio do parcelamento). Não têm renda nem os outros gastos daquela época, por isso <b>não entram no total</b>.</div>
+        <div class="prov-chart antes"><canvas id="provChartAntes"></canvas></div>
+        <div class="prov-leg" id="provAntesTotal"></div>
+      </div>
     </section>
     <div id="alertaOrcamentoContainer"></div>
     <div id="resumoSaldoContainer"></div>
@@ -2361,7 +2373,7 @@ let state = {
   devedores: [], devIndisponivel: false, devErro: '', filtroReceber: 'aberto', recDevId: null,
   vendas: [], vdCatalogo: [], vdAba: 'painel', vdIndisponivel: false, vdErro: '', filtroVendas: 'aberto', vdId: null
 };
-let chartMotivos = null, chartPizza = null, gaugeCharts = {}, gxoChart = null, provChart = null;
+let chartMotivos = null, chartPizza = null, gaugeCharts = {}, gxoChart = null, provChart = null, provChartAntes = null;
 const SEM_MOTIVO = 'Sem categoria';
 const motivoDe = c => capIni(String(c.categoria_orcamento || c.motivo || '').trim()) || SEM_MOTIVO;
 let opcoesCompra = { pagto: [] };
@@ -5663,9 +5675,36 @@ function renderGastoOrcado(comprasMes, pessoa) {
   });
 }
 /* ---- Provisão: soma das sobras/faltas de cada mês (o mesmo cálculo do card "Sobra do mês") ----
-   Até o mês escolhido: anos anteriores viram 1 barra por ano; a partir de julho, jan–jun viram "1º sem";
-   os meses do semestre atual aparecem um a um. A barra horizontal é a soma de tudo. */
-let provReq = 0;
+   Começa no mês da PRIMEIRA RENDA: antes disso a pessoa ainda não usava o app (só aparecem parcelas antigas de faturas
+   importadas), então esses meses ficam num botão à parte, marcados como informação incompleta, fora do total.
+   Até o mês escolhido: anos anteriores viram 1 barra por ano; a partir de julho, jan–jun viram "1º sem". */
+let provReq = 0, provAntesAberto = false;
+function provAgrupar(meses, mesFim, valorMes) {
+  const [Y, M] = mesFim.split('-').map(Number);
+  const grupos = [], idx = {};
+  meses.forEach(m => {
+    const [y, mm] = m.split('-').map(Number);
+    const chave = y < Y ? 'a' + y : (M >= 7 && mm <= 6) ? 's' + y : m;
+    const rot = y < Y ? String(y) : (M >= 7 && mm <= 6) ? `1º sem/${String(y).slice(2)}` : `${MESES_ABR[mm - 1]}/${String(y).slice(2)}`;
+    if (!(chave in idx)) { idx[chave] = grupos.length; grupos.push({ rot, v: 0, meses: 0 }); }
+    const g = grupos[idx[chave]]; g.v += valorMes(m); g.meses++;
+  });
+  grupos.forEach(g => { g.v = Math.round(g.v * 100) / 100; });
+  return grupos;
+}
+function provGrafico(canvas, grupos, cores, rotuloValor) {
+  return new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: { labels: grupos.map(g => g.rot), datasets: [{ data: grupos.map(g => g.v), backgroundColor: cores, borderRadius: 4, maxBarThickness: 28 }] },
+    options: { responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: {
+        title: it => { const g = grupos[it[0].dataIndex]; return g.meses > 1 ? `${g.rot} (${g.meses} meses)` : g.rot; },
+        label: c => `${rotuloValor(c.parsed.y)}: ${formatarMoeda(Math.abs(c.parsed.y))}` } } },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: grupos.length > 6 ? 9 : 10 }, color: corTema('--muted'), maxRotation: 0, autoSkip: grupos.length > 9 } },
+        y: { grid: { color: c => c.tick.value === 0 ? corTema('--muted') : 'rgba(127,127,127,.12)' }, ticks: { font: { size: 9.5 }, color: corTema('--muted'), maxTicksLimit: 5,
+          callback: v => (v < 0 ? '−' : '') + 'R$ ' + Math.abs(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) } } } }
+  });
+}
 async function renderProvisao(mesFim, filtro) {
   const card = $('provCard'); if (!card || !mesFim) return;
   const req = ++provReq;
@@ -5675,13 +5714,14 @@ async function renderProvisao(mesFim, filtro) {
   const [rR, rE] = await Promise.all([qR, qE]);
   if (req !== provReq) return;
   const rendas = rR.error ? [] : (rR.data || []), extras = rE.error ? [] : (rE.data || []);
-  const comMov = new Set();
-  rendas.forEach(r => comMov.add(r.mes_referencia)); extras.forEach(r => comMov.add(r.mes_referencia));
-  state.compras.forEach(c => { if (isAtiva(c) && daPessoa(c, filtro)) comMov.add(c.mes_referencia); });
-  (state.movPorq || []).forEach(m => comMov.add(m.mes_referencia));
-  const validos = [...comMov].filter(m => /^\d{4}-\d{2}$/.test(m || '') && m <= mesFim).sort();
+  const ok = m => /^\d{4}-\d{2}$/.test(m || '') && m <= mesFim;
+  const mesesRenda = [...rendas.filter(r => (Number(r.valor_liquido) || 0) > 0), ...extras.filter(r => (Number(r.valor) || 0) > 0)].map(r => r.mes_referencia).filter(ok).sort();
+  const primeiraRenda = mesesRenda[0] || null;
+  const mesesCompra = state.compras.filter(c => isAtiva(c) && daPessoa(c, filtro) && ok(c.mes_referencia)).map(c => c.mes_referencia).sort();
   if (provChart) { provChart.destroy(); provChart = null; }
-  if (!validos.length) { card.style.display = 'none'; return; }
+  if (provChartAntes) { provChartAntes.destroy(); provChartAntes = null; }
+  if (!primeiraRenda && !mesesCompra.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
   const hoje = ymLocal();
   // renda líquida de um mês, igual ao card: mês atual/futuro herda o último valor de cada pessoa; mês passado usa só o que foi salvo nele
   const liquidaMes = m => {
@@ -5693,41 +5733,44 @@ async function renderProvisao(mesFim, filtro) {
     } else base = rendas.filter(r => r.mes_referencia === m).reduce((t, r) => t + (Number(r.valor_liquido) || 0), 0);
     return base + extras.filter(r => r.mes_referencia === m).reduce((t, r) => t + (Number(r.valor) || 0), 0);
   };
-  const sobraMes = m => liquidaMes(m) - somaPessoa(comprasDoMesPessoa(m), filtro) - guardadoMes(m, filtro);
-  const [Y, M] = mesFim.split('-').map(Number);
-  const grupos = []; const idx = {};
-  for (let m = validos[0]; m <= mesFim; m = proximoMes(m)) {
-    const [y, mm] = m.split('-').map(Number);
-    const chave = y < Y ? 'a' + y : (M >= 7 && mm <= 6) ? 's' + y : m;
-    const rot = y < Y ? String(y) : (M >= 7 && mm <= 6) ? `1º sem/${String(y).slice(2)}` : `${MESES_ABR[mm - 1]}/${String(y).slice(2)}`;
-    if (!(chave in idx)) { idx[chave] = grupos.length; grupos.push({ rot, v: 0, meses: 0 }); }
-    const g = grupos[idx[chave]]; g.v += sobraMes(m); g.meses++;
-  }
-  grupos.forEach(g => { g.v = Math.round(g.v * 100) / 100; });
-  const total = grupos.reduce((t, g) => t + g.v, 0);
-  card.style.display = '';
-  $('provPeriodo').textContent = `${formatarMes(validos[0])} até ${formatarMes(mesFim)}`;
-  const maior = Math.max(Math.abs(total), ...grupos.map(g => Math.abs(g.v)), 0.01);
-  const bar = $('provBarTotal');
-  bar.style.width = (Math.abs(total) / maior * 100) + '%';
-  bar.style.background = total < 0 ? 'var(--danger)' : 'var(--success)';
-  const vt = $('provValTotal');
-  vt.textContent = (total < 0 ? '− ' : '') + formatarMoeda(Math.abs(total));
-  vt.style.color = total < 0 ? 'var(--danger-text)' : 'var(--success)';
-  if (typeof Chart === 'undefined') { $('provChartWrap').style.display = 'none'; return; }
-  $('provChartWrap').style.display = '';
-  provChart = new Chart($('provChart').getContext('2d'), {
-    type: 'bar',
-    data: { labels: grupos.map(g => g.rot), datasets: [{ label: 'Sobra/falta', data: grupos.map(g => g.v),
-      backgroundColor: grupos.map(g => g.v < 0 ? '#f43f5e' : '#22c55e'), borderRadius: 4, maxBarThickness: 28 }] },
-    options: { responsive: true, maintainAspectRatio: false, animation: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: {
-        title: it => { const g = grupos[it[0].dataIndex]; return g.meses > 1 ? `${g.rot} (${g.meses} meses)` : g.rot; },
-        label: c => `${c.parsed.y < 0 ? 'Falta' : 'Sobra'}: ${formatarMoeda(Math.abs(c.parsed.y))}` } } },
-      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, color: corTema('--muted'), maxRotation: 0, autoSkip: true } },
-        y: { grid: { color: c => c.tick.value === 0 ? corTema('--muted') : 'rgba(127,127,127,.12)' }, ticks: { font: { size: 9.5 }, color: corTema('--muted'), maxTicksLimit: 5,
-          callback: v => (v < 0 ? '−' : '') + 'R$ ' + Math.abs(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) } } } }
-  });
+  const gastoMes = m => somaPessoa(comprasDoMesPessoa(m), filtro);
+  const sobraMes = m => liquidaMes(m) - gastoMes(m) - guardadoMes(m, filtro);
+  const faixa = (de, ate) => { const l = []; for (let m = de; m <= ate; m = proximoMes(m)) l.push(m); return l; };
+
+  // parte principal: da primeira renda até o mês escolhido
+  const temRenda = !!primeiraRenda;
+  $('provBarTotal').closest('.prov-total').style.display = temRenda ? '' : 'none';
+  $('provChartWrap').style.display = temRenda && typeof Chart !== 'undefined' ? '' : 'none';
+  $('provLeg').hidden = !temRenda; $('provSemRenda').hidden = temRenda;
+  if (temRenda) {
+    const grupos = provAgrupar(faixa(primeiraRenda, mesFim), mesFim, sobraMes);
+    const total = grupos.reduce((t, g) => t + g.v, 0);
+    $('provPeriodo').textContent = primeiraRenda === mesFim ? formatarMes(mesFim) : `${formatarMes(primeiraRenda)} até ${formatarMes(mesFim)}`;
+    const maior = Math.max(Math.abs(total), ...grupos.map(g => Math.abs(g.v)), 0.01);
+    const bar = $('provBarTotal');
+    bar.style.width = (Math.abs(total) / maior * 100) + '%';
+    bar.style.background = total < 0 ? 'var(--danger)' : 'var(--success)';
+    const vt = $('provValTotal');
+    vt.textContent = (total < 0 ? '− ' : '') + formatarMoeda(Math.abs(total));
+    vt.style.color = total < 0 ? 'var(--danger-text)' : 'var(--success)';
+    if (typeof Chart !== 'undefined') provChart = provGrafico($('provChart'), grupos, grupos.map(g => g.v < 0 ? '#f43f5e' : '#22c55e'), v => v < 0 ? 'Falta' : 'Sobra');
+  } else $('provPeriodo').textContent = '';
+
+  // antes da primeira renda: só os gastos que caíram nesses meses, à parte e fora do total
+  const limite = primeiraRenda || proximoMes(mesFim);
+  const antes = mesesCompra.filter(m => m < limite);
+  const btn = $('provBtnAntes'), box = $('provAntes');
+  if (!antes.length) { btn.hidden = true; box.hidden = true; return; }
+  const gruposA = provAgrupar(faixa(antes[0], mesAnteriorRef(limite)), mesFim, gastoMes).filter(g => g.v > 0.004);
+  if (!gruposA.length) { btn.hidden = true; box.hidden = true; return; }
+  btn.hidden = false;
+  btn.textContent = `${provAntesAberto ? '▾' : '▸'} Ver gastos antes da 1ª renda (${gruposA.length === 1 && gruposA[0].meses === 1 ? gruposA[0].rot : formatarMes(antes[0]) + ' a ' + formatarMes(mesAnteriorRef(limite))}) · informação incompleta`;
+  btn.onclick = () => { provAntesAberto = !provAntesAberto; renderProvisao(mesFim, filtro); };
+  box.hidden = !provAntesAberto;
+  if (!provAntesAberto) return;
+  const totA = gruposA.reduce((t, g) => t + g.v, 0);
+  $('provAntesTotal').textContent = `Gastos registrados nesse período: ${formatarMoeda(totA)} (não entra na provisão).`;
+  if (typeof Chart !== 'undefined') provChartAntes = provGrafico($('provChartAntes'), gruposA, gruposA.map(() => 'rgba(148,163,184,.55)'), () => 'Gasto registrado');
 }
 function renderPlanejamento() {
   const mes = state.mesesSelecionados[0];
