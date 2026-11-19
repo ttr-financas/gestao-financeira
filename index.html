@@ -205,6 +205,10 @@
   .kpi-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; font-weight: 600; }
   .kpi-card .value { font-size: 20px; font-weight: 800; margin-top: 6px; color: var(--text); letter-spacing: -.3px; word-break: break-word; }
   .kpi-card .subtext { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .kpi-card .kpi-pago { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.35; }
+  .kpi-card .kpi-pago b { color: var(--text); white-space: nowrap; }
+  .kpi-card .kpi-pago.ok { color: var(--success); font-weight: 600; }
+  .payment-title small { font-weight: 500; color: var(--muted); font-size: 11px; }
   .kpi-card.total { background: linear-gradient(135deg, rgba(var(--pr),.22), rgba(var(--pr2),.16)); border-color: rgba(var(--pr),.4); }
   .kpi-card.total .value { color: var(--text); }
   .trend { font-size: 11px; font-weight: 700; margin-left: 6px; display: inline-flex; align-items: center; }
@@ -607,7 +611,7 @@
   .imp-ja { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 7px 4px; border-bottom: 1px solid var(--border); }
   .imp-ja small { display: block; color: var(--muted); font-size: 11px; }
   .pago-cartao { font-size: 12px; color: var(--muted); font-weight: 600; }
-  body.privado .stat .val, body.privado .kpi-card .value, body.privado .payment-val, body.privado .payment-sub, body.privado .stat-sub,
+  body.privado .stat .val, body.privado .kpi-card .value, body.privado .kpi-card .kpi-pago, body.privado .payment-val, body.privado .payment-sub, body.privado .stat-sub,
   body.privado .ger-value, body.privado .cat-value, body.privado .gauge-info, body.privado .renda-bruta-mini strong,
   body.privado .filtro-total, body.privado canvas { filter: blur(7px); }
 
@@ -1190,6 +1194,7 @@
   </div>
 
   <div class="page" id="pageInclusao">
+    <div class="filtro-pessoa" id="filtroPessoaInclusao"></div>
     <div id="alertaVencContainer"></div>
     <div class="kpi-grid" id="kpiGrid"></div>
 
@@ -1869,6 +1874,7 @@
   <div class="modal" role="dialog" aria-modal="true">
     <div class="modal-header"><h3>Adiantar pagamento</h3><button class="close-btn" aria-label="Fechar" data-close="modalAdiantamento">×</button></div>
     <div class="input-group"><label>Cartão de crédito</label><input type="text" id="adTipo" placeholder="Selecione"></div>
+    <div class="input-group" id="adPessoaRow"><label>De quem é o adiantamento</label><input type="text" id="adPessoa" placeholder="Fatura toda"></div>
     <div class="info-box" id="adInfo"></div>
     <div class="input-group"><label>Valor adiantado</label><input type="text" class="money" id="adValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
     <p class="hint" id="adPrevia"></p>
@@ -2435,7 +2441,33 @@ const somaPessoa = (lista, p) => lista.reduce((s, c) => s + valorPessoa(c, p), 0
 const valorTerceiros = c => Math.max(0, (Number(c.valor_parcela) || 0) - valorPessoa(c, 'Geral'));
 const somaTerceiros = lista => lista.reduce((s, c) => s + valorTerceiros(c), 0);
 // quanto da parcela já foi pago, na parte que cabe à pessoa (Ambos divide ao meio)
-const pagoPessoa = (c, nome) => { const v = Number(c.valor_parcela) || 0; return v ? valorPagoParcela(c) * (valorPessoa(c, nome) / v) : 0; };
+// Pagamentos "só da minha parte" ficam em pago_pessoas ({ nome: valor }); o resto do que foi pago (valor_pago)
+// é dividido entre as partes que ainda faltavam, na proporção do que faltava de cada uma.
+function pagosDaParcela(c) {
+  const v = Number(c.valor_parcela) || 0, total = valorPagoParcela(c);
+  const ind = (c.pago_pessoas && typeof c.pago_pessoas === 'object') ? c.pago_pessoas : {};
+  const partes = membrosGrupo.map(m => ({ k: m.nome, parte: valorPessoa(c, m.nome), ind: 0 }));
+  partes.push({ k: '__terceiros', parte: valorTerceiros(c), ind: 0 });
+  Object.entries(ind).forEach(([n, val]) => { const x = partes.find(q => q.k !== '__terceiros' && mesmoNome(q.k, n)); if (x) x.ind += Number(val) || 0; });
+  partes.forEach(x => { x.ind = Math.min(x.ind, x.parte); });
+  const somaInd = partes.reduce((t, x) => t + x.ind, 0);
+  const geral = Math.max(0, total - somaInd);
+  const R = partes.reduce((t, x) => t + Math.max(0, x.parte - x.ind), 0);
+  const res = {};
+  partes.forEach(x => { res[x.k] = Math.min(x.parte, x.ind + (R > 0 ? geral * Math.max(0, x.parte - x.ind) / R : 0)); });
+  return v ? res : {};
+}
+const pagoPessoa = (c, nome) => {
+  const pg = pagosDaParcela(c);
+  if (nome === 'Geral') return membrosGrupo.reduce((t, m) => t + (pg[m.nome] || 0), 0);
+  const k = Object.keys(pg).find(x => x !== '__terceiros' && mesmoNome(x, nome));
+  if (k) return pg[k];
+  const v = Number(c.valor_parcela) || 0; return v ? valorPagoParcela(c) * (valorPessoa(c, nome) / v) : 0;
+};
+const pagoTerceiros = c => pagosDaParcela(c).__terceiros || 0;
+const temColPagoPessoas = () => state.compras.some(c => 'pago_pessoas' in c);
+// quanto falta da parte de uma pessoa (ou de Terceiros) nesta parcela
+const faltaParte = (c, pf) => pf === 'terceiros' ? Math.max(0, valorTerceiros(c) - pagoTerceiros(c)) : Math.max(0, valorPessoa(c, pf) - pagoPessoa(c, pf));
 
 let _erroT = null;
 function mostrarErro(msg) { const el = $('msgErro'); el.textContent = msg; el.style.display = 'block'; clearTimeout(_erroT); _erroT = setTimeout(() => el.style.display = 'none', 8000); try { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }
@@ -3726,6 +3758,7 @@ function iniciarCampos() {
   criarCombo('notifAntes', { opcoes: () => Object.keys(ANTES_NOTIF), livre: false });
   ['input', 'change'].forEach(ev => $('cTipoPagamento').addEventListener(ev, atualizarLblNomePagto));
   criarCombo('adTipo', { opcoes: () => adOpcoes, livre: false });
+  criarCombo('adPessoa', { opcoes: () => adPessoaOpcoes().map(o => o.rot), livre: false });
   criarMesPicker('cMes');
   criarMesPicker('filtroMesGerenciar', { limpavel: true });
   criarMesPicker('movMes');
@@ -5110,6 +5143,16 @@ function perguntarGenero() {
   });
 }
 
+// filtro de pessoa no topo da Inclusão (mesmo visual do Planejamento); usa o mesmo filtro dos cards e da lista
+function renderFiltroPessoaInclusao() {
+  const el = $('filtroPessoaInclusao'); if (!el) return;
+  el.style.display = membrosGrupo.length > 1 ? '' : 'none';
+  const f = state.filtroAtivo;
+  el.innerHTML = [{ nome: 'Geral' }, ...membrosGrupo].map(m => {
+    const ativo = m.nome === 'Geral' ? f === 'all' : (f && mesmoNome(f, m.nome));
+    return `<button class="${ativo ? 'active' : ''}" data-fpi="${esc(m.nome === 'Geral' ? 'all' : m.nome)}">${esc(capNome(m.nome))}</button>`;
+  }).join('');
+}
 function renderFiltroPessoa() {
   $('filtroPessoaPlanejamento').innerHTML = [{ nome: 'Geral' }, ...membrosGrupo].map(m =>
     `<button class="${state.filtroPessoa === m.nome ? 'active' : ''}" data-pessoa="${esc(m.nome)}">${esc(capNome(m.nome))}</button>`).join('');
@@ -6246,21 +6289,28 @@ function renderInclusao() {
     return '';
   };
 
-  let html = `<div class="kpi-card total clickable" data-act="fpessoa" data-id="all"><div class="label">Total do Mês</div><div class="value">${formatarMoeda(total)}${trend(total, totalAnt)}</div><div class="subtext">${doMes.length} parcelas</div></div>`;
+  // embaixo do valor: quanto já foi pago e quanto falta (só aparece depois do primeiro pagamento)
+  const linhaPago = (valor, pago) => pago <= 0.004 || valor <= 0.004 ? ''
+    : valor - pago <= 0.004 ? '<div class="kpi-pago ok">✅ Tudo pago</div>'
+    : `<div class="kpi-pago">Pago ${formatarMoeda(pago)} · <b>falta ${formatarMoeda(valor - pago)}</b></div>`;
+  const pagoTotal = doMes.reduce((s, c) => s + valorPagoParcela(c), 0);
+  const pagoTerc = doMes.reduce((s, c) => s + pagoTerceiros(c), 0);
+  let html = `<div class="kpi-card total clickable" data-act="fpessoa" data-id="all"><div class="label">Total do Mês</div><div class="value">${formatarMoeda(total)}${trend(total, totalAnt)}</div>${linhaPago(total, pagoTotal)}<div class="subtext">${doMes.length} parcelas</div></div>`;
   membrosGrupo.forEach(m => {
     const v = somaPessoa(doMes, m.nome);
     const va = somaPessoa(ant, m.nome);
-    html += `<div class="kpi-card clickable" data-act="fpessoa" data-id="${esc(m.nome)}"><div class="label">${esc(capNome(m.nome))}</div><div class="value">${formatarMoeda(v)}${trend(v, va)}</div><div class="subtext">${total > 0 ? Math.round((v / total) * 100) : 0}% do total</div></div>`;
+    html += `<div class="kpi-card clickable" data-act="fpessoa" data-id="${esc(m.nome)}"><div class="label">${esc(capNome(m.nome))}</div><div class="value">${formatarMoeda(v)}${trend(v, va)}</div>${linhaPago(v, doMes.reduce((s, c) => s + pagoPessoa(c, m.nome), 0))}<div class="subtext">${total > 0 ? Math.round((v / total) * 100) : 0}% do total</div></div>`;
   });
   // Terceiros: parte das compras que é de pessoas de fora (A Receber); sem ela, as partes da casa não fecham com o total
   const terc = somaTerceiros(doMes);
-  if (terc > 0.004) html += `<div class="kpi-card clickable" data-act="fpessoa" data-id="terceiros"><div class="label">Terceiros</div><div class="value">${formatarMoeda(terc)}${trend(terc, somaTerceiros(ant))}</div><div class="subtext">${total > 0 ? Math.round((terc / total) * 100) : 0}% do total</div></div>`;
+  if (terc > 0.004) html += `<div class="kpi-card clickable" data-act="fpessoa" data-id="terceiros"><div class="label">Terceiros</div><div class="value">${formatarMoeda(terc)}${trend(terc, somaTerceiros(ant))}</div>${linhaPago(terc, pagoTerc)}<div class="subtext">${total > 0 ? Math.round((terc / total) * 100) : 0}% do total</div></div>`;
   let tp = '';
   if (total > 0) { const d = ((totalProx - total) / total) * 100; if (Math.abs(d) >= 0.5) tp = `<span class="trend ${d > 0 ? 'up' : 'down'}">${d > 0 ? '↑' : '↓'} ${Math.abs(d).toFixed(0)}%</span>`; }
   html += `<div class="kpi-card"><div class="label">Próximo Mês (${MESES_ABR[parseInt(prox.split('-')[1]) - 1]})</div><div class="value">${formatarMoeda(totalProx)}${tp}</div><div class="subtext">Já comprometido</div></div>`;
   const recAb = state.devedores.filter(d => compraAtivaId(d.id_compra) && devRestante(d) > 0.004);
   if (recAb.length && moduloAtivo('receber')) html += `<div class="kpi-card clickable" data-go="receber"><div class="label">Divididas a receber</div><div class="value">${formatarMoeda(recAb.reduce((t, d) => t + devRestante(d), 0))}</div><div class="subtext">${new Set(recAb.map(d => normalizarNome(d.pessoa))).size} ${plw(new Set(recAb.map(d => normalizarNome(d.pessoa))).size, 'pessoa', 'pessoas')} devendo</div></div>`;
   $('kpiGrid').innerHTML = html;
+  renderFiltroPessoaInclusao();
 
   const vl = listaVencimentos();
   $('alertaVencContainer').innerHTML = (vl.venc.length || vl.hoje.length)
@@ -6307,9 +6357,12 @@ function rolarParaLista() {
   const box = $('listaCompras') && $('listaCompras').closest('.section-box');
   if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+function renderPagamentosAtual() { const ms = state.mesesSelecionados; renderPagamentos(state.compras.filter(c => ms.includes(c.mes_referencia) && isAtiva(c))); }
 function setFiltroLista(f) {
   state.filtroAtivo = f;
   document.querySelectorAll('#filtros button').forEach(x => x.classList.toggle('active', x.dataset.filter === f));
+  renderPagamentosAtual();
+  renderFiltroPessoaInclusao();
   renderLista();
   rolarParaLista();
 }
@@ -6320,7 +6373,8 @@ function renderFiltrosAtivos() {
   if (state.filtroPagto) chips.push(`<button class="fchip" data-act="limpar-pagto">Pagamento: <strong>${esc(state.filtroPagto)}</strong> ✕</button>`);
   if (!chips.length) { el.innerHTML = ''; return; }
   const l = comprasFiltradas();
-  const total = l.reduce((s, c) => s + Number(c.valor_parcela || 0), 0);
+  const pfT = pessoaFiltroAtiva();
+  const total = pfT ? somaPessoa(l, pfT) : state.filtroAtivo === 'terceiros' ? somaTerceiros(l) : l.reduce((s, c) => s + Number(c.valor_parcela || 0), 0);
   el.innerHTML = `<div class="filtros-ativos">${chips.join('')}<button class="fchip limpar" data-act="limpar-filtros">Limpar tudo</button><div class="filtro-total">${l.length} ${plw(l.length, 'parcela', 'parcelas')} · <strong>${formatarMoeda(total)}</strong></div></div>`;
 }
 
@@ -6349,28 +6403,36 @@ function renderLista() {
 }
 
 function renderPagamentos(lista) {
+  // com uma pessoa (ou Terceiros) filtrada, cada fatura/forma de pagamento mostra só a parte dela
+  const pf = pessoaFiltroAtiva(), terc = state.filtroAtivo === 'terceiros';
+  const parte = p => pf ? valorPessoa(p, pf) : terc ? valorTerceiros(p) : (Number(p.valor_parcela) || 0);
   const g = {};
   lista.forEach(p => {
+    const vp = parte(p), v = Number(p.valor_parcela) || 0;
+    if ((pf || terc) && vp <= 0.004) return;
     const t = rotuloPagto(p);
     (g[t] = g[t] || { total: 0, pagas: 0, pago: 0, ids: [], venc: 0, hoje: 0, cartao: ehCartaoCredito(p.tipo_pagamento) });
     if (parcelaVencida(p)) g[t].venc++; else if (parcelaVenceHoje(p)) g[t].hoje++;
-    g[t].total += Number(p.valor_parcela); g[t].pago += valorPagoParcela(p); if (p.pagamento) g[t].pagas++; g[t].ids.push(p.id);
+    const pagoParte = pf ? pagoPessoa(p, pf) : terc ? pagoTerceiros(p) : valorPagoParcela(p);
+    g[t].total += vp; g[t].pago += pagoParte; if ((pf || terc) ? vp - pagoParte <= 0.004 : p.pagamento) g[t].pagas++; g[t].ids.push(p.id);
   });
+  const deQuem = pf ? ` <small>· parte de ${esc(capNome(pf))}</small>` : terc ? ' <small>· parte de Terceiros</small>' : '';
   const multi = state.mesesSelecionados.length > 1;
   let html = '';
   Object.entries(g).sort((a, b) => b[1].total - a[1].total).forEach(([tipo, d]) => {
     const pago = d.pagas === d.ids.length;
     const btn = pago ? '<button class="payment-btn paid">Pago</button>' : `<button class="payment-btn pending">${state.filtroPagto === tipo ? 'Mostrando abaixo' : 'Ver parcelas'}</button>`;
-    const adBtn = (d.cartao && !multi) ? `<button class="payment-btn ad" data-act="adiantar" data-id="${esc(tipo)}">💳 Adiantar</button>` : '';
-    const pagarBtn = !pago && !(d.cartao && multi) ? `<button class="payment-btn ad" data-act="pagar-grupo" data-id="${esc(tipo)}">✅ Pagar</button>` : '';
+    const so = pf ? ' a parte de ' + esc(capNome(pf).split(' ')[0]) : terc ? ' a parte de Terceiros' : '';
+    const adBtn = (d.cartao && !multi) ? `<button class="payment-btn ad" data-act="adiantar" data-id="${esc(tipo)}">💳 Adiantar${so}</button>` : '';
+    const pagarBtn = !pago && !(d.cartao && multi) ? `<button class="payment-btn ad" data-act="pagar-grupo" data-id="${esc(tipo)}">✅ Pagar${so}</button>` : '';
     const falta = Math.max(0, d.total - d.pago);
     const verbo = d.cartao ? 'Adiantou' : 'Pago';
     const sub = pago ? `<div class="payment-sub">Quitado · ${fm(d.total)}</div>`
       : (d.pago > 0.004 ? `<div class="payment-sub ad">${verbo} ${fm(d.pago)} de ${fm(d.total)}</div>` : '');
     const subV = (!pago && d.venc) ? `<div class="payment-sub venc">⚠️ ${d.venc} ${plw(d.venc, 'parcela vencida', 'parcelas vencidas')}</div>` : (!pago && d.hoje ? `<div class="payment-sub hoje">⏰ ${d.hoje} ${plw(d.hoje, 'parcela vence', 'parcelas vencem')} hoje</div>` : '');
-    html += `<div class="payment-group clickable${state.filtroPagto === tipo ? ' selecionado' : ''}" data-act="fpagto" data-id="${esc(tipo)}"><div><div class="payment-title">${esc(tipo)}</div><div class="payment-val">${formatarMoeda(falta)}</div>${sub}${subV}${d.cartao ? nvInfoCartao(tipo) : ''}</div><div class="payment-btns">${pagarBtn}${adBtn}${btn}</div></div>`;
+    html += `<div class="payment-group clickable${state.filtroPagto === tipo ? ' selecionado' : ''}" data-act="fpagto" data-id="${esc(tipo)}"><div><div class="payment-title">${esc(tipo)}${deQuem}</div><div class="payment-val">${formatarMoeda(falta)}</div>${sub}${subV}${d.cartao ? nvInfoCartao(tipo) : ''}</div><div class="payment-btns">${pagarBtn}${adBtn}${btn}</div></div>`;
   });
-  $('listaPagamentos').innerHTML = html || '<p style="color:var(--muted);font-size:13px;">Nenhum pagamento neste mês.</p>';
+  $('listaPagamentos').innerHTML = html || `<p style="color:var(--muted);font-size:13px;">${pf || terc ? 'Nenhum pagamento com parte ' + (pf ? 'de ' + esc(capNome(pf)) : 'de Terceiros') + ' neste mês.' : 'Nenhum pagamento neste mês.'}</p>`;
 }
 
 function aposMudarPagamento() {
@@ -6393,14 +6455,41 @@ async function pagarParcela(id, btn) {
 }
 
 // "Pagar" na forma de pagamento: cartão = quita o que falta da fatura (via adiantamento); demais = paga todas as parcelas abertas
+// paga só a parte de uma pessoa (ou de Terceiros) em várias parcelas; guarda em pago_pessoas quanto foi dela
+async function pagarPartes(itens, quem) {
+  const agora = new Date().toISOString();
+  for (const it of itens) {
+    const c = it.p, v = Number(c.valor_parcela) || 0;
+    const novoTotal = Math.min(v, Math.round((valorPagoParcela(c) + it.take) * 100) / 100);
+    const pp = Object.assign({}, c.pago_pessoas || {});
+    if (quem !== 'terceiros') pp[quem] = Math.round(((Number(pp[quem]) || 0) + it.take) * 100) / 100;
+    const upd = novoTotal >= v - 0.004 ? { pagamento: true, valor_pago: v, data_pagamento: agora, pago_pessoas: pp } : { valor_pago: novoTotal, pago_pessoas: pp };
+    const { error } = await db.from('compras').update(upd).eq('id', c.id).in('criado_por', emailsGrupo());
+    if (error) return { erro: error };
+    Object.assign(c, upd);
+  }
+  return {};
+}
 async function pagarGrupo(tipo) {
-  const l = state.compras.filter(c => state.mesesSelecionados.includes(c.mes_referencia) && isAtiva(c) && rotuloPagto(c) === tipo && !c.pagamento);
+  const pf = pessoaFiltroAtiva() || (state.filtroAtivo === 'terceiros' ? 'terceiros' : null);
+  const l = state.compras.filter(c => state.mesesSelecionados.includes(c.mes_referencia) && isAtiva(c) && rotuloPagto(c) === tipo && !c.pagamento && (!pf || faltaParte(c, pf) > 0.004));
   if (!l.length) return;
   if (ehCartaoCredito(l[0].tipo_pagamento)) {
-    abrirAdiantamento(tipo);
-    const falta = l.reduce((t, c) => t + Math.max(0, (Number(c.valor_parcela) || 0) - valorPagoParcela(c)), 0);
+    abrirAdiantamento(tipo, pf);
+    const falta = pf ? l.reduce((t, c) => t + faltaParte(c, pf), 0) : l.reduce((t, c) => t + Math.max(0, (Number(c.valor_parcela) || 0) - valorPagoParcela(c)), 0);
     if ($('adValor')) { $('adValor').value = formatarMoeda(falta); $('adValor').dispatchEvent(new Event('input', { bubbles: true })); }
     return;
+  }
+  if (pf) {
+    if (!temColPagoPessoas()) return avisoFalha('Para pagar só a parte de uma pessoa, rode o SQL novo (20261119_pago_por_pessoa.sql) no Supabase.', 'coluna pago_pessoas');
+    const nomeP = pf === 'terceiros' ? 'Terceiros' : capNome(pf);
+    const itens = l.map(p => ({ p, take: Math.round(faltaParte(p, pf) * 100) / 100 })).filter(i => i.take > 0.004);
+    const tot = itens.reduce((t, i) => t + i.take, 0);
+    if (!await confirmar({ titulo: 'Pagar a parte de ' + nomeP, mensagem: `Marcar como paga a parte de ${nomeP} em ${itens.length} ${plw(itens.length, 'parcela', 'parcelas')} de ${tipo}, no total de ${formatarMoeda(tot)}?\n\nA parte das outras pessoas continua em aberto.`, confirmarTexto: 'Pagar a parte', tipo: 'info' })) return;
+    const r = await pagarPartes(itens, pf);
+    if (r.erro) { aposMudarPagamento(); return alert('Erro ao pagar: ' + r.erro.message); }
+    notificar(`Parte de ${nomeP} paga: ${formatarMoeda(tot)} em ${tipo}.`, 'sucesso');
+    return aposMudarPagamento();
   }
   const total = l.reduce((t, c) => t + (Number(c.valor_parcela) || 0), 0);
   if (!await confirmar({ titulo: 'Pagar ' + tipo, mensagem: `Marcar como pagas ${l.length} ${plw(l.length, 'parcela', 'parcelas')} de ${tipo}, no total de ${formatarMoeda(total)}?`, confirmarTexto: 'Pagar tudo', tipo: 'info' })) return;
@@ -6421,6 +6510,7 @@ async function desfazerPagamento(id) {
   if (!await confirmar({ titulo: 'Desfazer pagamento', mensagem: `Voltar a parcela ${p.parcela_referencia || ''} de "${p.nome_compra}" para pendente?`, confirmarTexto: 'Desfazer', tipo: 'aviso' })) return;
   const upd = { pagamento: false, data_pagamento: null };
   if ('valor_pago' in p) upd.valor_pago = 0;
+  if ('pago_pessoas' in p) upd.pago_pessoas = null;
   const { error } = await db.from('compras').update(upd).eq('id', p.id).in('criado_por', emailsGrupo());
   if (error) return alert('Erro ao desfazer: ' + error.message);
   Object.assign(p, upd);
@@ -6507,7 +6597,30 @@ function planoAdiantamento(lista, valor) {
   }
   return { itens, sobra: pool };
 }
-function abrirAdiantamento(chave) {
+// "De quem": a fatura toda ou só a parte de uma pessoa (ou de Terceiros)
+function adPessoaOpcoes() {
+  const o = [{ rot: 'Fatura toda', k: '' }, ...membrosGrupo.map(m => ({ rot: 'Só a parte de ' + capNome(m.nome), k: m.nome }))];
+  const mes = state.mesesSelecionados[0];
+  if (state.compras.some(c => c.mes_referencia === mes && isAtiva(c) && ehCartaoCredito(c.tipo_pagamento) && valorTerceiros(c) > 0.004)) o.push({ rot: 'Só a parte de Terceiros', k: 'terceiros' });
+  return o;
+}
+const adPessoaAtual = () => { const r = $('adPessoa') ? $('adPessoa').value : ''; const o = adPessoaOpcoes().find(x => x.rot === r); return o ? o.k : ''; };
+// parcelas do cartão com a parte da pessoa em aberto, da maior para a menor
+function parcelasAbertasParte(mes, tipo, pf) {
+  return state.compras.filter(c => c.mes_referencia === mes && isAtiva(c) && !c.pagamento && rotuloPagto(c) === tipo && faltaParte(c, pf) > 0.004)
+    .sort((a, b) => (faltaParte(b, pf) - faltaParte(a, pf)) || String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+}
+function planoAdiantamentoParte(lista, valor, pf) {
+  let pool = Math.round(valor * 100); const itens = [];
+  for (const p of lista) {
+    if (pool <= 0) break;
+    const falta = Math.round(faltaParte(p, pf) * 100); if (falta <= 0) continue;
+    const take = Math.min(falta, pool); pool -= take;
+    itens.push({ p, take, quita: take >= falta });
+  }
+  return { itens, sobra: pool };
+}
+function abrirAdiantamento(chave, pessoa) {
   if (state.mesesSelecionados.length !== 1) return alert('Selecione um único mês para registrar um adiantamento.');
   const mes = state.mesesSelecionados[0];
   const g = {};
@@ -6521,6 +6634,9 @@ function abrirAdiantamento(chave) {
   adOpcoes = abertos.map(a => a[0]);
   $('adTipo').value = adOpcoes.includes(chave) ? chave : (adOpcoes.includes(state.filtroPagto) ? state.filtroPagto : adOpcoes[0]);
   $('adValor').value = '';
+  const pfAd = pessoa !== undefined ? pessoa : (pessoaFiltroAtiva() || (state.filtroAtivo === 'terceiros' ? 'terceiros' : ''));
+  const opP = adPessoaOpcoes(); $('adPessoaRow').style.display = opP.length > 2 || membrosGrupo.length > 1 ? '' : 'none';
+  $('adPessoa').value = (opP.find(o => o.k && pfAd && (o.k === pfAd || mesmoNome(o.k, pfAd))) || opP[0]).rot;
   atualizarAdiantamento();
   abrirModal('modalAdiantamento');
   adCarregarHist();
@@ -6545,7 +6661,8 @@ function adRenderHist() {
   box.innerHTML = l.length ? `<div style="margin-top:14px;font-weight:700;font-size:13px;">Adiantamentos registrados</div>` + l.map(r => {
     const d = new Date(r.criado_em);
     const quando = isNaN(d) ? '' : d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    return `<div class="hist-ad"><div><strong class="sensivel">${fm(r.valor)}</strong><small>${esc(quando)}</small></div><button class="acao-btn txt" type="button" data-adesf="${esc(r.id)}">↩️ Desfazer</button></div>`;
+    const dq = Array.isArray(r.itens) && r.itens[0] && r.itens[0].pessoa ? ' · parte de ' + (r.itens[0].pessoa === 'terceiros' ? 'Terceiros' : capNome(r.itens[0].pessoa)) : '';
+    return `<div class="hist-ad"><div><strong class="sensivel">${fm(r.valor)}</strong><small>${esc(quando + dq)}</small></div><button class="acao-btn txt" type="button" data-adesf="${esc(r.id)}">↩️ Desfazer</button></div>`;
   }).join('') : '';
 }
 async function adDesfazer(id) {
@@ -6555,7 +6672,9 @@ async function adDesfazer(id) {
   const res = await Promise.all(itens.map(it => {
     const c = state.compras.find(x => String(x.id) === String(it.id)); if (!c) return { error: null };
     const novo = Math.max(0, Math.round((valorPagoParcela(c) - Number(it.take)) * 100) / 100);
-    return db.from('compras').update({ pagamento: false, valor_pago: novo, data_pagamento: null }).eq('id', c.id).in('criado_por', emailsGrupo());
+    const upd = { pagamento: false, valor_pago: novo, data_pagamento: null };
+    if (it.pessoa && it.pessoa !== 'terceiros' && c.pago_pessoas) { const pp = Object.assign({}, c.pago_pessoas); pp[it.pessoa] = Math.max(0, Math.round(((Number(pp[it.pessoa]) || 0) - Number(it.take)) * 100) / 100); if (!pp[it.pessoa]) delete pp[it.pessoa]; upd.pago_pessoas = Object.keys(pp).length ? pp : null; }
+    return db.from('compras').update(upd).eq('id', c.id).in('criado_por', emailsGrupo());
   }));
   const erro = res.find(x => x && x.error);
   if (erro) { alert('Não foi possível desfazer: ' + erro.error.message); await carregarDados(); return; }
@@ -6566,7 +6685,22 @@ async function adDesfazer(id) {
   atualizarAdiantamento(); adCarregarHist();
 }
 function atualizarAdiantamento() {
-  const mes = state.mesesSelecionados[0], tipo = $('adTipo').value;
+  const mes = state.mesesSelecionados[0], tipo = $('adTipo').value, pf = adPessoaAtual();
+  if (pf) {
+    const nomeP = pf === 'terceiros' ? 'Terceiros' : capNome(pf);
+    const todasP = state.compras.filter(c => c.mes_referencia === mes && isAtiva(c) && rotuloPagto(c) === tipo);
+    const totP = todasP.reduce((s, c) => s + (pf === 'terceiros' ? valorTerceiros(c) : valorPessoa(c, pf)), 0);
+    const faltaP = todasP.reduce((s, c) => s + faltaParte(c, pf), 0);
+    $('adInfo').innerHTML = `<div>Parte de <strong>${esc(nomeP)}</strong> na fatura de <strong>${esc(formatarMes(mes))}</strong>: <strong>${fm(totP)}</strong></div><div>Já pago: ${fm(totP - faltaP)} · Restante: <strong>${fm(faltaP)}</strong></div>`;
+    const prevP = $('adPrevia'), vP = lerMoeda($('adValor'));
+    if (!(vP > 0)) { prevP.style.color = ''; prevP.textContent = `O valor é abatido só da parte de ${nomeP} nas parcelas desse cartão, da maior para a menor. A parte das outras pessoas continua em aberto.`; return; }
+    const planoP = planoAdiantamentoParte(parcelasAbertasParte(mes, tipo, pf), vP, pf);
+    if (planoP.sobra > 0) { prevP.style.color = 'var(--danger)'; prevP.textContent = `O valor passa do que falta da parte de ${nomeP} (${fm(faltaP)}).`; return; }
+    const qP = planoP.itens.filter(i => i.quita).length, parP = planoP.itens.find(i => !i.quita);
+    prevP.style.color = 'var(--success)';
+    prevP.textContent = `Vai quitar a parte de ${nomeP} em ${qP} ${plw(qP, 'parcela', 'parcelas')}` + (parP ? ` e pagar ${fm(parP.take / 100)} da parte em "${parP.p.nome_compra}" (parcial).` : '.');
+    return;
+  }
   const todas = state.compras.filter(c => c.mes_referencia === mes && isAtiva(c) && rotuloPagto(c) === tipo);
   const total = todas.reduce((s, c) => s + (Number(c.valor_parcela) || 0), 0);
   const pago = todas.reduce((s, c) => s + valorPagoParcela(c), 0);
@@ -6608,6 +6742,25 @@ async function salvarAdiantamento() {
   if (!tipo) return alert('Selecione o cartão.');
   if (!(v > 0)) return alert('Informe o valor adiantado.');
   if (!temColValorPago()) return avisoFalha('Não foi possível registrar o adiantamento agora.', 'coluna valor_pago');
+  const pf = adPessoaAtual();
+  if (pf) {   // só a parte de uma pessoa
+    if (!temColPagoPessoas()) return avisoFalha('Para adiantar só a parte de uma pessoa, rode o SQL novo (20261119_pago_por_pessoa.sql) no Supabase.', 'coluna pago_pessoas');
+    const nomeP = pf === 'terceiros' ? 'Terceiros' : capNome(pf);
+    const planoP = planoAdiantamentoParte(parcelasAbertasParte(mes, tipo, pf), v, pf);
+    if (planoP.sobra > 0) return alert(`O valor informado passa do que falta da parte de ${nomeP} neste cartão.`);
+    if (!planoP.itens.length) return alert(`Não há parte de ${nomeP} em aberto neste cartão.`);
+    const btnP = $('btnSalvarAdiantamento'); btnP.disabled = true; btnP.textContent = 'Salvando...';
+    const r = await pagarPartes(planoP.itens.map(it => ({ p: it.p, take: it.take / 100 })), pf);
+    btnP.disabled = false; btnP.textContent = 'Registrar adiantamento';
+    if (r.erro) { alert('Erro ao registrar adiantamento: ' + r.erro.message); await carregarDados(); return; }
+    const recP = { grupo_id: grupoId(), cartao: tipo, mes_referencia: mes, valor: v, itens: planoP.itens.map(it => ({ id: it.p.id, take: it.take / 100, pessoa: pf })), feito_por: currentUser.email || null };
+    let okP = false;
+    try { const { error } = await db.from('adiantamentos').insert(recP); okP = !error; } catch (e) {}
+    if (!okP) { const l = adLerLocal(); l.push({ ...recP, id: 'loc_' + Date.now(), criado_em: new Date().toISOString() }); lsSet(adChaveLocal(), JSON.stringify(l)); }
+    fecharModal('modalAdiantamento');
+    notificar(`Adiantamento de ${fm(v)} na parte de ${nomeP} registrado.`, 'sucesso');
+    return carregarDados();
+  }
   const plano = planoAdiantamento(parcelasAbertasCartao(mes, tipo), v);
   if (plano.sobra > 0) return alert('O valor informado passa do restante da fatura deste cartão.');
   if (!plano.itens.length) return alert('Não há parcelas em aberto para este cartão.');
@@ -8679,6 +8832,7 @@ function ligarEventos() {
     try { const c = await garantirCategoria(nome); catPOpcoes(c); } catch (e) { alert('Não foi possível criar a categoria: ' + (e.message || e)); catPOpcoes(''); }
   });
   $('adTipo').addEventListener('change', () => { atualizarAdiantamento(); adRenderHist(); });
+  $('adPessoa').addEventListener('change', () => atualizarAdiantamento());
   $('adHistorico').addEventListener('click', e => { const b = e.target.closest('[data-adesf]'); if (b) adDesfazer(b.dataset.adesf); });
     $('btnPagasMes').addEventListener('click', abrirPagasMes);
   $('btnConfiguracoes').addEventListener('click', abrirConfiguracoes);
@@ -8757,6 +8911,16 @@ function ligarEventos() {
     document.querySelectorAll('#filtros button').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     state.filtroAtivo = b.dataset.filter;
+    renderPagamentosAtual();
+    renderFiltroPessoaInclusao();
+    renderLista();
+  });
+  $('filtroPessoaInclusao').addEventListener('click', e => {
+    const b = e.target.closest('button[data-fpi]'); if (!b) return;
+    state.filtroAtivo = b.dataset.fpi;
+    document.querySelectorAll('#filtros button').forEach(x => x.classList.toggle('active', x.dataset.filter === state.filtroAtivo));
+    renderPagamentosAtual();
+    renderFiltroPessoaInclusao();
     renderLista();
   });
   $('filtroPessoaPlanejamento').addEventListener('click', e => {
