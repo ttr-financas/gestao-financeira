@@ -205,6 +205,23 @@
   .kpi-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; font-weight: 600; }
   .kpi-card .value { font-size: 20px; font-weight: 800; margin-top: 6px; color: var(--text); letter-spacing: -.3px; word-break: break-word; }
   .kpi-card .subtext { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .voz-box { margin: -4px 0 14px; padding: 12px; border: 1px dashed rgba(var(--pr),.45); border-radius: 14px; background: rgba(var(--pr),.06); }
+  .voz-linha { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .voz-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--grad); color: #fff; border: 0; border-radius: 999px; padding: 10px 16px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .voz-btn.ouvindo { background: var(--danger); animation: vozPulso 1.2s ease-in-out infinite; }
+  @keyframes vozPulso { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,107,.5); } 50% { box-shadow: 0 0 0 10px rgba(255,107,107,0); } }
+  .voz-link { background: none; border: 0; color: var(--muted); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 4px; }
+  .voz-status { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+  .voz-texto { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .voz-texto textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; background: rgba(var(--w),.05); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font: inherit; font-size: 16px; resize: vertical; }
+  .voz-texto .btn-action { align-self: flex-end; }
+  .voz-entendi { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+  .voz-entendi .vz { padding: 4px 9px; border-radius: 999px; background: rgba(74,222,128,.12); color: var(--text); border: 1px solid rgba(74,222,128,.35); }
+  .voz-entendi .vz.inc { background: rgba(245,179,1,.14); border-color: rgba(245,179,1,.55); }
+  .voz-entendi .vz.nao { background: rgba(255,107,107,.10); border-color: rgba(255,107,107,.4); }
+  .voz-entendi .vz-tit { width: 100%; color: var(--muted); font-size: 12px; }
+  .input-group.voz-incerto input, .input-group.voz-incerto select { border-color: #f5b301 !important; box-shadow: 0 0 0 3px rgba(245,179,1,.18); }
+  .input-group.voz-incerto label::after { content: ' · confira'; color: #f5b301; font-weight: 600; }
   .kpi-card .kpi-pago { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.35; }
   .kpi-card .kpi-pago b { color: var(--text); white-space: nowrap; }
   .kpi-card .kpi-pago.ok { color: var(--success); font-weight: 600; }
@@ -1294,6 +1311,18 @@
   <div class="modal" role="dialog" aria-modal="true">
     <div class="modal-header"><h3 id="tituloModalCompra">Nova Compra</h3><button class="close-btn" aria-label="Fechar" data-close="modalCompra">×</button></div>
     <input type="hidden" id="editIdCompra">
+    <div class="voz-box" id="vozBox">
+      <div class="voz-linha">
+        <button type="button" class="voz-btn" id="btnVozCompra" aria-label="Falar a compra"><span class="voz-ic">🎤</span><span id="vozBtnTxt">Falar a compra</span></button>
+        <button type="button" class="voz-link" id="btnVozEscrever">ou escrever</button>
+      </div>
+      <div class="voz-status" id="vozStatus" hidden></div>
+      <div class="voz-texto" id="vozTextoWrap" hidden>
+        <textarea id="vozTexto" rows="2" placeholder="Ex.: Mercado 150 reais no Nubank em 3 vezes, vence dia 10, categoria alimentação, dos dois"></textarea>
+        <button type="button" class="btn-action primary" id="btnVozEntender">Preencher</button>
+      </div>
+      <div class="voz-entendi" id="vozEntendi" hidden></div>
+    </div>
     <div class="form-grid">
       <div class="input-group full"><label>Nome da compra</label><input type="text" id="cNome" placeholder="Ex: Supermercado..."></div>
       <div class="input-group"><label>Valor total</label><input type="text" class="money" id="cValor" inputmode="numeric" autocomplete="off" placeholder="R$ 0,00"></div>
@@ -2485,6 +2514,7 @@ function abrirModal(id) {
   el.classList.add('open'); if (id === 'modalCompra') $('fabCompra').style.display = 'none'; if (id === 'modalVenda') $('fabVenda').style.display = 'none';
 }
 function fecharModal(id, voltar) {
+  if (id === 'modalCompra' && typeof vozParar === 'function') vozParar();
   fecharPainel();
   $(id).classList.remove('open');
   _recemFechado = { id, t: Date.now() };
@@ -5362,6 +5392,7 @@ function atualizarBotaoCompra() {
 }
 function abrirModalCompra() {
   $('tituloModalCompra').textContent = 'Nova Compra';
+  vozResetar(true);
   $('editIdCompra').value = '';
   ['cNome', 'cValor', 'cTipoPagamento', 'cNomePagamento'].forEach(i => $(i).value = '');
   $('cParcelas').value = '1';
@@ -5374,6 +5405,489 @@ function abrirModalCompra() {
   atualizarBotaoCompra();
   atualizarLblNomePagto();
   abrirModal('modalCompra');
+}
+
+
+/* =========================================
+   COMPRA POR VOZ (regras, sem IA): fala ou escreve a frase, o app preenche a Nova Compra para conferir
+   ========================================= */
+/* ===== Compra por voz: entende a frase falada e preenche a Nova Compra =====
+   Regras (sem IA). Ordem livre. Devolve os campos + quais ficaram "incertos" (o app marca em amarelo). */
+const VOZ = (() => {
+  const N = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const UNI = { zero: 0, um: 1, uma: 1, dois: 2, duas: 2, tres: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, dez: 10, onze: 11, doze: 12, treze: 13, quatorze: 14, catorze: 14, quinze: 15, dezesseis: 16, dezasseis: 16, dezessete: 17, dezoito: 18, dezenove: 19 };
+  const DEZ = { vinte: 20, trinta: 30, quarenta: 40, cinquenta: 50, cincoenta: 50, sessenta: 60, setenta: 70, oitenta: 80, noventa: 90 };
+  const CEN = { cem: 100, cento: 100, duzentos: 200, duzentas: 200, trezentos: 300, trezentas: 300, quatrocentos: 400, quatrocentas: 400, quinhentos: 500, quinhentas: 500, seiscentos: 600, seiscentas: 600, setecentos: 700, setecentas: 700, oitocentos: 800, oitocentas: 800, novecentos: 900, novecentas: 900 };
+  const MESES = { janeiro: 1, fevereiro: 2, marco: 3, abril: 4, maio: 5, junho: 6, julho: 7, agosto: 8, setembro: 9, outubro: 10, novembro: 11, dezembro: 12 };
+  const SEMANA = { domingo: 0, segunda: 1, terca: 2, quarta: 3, quinta: 4, sexta: 5, sabado: 6 };
+  const ehNumPal = w => w in UNI || w in DEZ || w in CEN || w === 'mil';
+
+  // "cento e cinquenta e dois" -> 152 ; "mil e duzentos" -> 1200 ; "dois mil" -> 2000
+  function extensoParaNumeros(toks) {
+    const out = [];
+    for (let i = 0; i < toks.length; i++) {
+      if (!ehNumPal(toks[i].n) || (toks[i].n === 'um' || toks[i].n === 'uma') && !(toks[i + 1] && (ehNumPal(toks[i + 1].n) || /^(real|reais|mil|conto|vez|vezes|parcela)$/.test(toks[i + 1].n)))) { out.push(toks[i]); continue; }
+      let total = 0, atual = 0, j = i, usou = false, ultMag = 99999;
+      const mag = w => w in CEN ? 100 : w in DEZ ? 10 : (w in UNI ? (UNI[w] >= 10 ? 10 : 1) : 1000);
+      while (j < toks.length) {
+        const w = toks[j].n;
+        if (w === 'e' && usou && toks[j + 1] && ehNumPal(toks[j + 1].n) && toks[j + 1].n !== 'mil' && mag(toks[j + 1].n) < ultMag) { j++; continue; }
+        if (w !== 'mil' && ehNumPal(w) && usou && mag(w) >= ultMag) break;   // "oitenta e nove e noventa" = 89 e 90
+        if (w in UNI) { atual += UNI[w]; ultMag = mag(w); } else if (w in DEZ) { atual += DEZ[w]; ultMag = 10; } else if (w in CEN) { atual += CEN[w]; ultMag = 100; }
+        else if (w === 'mil') { total += (atual || 1) * 1000; atual = 0; ultMag = 1000; }
+        else break;
+        usou = true; j++;
+      }
+      out.push({ o: String(total + atual), n: String(total + atual), num: total + atual, de: toks[i].de, ate: toks[j - 1].ate });
+      i = j - 1;
+    }
+    return out;
+  }
+  function tokenizar(txt) {
+    const t = [];
+    // dinheiro escrito: R$ 1.234,56 / 150,90 / 150.5
+    const re = /r\$\s*|\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?|[a-zà-ú]+|[%x]/gi;
+    let m;
+    while ((m = re.exec(txt))) {
+      const o = m[0], n = N(o).trim();
+      const tk = { o, n, de: m.index, ate: m.index + o.length };
+      if (/^\d/.test(n)) tk.num = Number(n.includes(',') ? n.replace(/\./g, '').replace(',', '.') : (/^\d{1,3}(\.\d{3})+$/.test(n) ? n.replace(/\./g, '') : n));
+      if (n === 'r$') tk.n = 'r$';
+      t.push(tk);
+    }
+    return t;
+  }
+
+  function interpretar(frase, ctx) {
+    ctx = ctx || {};
+    const hoje = ctx.hoje ? new Date(ctx.hoje + 'T12:00:00') : new Date();
+    const membros = ctx.membros || [], eu = ctx.eu || (membros[0] || {}).nome || '';
+    const cats = ctx.categorias || [], tipos = ctx.tiposPagto || [], nomesPg = ctx.nomesPagto || [];
+    const aprend = ctx.aprendido || {};
+    const res = { incertos: [], entendi: [] };
+    const usados = new Set();
+    const usar = (...ix) => ix.forEach(i => usados.add(i));
+    let toks = extensoParaNumeros(tokenizar(frase));
+    toks.forEach((t, i) => { t.i = i; });
+    const W = i => (toks[i] ? toks[i].n : '');
+    const isNum = i => toks[i] && typeof toks[i].num === 'number';
+    const achaSeq = (seq, de = 0) => { for (let i = de; i <= toks.length - seq.length; i++) if (seq.every((s, k) => s instanceof RegExp ? s.test(W(i + k)) : W(i + k) === s)) return i; return -1; };
+
+    // ---------- valor com centavos: "150 reais e 90 centavos" / "noventa centavos" ----------
+    for (let i = 0; i < toks.length; i++) {
+      if (isNum(i) && /^(real|reais|conto|contos|pila|pilas)$/.test(W(i + 1)) && W(i + 2) === 'e' && isNum(i + 3) && /^centavos?$/.test(W(i + 4))) {
+        toks[i].num = toks[i].num + toks[i + 3].num / 100; usar(i + 2, i + 3, i + 4);
+      } else if (isNum(i) && W(i + 1) === 'e' && isNum(i + 2) && /^centavos?$/.test(W(i + 3)) && !usados.has(i)) {
+        toks[i].num = toks[i].num + toks[i + 2].num / 100; usar(i + 1, i + 2, i + 3);
+      } else if (isNum(i) && W(i + 1) === 'e' && isNum(i + 2) && /^\d{2}$/.test(String(toks[i + 2].n)) && toks[i + 2].num >= 10 && !/^(vez|vezes|x|parcelas?|dias?|meses)$/.test(W(i + 3)) && !/^(dia|entre)$/.test(W(i - 1)) && !usados.has(i)) {
+        toks[i].num = toks[i].num + toks[i + 2].num / 100; usar(i + 1, i + 2); res.centavosFalados = true;
+      } else if (isNum(i) && W(i + 1) === 'com' && isNum(i + 2) && toks[i + 2].num < 100 && /^(real|reais|$)/.test(W(i + 3) || '')) {
+        toks[i].num = toks[i].num + toks[i + 2].num / 100; usar(i + 1, i + 2);
+      } else if (isNum(i) && /^(real|reais)$/.test(W(i + 1)) && W(i + 2) === 'com' && isNum(i + 3) && toks[i + 3].num < 100) {
+        toks[i].num = toks[i].num + toks[i + 3].num / 100; usar(i + 2, i + 3); if (/^centavos?$/.test(W(i + 4))) usar(i + 4);
+      }
+    }
+
+    // ---------- parcelas ----------
+    let parcelas = null, valorParcela = null;
+    for (let i = 0; i < toks.length; i++) {
+      if (usados.has(i)) continue;
+      // "a vista" / "avista"
+      if ((W(i) === 'a' && W(i + 1) === 'vista') || W(i) === 'avista') { parcelas = 1; usar(i); if (W(i) === 'a') usar(i + 1); continue; }
+      // "3x" / "3 x" / "3 vezes" / "3 parcelas" / "3 prestacoes"
+      const mX = /^(\d+)x$/.exec(W(i));
+      if (mX) { parcelas = +mX[1]; usar(i); }
+      else if (isNum(i) && /^(x|vez|vezes|parcela|parcelas|prestacao|prestacoes|parcelinhas)$/.test(W(i + 1))) { parcelas = toks[i].num; usar(i, i + 1); }
+      else if (isNum(i) && W(i - 1) !== 'dia' && W(i + 1) === 'de' && isNum(i + 2) && toks[i].num >= 2 && toks[i].num <= 48 && Number.isInteger(toks[i].num) && toks[i + 2].num > toks[i].num && !/^(real|reais)$/.test(W(i + 3) === 'e' ? '' : '') ) { parcelas = toks[i].num; usar(i); }
+      else if (/^(parcelad[oa]|parcelei|dividi|dividid[oa]|divide|dividir)$/.test(W(i)) && W(i + 1) === 'em' && isNum(i + 2)) { parcelas = toks[i + 2].num; usar(i, i + 1, i + 2); if (/^(vez|vezes|parcelas?|x)$/.test(W(i + 3))) usar(i + 3); }
+      else continue;
+      if (W(i - 1) === 'em' || W(i - 1) === 'de' || W(i - 1) === 'por') usar(i - 1);
+      // "3 de 50" / "3x de 50" / "3 parcelas de 50"
+      let k = i + 1; while (usados.has(k) && k < i + 4) k++;
+      if (W(k) === 'de' && (isNum(k + 1) || (W(k + 1) === 'r$' && isNum(k + 2)))) { const kv = isNum(k + 1) ? k + 1 : k + 2; valorParcela = toks[kv].num; usar(k, k + 1, kv); if (/^(real|reais)$/.test(W(kv + 1))) usar(kv + 1); }
+    }
+    if (parcelas != null && !(parcelas >= 1 && parcelas <= 120)) parcelas = null;
+
+    // ---------- datas: compra e vencimento ----------
+    const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const somaDias = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+    let dataCompra = null, dia = null, mesParc = null;
+    const mesNum = w => MESES[w] || null;
+    const anoPara = (m, passado) => { const y = hoje.getFullYear(), mh = hoje.getMonth() + 1; return passado ? (m > mh ? y - 1 : y) : (m < mh ? y + 1 : y); };
+    const ehVence = i => { for (let k = i - 1; k >= Math.max(0, i - 4); k--) { if (/^(vence|vencimento|vencendo|vencer|venc|paga|pagar|pagamento|todo|cai|primeira|1a|comeca|comecar|inicia|partir)$/.test(W(k))) return true; if (/^(comprei|compra|comprado|comprada|foi|gastei|paguei)$/.test(W(k))) return false; } return null; };
+    for (let i = 0; i < toks.length; i++) {
+      if (usados.has(i)) continue;
+      const w = W(i);
+      if (w === 'hoje') { dataCompra = iso(hoje); usar(i); }
+      else if (w === 'ontem') { dataCompra = iso(somaDias(hoje, -1)); usar(i); }
+      else if (w === 'anteontem') { dataCompra = iso(somaDias(hoje, -2)); usar(i); }
+      else if (w === 'amanha' && ehVence(i)) { const d = somaDias(hoje, 1); dia = d.getDate(); mesParc = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); usar(i); }
+      else if (w in SEMANA || (w === 'segunda' || w === 'terca' || w === 'quarta' || w === 'quinta' || w === 'sexta')) {
+        const alvo = SEMANA[w]; const prox = /^(que|proxima|proximo)$/.test(W(i + 1)) || /^(proxima|proximo)$/.test(W(i - 1)); const pass = /^(passada|passado)$/.test(W(i + 1)) || /^(passada|passado|ultima|ultimo)$/.test(W(i - 1));
+        const v = ehVence(i);
+        let d = new Date(hoje);
+        if (v === true || prox) { do { d = somaDias(d, 1); } while (d.getDay() !== alvo); dia = d.getDate(); mesParc = iso(d).slice(0, 7); }
+        else { do { d = somaDias(d, -1); } while (d.getDay() !== alvo); dataCompra = iso(d); }
+        usar(i); if (/^(feira)$/.test(W(i + 1))) usar(i + 1);
+        ['que', 'vem', 'passada', 'passado', 'proxima', 'proximo', 'ultima', 'ultimo'].forEach(x => { if (W(i + 1) === x) usar(i + 1); if (W(i + 2) === x) usar(i + 2); if (W(i - 1) === x) usar(i - 1); });
+      }
+      else if (w === 'dia' && isNum(i + 1) && toks[i + 1].num >= 1 && toks[i + 1].num <= 31) {
+        const d = toks[i + 1].num; let m = null, j = i + 2;
+        if (W(j) === 'de' && mesNum(W(j + 1))) { m = mesNum(W(j + 1)); usar(j, j + 1); j += 2; }
+        else if (mesNum(W(j))) { m = mesNum(W(j)); usar(j); j++; }
+        else if (/^(\d{1,2})$/.test(W(j)) === false && W(j) === '/' ) {}
+        const v = ehVence(i);
+        usar(i, i + 1);
+        if (v === false) dataCompra = iso(new Date(m ? anoPara(m, true) : hoje.getFullYear(), (m || hoje.getMonth() + 1) - 1, d));
+        else { dia = d; if (m) mesParc = anoPara(m, false) + '-' + String(m).padStart(2, '0'); }
+      }
+      else if (mesNum(w) && !usados.has(i)) {   // "primeira parcela em janeiro" / "vence em janeiro" / "a partir de janeiro"
+        const v = ehVence(i);
+        if (v !== false) { const m = mesNum(w); mesParc = anoPara(m, false) + '-' + String(m).padStart(2, '0'); usar(i); if (W(i - 1) === 'em' || W(i - 1) === 'de') usar(i - 1); }
+      }
+      else if (/^(proximo|que)$/.test(w) && (W(i + 1) === 'mes' || (w === 'que' && W(i + 1) === 'vem' && W(i - 1) === 'mes'))) {
+        if (w === 'proximo') { mesParc = iso(new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1)).slice(0, 7); usar(i, i + 1); }
+      }
+      else if (w === 'mes' && W(i + 1) === 'que' && W(i + 2) === 'vem') { mesParc = iso(new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1)).slice(0, 7); usar(i, i + 1, i + 2); }
+    }
+    ['vence', 'vencimento', 'vencendo', 'vencer', 'no', 'todo', 'primeira', 'parcela', 'em', 'comprei', 'cai', 'a', 'partir'].forEach(() => {});
+
+    // ---------- forma de pagamento ----------
+    const tN = tipos.map(t => ({ t, n: N(t) }));
+    const tipoDe = re => { const x = tN.find(o => re.test(o.n)); return x ? x.t : null; };
+    let tipo = null, nomePg = null, tipoExplicito = false;
+    const regrasTipo = [
+      [/^(credito)$/, /cartao de credito|^credito/, 'Cartão de Crédito'],
+      [/^(debito)$/, /cartao de debito|^debito/, 'Cartão de Débito'],
+      [/^(pix)$/, /^pix/, 'Pix'],
+      [/^(dinheiro|especie|grana)$/, /dinheiro/, 'Dinheiro'],
+      [/^(boleto|boletos)$/, /boleto/, 'Boleto'],
+      [/^(transferencia|ted|doc)$/, /transfer/, 'Transferência'],
+    ];
+    for (let i = 0; i < toks.length && !tipo; i++) {
+      if (usados.has(i)) continue;
+      for (const [rw, rtipo, padrao] of regrasTipo) if (rw.test(W(i))) { tipo = tipoDe(rtipo) || padrao; tipoExplicito = true; usar(i); if (W(i - 1) === 'de' && W(i - 2) === 'cartao') usar(i - 1, i - 2); if (/^(no|na|em|via|pelo|pela|com)$/.test(W(i - 1))) usar(i - 1); break; }
+      if (!tipo && (W(i) === 'vale') && /^(refeicao|alimentacao|vr|va)$/.test(W(i + 1))) { tipo = tipoDe(/^vale/) || 'Vale-Refeição'; tipoExplicito = true; usar(i, i + 1); }
+      if (!tipo && /^(vr|va)$/.test(W(i))) { tipo = tipoDe(/^vale/) || 'Vale-Refeição'; tipoExplicito = true; usar(i); }
+    }
+    // nome do cartão / banco: os nomes que o grupo já usa + bancos conhecidos
+    const BANCOS = ['nubank', 'nu', 'itau', 'inter', 'c6', 'santander', 'bradesco', 'caixa', 'banco do brasil', 'bb', 'picpay', 'mercado pago', 'next', 'neon', 'original', 'xp', 'btg', 'sicredi', 'sicoob', 'will', 'pan', 'digio', 'ourocard', 'credicard', 'porto seguro', 'porto', 'hipercard', 'carrefour', 'renner', 'riachuelo', 'magalu', 'americanas', 'pagbank', 'pagseguro', 'ame', 'recargapay', 'mercado livre', 'amazon'];
+    const candidatosPg = [...nomesPg.map(x => ({ rot: x, n: N(x) })), ...BANCOS.map(b => ({ rot: b.replace(/\b\w/g, c => c.toUpperCase()).replace(/^Bb$/, 'BB').replace(/^C6$/, 'C6'), n: b, banco: true }))]
+      .sort((a, b) => b.n.length - a.n.length);
+    const textoN = ' ' + toks.map((t, i) => usados.has(i) ? '#' : t.n).join(' ') + ' ';
+    for (const c of candidatosPg) {
+      if (c.n.length < 2) continue;
+      if (c.n === 'nu' && !/ (no|do|cartao|pelo) nu /.test(textoN)) continue;
+      const pos = textoN.indexOf(' ' + c.n + ' ');
+      if (pos < 0) continue;
+      // só vale se não for o nome da loja (ex.: "Americanas" pode ser a loja). Se veio depois de "no/na/cartao/do/pelo" é pagamento
+      const antes = textoN.slice(0, pos).trim().split(' ').pop();
+      const conhecido = !c.banco;
+      if (!conhecido && !/^(no|na|do|da|cartao|pelo|pela|com|via|banco)$/.test(antes) && !['nubank', 'itau', 'inter', 'c6', 'santander', 'bradesco', 'caixa', 'picpay', 'neon', 'next', 'sicredi', 'sicoob', 'digio', 'credicard', 'hipercard', 'ourocard', 'pagbank'].includes(c.n)) continue;
+      nomePg = conhecido ? c.rot : c.rot;
+      const partes = c.n.split(' ');
+      for (let i = 0; i < toks.length; i++) if (partes.every((p, k) => W(i + k) === p) && !usados.has(i)) { for (let k = 0; k < partes.length; k++) usar(i + k); if (/^(no|na|do|da|pelo|pela|com|via|cartao)$/.test(W(i - 1))) usar(i - 1); if (W(i - 1) === 'cartao' && /^(no|do|pelo|com)$/.test(W(i - 2))) usar(i - 2); break; }
+      break;
+    }
+    if (!tipo && nomePg && ctx.tipoDoNome) { tipo = ctx.tipoDoNome(nomePg) || null; }
+    if (!tipo) for (let i = 0; i < toks.length; i++) if (W(i) === 'cartao' && !usados.has(i)) { tipo = tipoDe(/cartao de credito|^credito/) || 'Cartão de Crédito'; usar(i); if (/^(no|na|com|pelo)$/.test(W(i - 1))) usar(i - 1); res.incertos.push('tipo'); break; }
+
+    // ---------- responsável / divisão ----------
+    let resp = null; const externos = [];
+    const primeiro = s => N(String(s).split(/\s+/)[0]);
+    const membroDe = w => { const a = aprend.apelidos || {}; if (a[w]) return membros.find(m => N(m.nome) === N(a[w])) || null; return membros.find(m => primeiro(m.nome) === w || N(m.nome) === w) || null; };
+    const STOP_NOME = new Set(['a', 'o', 'de', 'da', 'do', 'e', 'em', 'no', 'na', 'pra', 'para', 'com', 'que', 'meu', 'minha', 'cartao', 'reais', 'real']);
+    for (let i = 0; i < toks.length; i++) {
+      if (usados.has(i)) continue;
+      const w = W(i);
+      if (/^(rachamos|dividimos|rachei|dividi)$/.test(w) && !/^(com|entre|em)$/.test(W(i + 1))) {
+        usar(i);
+        // "almoço com a Carla ... rachamos": quem veio depois de "com" é a pessoa de fora
+        for (let k = 0; k < toks.length; k++) {
+          if (W(k) !== 'com') continue;
+          let q = k + 1; if (/^(o|a)$/.test(W(q))) q++;
+          if (toks[q] && /^[a-z]{3,}$/.test(W(q)) && !membroDe(W(q)) && !STOP_NOME.has(W(q)) && /^[A-ZÀ-Ú]/.test(toks[q].o)) externos.push({ pessoa: toks[q].o, percentual: 0 });
+        }
+        if (!externos.length && !resp) resp = 'Ambos';
+        continue;
+      }
+      if (/^(dividid[oa]|divide|dividi|dividir|rachei|rachad[oa]|racha|rachar|rachamos|dividimos)$/.test(w) && /^(com|entre)$/.test(W(i + 1))) {
+        usar(i, i + 1); let j = i + 2;
+        while (j < toks.length) {
+          if (/^(o|a|os|as|e|meu|minha)$/.test(W(j))) { usar(j); j++; continue; }
+          if (/^(eu|mim)$/.test(W(j))) { usar(j); j++; continue; }
+          const m = membroDe(W(j));
+          if (m) { usar(j); j++; continue; }
+          if (/^[a-z]{2,}$/.test(W(j)) && !STOP_NOME.has(W(j)) && !(W(j) in MESES) && !isNum(j) && !/^(vence|vencimento|categoria|no|na|em|cartao|pix|debito|credito|boleto|dinheiro|dia|hoje|ontem|meio|igual|igualmente|partes)$/.test(W(j))) {
+            externos.push({ pessoa: toks[j].o.charAt(0).toUpperCase() + toks[j].o.slice(1).toLowerCase(), percentual: 0 }); usar(j); j++; continue;
+          }
+          break;
+        }
+        if (/^(meio|igual|igualmente)$/.test(W(j))) { usar(j); if (W(j + 1) === 'a' && W(j + 2) === 'meio') usar(j + 1, j + 2); }
+        if (!externos.length) resp = 'Ambos';
+        continue;
+      }
+      if ((w === 'meio' && W(i + 1) === 'a' && W(i + 2) === 'meio') || /^(ambos|casal|juntos|nossa|nosso|nossas|nossos)$/.test(w) || (w === 'dos' && /^(dois|2)$/.test(W(i + 1))) || (w === 'das' && /^(duas|2)$/.test(W(i + 1))) || (/^(os|as)$/.test(w) && /^(dois|duas|2)$/.test(W(i + 1)) && !isNum(i + 2)) || (/^(da|pra|para)$/.test(w) && W(i + 1) === 'casa')) {
+        if (!resp) resp = 'Ambos'; usar(i); if (w === 'meio') usar(i + 1, i + 2); if (/^(dos|das|da|pra|para|os|as)$/.test(w)) usar(i + 1);
+        if (/^(parte|e|eh)$/.test(W(i - 1))) usar(i - 1);
+        continue;
+      }
+      if (/^(minha|meu|eu|mim)$/.test(w) && !/^(cartao|conta|banco)$/.test(W(i + 1))) {
+        if (w === 'eu' && /^(comprei|gastei|paguei|fiz)$/.test(W(i + 1))) { usar(i); continue; }
+        if (!resp && (w !== 'minha' && w !== 'meu' || /^(parte|compra|conta|gasto|despesa|$)/.test(W(i + 1)) || /^(e|eh|parte|foi|pra|para)$/.test(W(i - 1)))) { resp = eu; usar(i); if (/^(e|eh|pra|para|foi)$/.test(W(i - 1))) usar(i - 1); if (W(i + 1) === 'parte') usar(i + 1); }
+        continue;
+      }
+      const m = membroDe(w);
+      if (m && !resp) { resp = m.nome; usar(i); if (/^(da|do|pra|para|parte|de|e|eh)$/.test(W(i - 1))) usar(i - 1); if (W(i - 2) === 'parte') usar(i - 2); if (W(i - 1) === 'da' && W(i - 2) === 'parte') usar(i - 2); }
+    }
+    if (externos.length) resp = '__dividir__';
+
+    // ---------- categoria ----------
+    let categoria = null, catExplicita = false;
+    const catN = cats.map(c => ({ c, n: N(c) }));
+    const SIN = [
+      [/^(almoco|janta|jantar|lanche|lanchonete|restaurante|ifood|pizza|pizzaria|hamburguer|hamburgueria|cafe|cafeteria|sorvete|sorveteria|doceria|marmita|delivery|rappi|bar|churrascaria)$/, /restaur|refei|lanche|delivery|comer fora|aliment|comida/],
+      [/^(comida|padaria|acougue|hortifruti|feira|sacolao|atacadao|assai)$/, /mercado|supermerc|aliment|comida/],
+      [/^(mercado|supermercado|compras)$/, /mercado|aliment/],
+      [/^(remedio|remedios|farmacia|medico|consulta|exame|dentista|hospital|plano)$/, /saude|farmac|medic/],
+      [/^(uber|99|gasolina|combustivel|posto|onibus|metro|estacionamento|pedagio|carro|oficina|mecanico)$/, /transport|carro|combust|veicul/],
+      [/^(aluguel|condominio|luz|energia|agua|gas|internet|iptu|casa|moveis|reforma)$/, /casa|morad|contas|habita/],
+      [/^(escola|colegio|faculdade|curso|livro|livros|material|mensalidade|apostila)$/, /educa|estud/],
+      [/^(cinema|show|viagem|passeio|bar|balada|netflix|spotify|lazer)$/, /lazer|divers|entreten/],
+      [/^(roupa|roupas|sapato|tenis|calcado)$/, /vestu|roupa/],
+      [/^(academia|salao|cabelo|barbearia|estetica)$/, /cuidado|beleza|pessoal|saude/],
+      [/^(pet|racao|veterinario|cachorro|gato)$/, /pet|anima/],
+      [/^(assinatura|assinaturas|streaming)$/, /assinatur/],
+      [/^(presente|presentes)$/, /presente/],
+    ];
+    const dist = (a, b) => { if (Math.abs(a.length - b.length) > 2) return 9; const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j; for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
+    const acharCat = palavra => {
+      const p = N(palavra).trim(); if (!p) return null;
+      const ap = (aprend.categorias || {})[p]; if (ap) { const x = catN.find(o => o.n === N(ap)); if (x) return x.c; }
+      let x = catN.find(o => o.n === p) || catN.find(o => o.n.startsWith(p) || p.startsWith(o.n)) || catN.find(o => o.n.split(' ').some(q => q.length > 3 && (q === p || dist(q, p) <= (p.length > 5 ? 2 : 1))));
+      if (x) return x.c;
+      for (const [rw, rc] of SIN) if (rw.test(p)) { x = catN.find(o => rc.test(o.n)); if (x) return x.c; }
+      return null;
+    };
+    for (let i = 0; i < toks.length; i++) {
+      if (W(i) === 'categoria' || W(i) === 'categorias') {
+        usar(i); let j = i + 1; while (/^(de|da|do|e|eh|:)$/.test(W(j))) { usar(j); j++; }
+        // tenta 3, 2 e 1 palavras
+        for (const n of [3, 2, 1]) {
+          const fatia = toks.slice(j, j + n);
+          if (fatia.length < n || fatia.some((t, k) => usados.has(j + k) || typeof t.num === 'number')) continue;
+          const pal = fatia.map(t => t.n).join(' ');
+          const c = n === 1 ? acharCat(pal) : (catN.find(o => o.n === pal || dist(o.n, pal) <= 2) || {}).c;
+          if (c) { categoria = c; catExplicita = true; res.palavraCategoria = pal; for (let k = 0; k < n; k++) usar(j + k); break; }
+        }
+        if (!categoria && toks[j] && !usados.has(j)) { categoria = toks[j].o.charAt(0).toUpperCase() + toks[j].o.slice(1); catExplicita = true; usar(j); res.categoriaNova = true; }
+        break;
+      }
+    }
+
+    if (!categoria) {
+      const livres = toks.map((t, i) => i).filter(i => !usados.has(i) && /^[a-z]{4,}$/.test(W(i)));
+      for (const i of livres) {
+        const x = catN.find(o => o.n === W(i) || (o.n.length > 5 && dist(o.n, W(i)) <= 1));
+        if (x && livres.some(k => k !== i)) { categoria = x.c; catExplicita = true; usar(i); break; }
+      }
+    }
+    // ---------- valor ----------
+    let valor = null;
+    const cand = [];
+    for (let i = 0; i < toks.length; i++) {
+      if (usados.has(i) || !isNum(i)) continue;
+      let peso = 0;
+      if (W(i - 1) === 'r$') peso += 5;
+      if (/^(real|reais|conto|contos|pila|pilas|pau|paus)$/.test(W(i + 1))) peso += 5;
+      if (/^(valor|custou|deu|paguei|gastei|total|de|por|foi)$/.test(W(i - 1)) || (W(i - 1) === 'r$' && /^(valor|custou|deu|paguei|gastei|total|de|por)$/.test(W(i - 2)))) peso += 2;
+      if (String(toks[i].o).includes(',')) peso += 2;
+      if (toks[i].num === 0) peso -= 5;
+      cand.push({ i, v: toks[i].num, peso });
+    }
+    cand.sort((a, b) => b.peso - a.peso || b.v - a.v);
+    if (cand.length) {
+      const c = cand[0]; valor = c.v; usar(c.i); if (W(c.i - 1) === 'r$') usar(c.i - 1); if (/^(real|reais|conto|contos|pila|pilas|pau|paus)$/.test(W(c.i + 1))) usar(c.i + 1);
+      if (/^(valor|custou|deu|paguei|gastei|total|de|por|foi)$/.test(W(c.i - 1)) || /^(valor|custou|deu|paguei|gastei|total)$/.test(W(c.i - 2))) { usar(c.i - 1); if (/^(valor|custou|deu|paguei|gastei|total)$/.test(W(c.i - 2))) usar(c.i - 2); }
+      if (cand.length > 1 && cand[1].peso >= c.peso) res.incertos.push('valor');
+      res._pesoValor = c.peso;
+    }
+    // "3 de 50": o valor dito era da parcela
+    if (valorParcela != null) {
+      if (valor == null) { valor = Math.round(valorParcela * (parcelas || 1) * 100) / 100; res.valorEraParcela = true; }
+      else if (Math.abs(valor - valorParcela * (parcelas || 1)) > Math.max(1, valor * 0.01)) res.incertos.push('valor');
+    }
+    if (valor == null || res.centavosFalados) res.incertos.push('valor');
+    // "150 em 3": ambíguo (pode ser total ou parcela) → total, marcado
+    if (parcelas > 1 && valorParcela == null && valor != null && !(res._pesoValor >= 5)) res.incertos.push('valor');
+
+    // ---------- nome da compra: o que sobrou ----------
+    const VAZIAS = new Set(['compra', 'compras', 'comprei', 'gastei', 'paguei', 'gasto', 'despesa', 'lancar', 'lanca', 'lanc', 'adicionar', 'adiciona', 'registrar', 'registra', 'anota', 'anotar', 'coloca', 'colocar', 'nova', 'novo', 'uma', 'um', 'no', 'na', 'nos', 'nas', 'em', 'de', 'do', 'da', 'dos', 'das', 'e', 'eh', 'foi', 'com', 'pra', 'para', 'pelo', 'pela', 'que', 'o', 'a', 'os', 'as', 'valor', 'reais', 'real', 'vence', 'vencimento', 'dia', 'parcela', 'parcelas', 'parte', 'todo', 'mes', 'r$', 'ai', 'tipo', 'ta', 'ok', 'por', 'favor', 'cartao', 'eu', 'fiz', 'feita', 'feito', 'primeira', 'comeca', 'vez', 'vezes', 'responsavel', 'pagamento', 'pago', 'paga', 'entao', 'tambem', 'so', 'mais', 'menos', 'mas', 'aqui']);
+    const sobras = toks.filter((t, i) => !usados.has(i));
+    // pega o maior trecho contínuo de palavras "de conteúdo"
+    const blocos = []; let atual = [];
+    toks.forEach((t, i) => { if (usados.has(i)) { if (atual.length) blocos.push(atual); atual = []; } else atual.push(t); });
+    if (atual.length) blocos.push(atual);
+    const limpa = b => { let x = b.slice(); while (x.length && VAZIAS.has(x[0].n)) x.shift(); while (x.length && VAZIAS.has(x[x.length - 1].n)) x.pop(); return x; };
+    const bons = blocos.map(limpa).filter(b => b.length && b.some(t => !VAZIAS.has(t.n) && !(typeof t.num === 'number')));
+    let nome = '';
+    if (bons.length) {
+      // prefere o que vem logo depois de "compra/comprei/gastei no"; senão o primeiro bloco
+      bons.sort((a, b) => a[0].de - b[0].de);
+      const b = bons[0];
+      nome = frase.slice(b[0].de, b[b.length - 1].ate).replace(/\s+/g, ' ').trim();
+      if (bons.length > 1) res.incertos.push('nome');
+    } else res.incertos.push('nome');
+    nome = nome.replace(/^(o|a|um|uma)\s+/i, '');
+    if (nome) nome = nome.charAt(0).toUpperCase() + nome.slice(1);
+    // categoria pelo nome (regras do app / aprendido) quando não foi dita
+    if (!categoria && nome) {
+      const ap = (aprend.categorias || {})[N(nome)];
+      if (ap && cats.some(c => N(c) === N(ap))) categoria = cats.find(c => N(c) === N(ap));
+      else if (ctx.categoriaPorNome) { const c = ctx.categoriaPorNome(nome); if (c) categoria = c; }
+      if (!categoria) for (const t of nome.split(/\s+/)) { const c = acharCat(t); if (c) { categoria = c; break; } }
+      if (categoria) res.incertos.push('categoria');
+    }
+
+    // mês da 1ª parcela, quando não foi dito: se o dia do vencimento já passou este mês, vai para o mês que vem
+    if (!mesParc && dia) {
+      const base = dataCompra ? new Date(dataCompra + 'T12:00:00') : hoje;
+      const d = new Date(base.getFullYear(), base.getMonth() + (dia <= base.getDate() ? 1 : 0), 1);
+      mesParc = iso(d).slice(0, 7); res.incertos.push('mes');
+    }
+    Object.assign(res, { nome, valor, parcelas, tipo, nomePagamento: nomePg, categoria, catExplicita, responsavel: resp, externos, dia, dataCompra, mes: mesParc, tipoExplicito });
+    res.sobrou = sobras.map(t => t.o).join(' ');
+    res.incertos = [...new Set(res.incertos)];
+    return res;
+  }
+  return { interpretar, normalizar: N };
+})();
+
+let vozUltimo = null, vozRec = null;
+const vozChaveAprend = () => 'ttr_voz_aprend_' + grupoId();
+function vozAprendido() { try { return JSON.parse(lsGet(vozChaveAprend()) || '{}'); } catch (e) { return {}; } }
+function vozCtx() {
+  const usoTipo = {};
+  state.compras.forEach(c => { if (!c.nome_pagamento || !c.tipo_pagamento) return; const k = normalizarNome(c.nome_pagamento); (usoTipo[k] = usoTipo[k] || {}); usoTipo[k][c.tipo_pagamento] = (usoTipo[k][c.tipo_pagamento] || 0) + 1; });
+  return {
+    hoje: hojeISO(), eu: currentUser ? currentUser.nome : '', membros: membrosGrupo,
+    categorias: categoriasOrcamento.map(c => c.nome), tiposPagto: (opcoesCompra && opcoesCompra.pagto) || TIPOS_PAGTO_PADRAO,
+    nomesPagto: uniqNorm(state.compras.filter(c => c.nome_pagamento).map(c => capNome(String(c.nome_pagamento).trim()))),
+    tipoDoNome: n => { const u = usoTipo[normalizarNome(n)]; if (!u) return null; return Object.entries(u).sort((a, b) => b[1] - a[1])[0][0]; },
+    categoriaPorNome: n => { const r = sugerirCategoria(n); return r && r.cat ? capIni(r.cat) : null; },
+    aprendido: vozAprendido()
+  };
+}
+function vozResetar(mostrar) {
+  vozParar(); vozUltimo = null;
+  $('vozBox').style.display = mostrar ? '' : 'none';
+  $('vozStatus').hidden = true; $('vozTextoWrap').hidden = true; $('vozEntendi').hidden = true; $('vozTexto').value = '';
+  document.querySelectorAll('#modalCompra .voz-incerto').forEach(g => g.classList.remove('voz-incerto'));
+}
+function vozSuportado() { return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+function vozParar() { if (vozRec) { try { vozRec.onend = null; vozRec.abort(); } catch (e) {} vozRec = null; } const b = $('btnVozCompra'); if (b) { b.classList.remove('ouvindo'); $('vozBtnTxt').textContent = 'Falar a compra'; } }
+function vozMostrarTexto(dica) {
+  $('vozTextoWrap').hidden = false;
+  if (dica) { $('vozStatus').hidden = false; $('vozStatus').innerHTML = dica; }
+  setTimeout(() => $('vozTexto').focus(), 50);
+}
+function vozOuvir() {
+  if (vozRec) { try { vozRec.stop(); } catch (e) {} return; }
+  if (!vozSuportado()) return vozMostrarTexto('Este aparelho não deixa o app usar o microfone direto. Toque no <b>🎤 do teclado</b> para ditar a compra aqui embaixo (ou escreva) e depois em <b>Preencher</b>.');
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new R(); vozRec = rec;
+  rec.lang = 'pt-BR'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  let final = '';
+  const b = $('btnVozCompra'); b.classList.add('ouvindo'); $('vozBtnTxt').textContent = 'Ouvindo… toque para parar';
+  $('vozStatus').hidden = false; $('vozStatus').textContent = 'Fale a compra: nome, valor, parcelas, cartão, categoria, de quem é e o vencimento.';
+  $('vozTextoWrap').hidden = false;
+  rec.onresult = e => {
+    let inter = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) { const t = e.results[i][0].transcript; if (e.results[i].isFinal) final += t + ' '; else inter += t; }
+    $('vozTexto').value = (final + inter).trim();
+  };
+  rec.onerror = e => {
+    vozParar();
+    const msg = e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'O microfone não foi liberado. Permita o microfone para o app nas configurações do celular, ou toque no <b>🎤 do teclado</b> e dite aqui embaixo.'
+      : e.error === 'no-speech' ? 'Não ouvi nada. Toque em <b>Falar a compra</b> e fale de novo.' : 'Não deu para ouvir agora. Você pode ditar pelo <b>🎤 do teclado</b> aqui embaixo.';
+    vozMostrarTexto(msg);
+  };
+  rec.onend = () => {
+    vozParar();
+    const txt = $('vozTexto').value.trim();
+    if (txt) vozAplicar(txt); else { $('vozStatus').hidden = false; $('vozStatus').textContent = 'Não ouvi nada. Tente de novo.'; }
+  };
+  try { rec.start(); } catch (e) { vozParar(); vozMostrarTexto('Não deu para abrir o microfone. Toque no <b>🎤 do teclado</b> para ditar aqui embaixo.'); }
+}
+function vozAplicar(texto) {
+  const r = VOZ.interpretar(texto, vozCtx());
+  document.querySelectorAll('#modalCompra .voz-incerto').forEach(g => g.classList.remove('voz-incerto'));
+  const chips = [], nao = [];
+  const marca = (id, incerto) => { if (incerto) { const g = $(id).closest('.input-group'); if (g) g.classList.add('voz-incerto'); } };
+  const inc = k => r.incertos.includes(k);
+  const chip = (txt, k) => chips.push(`<span class="vz${k && inc(k) ? ' inc' : ''}">${esc(txt)}</span>`);
+  if (r.nome) { $('cNome').value = capIni(r.nome); chip('Compra: ' + capIni(r.nome), 'nome'); marca('cNome', inc('nome')); } else { nao.push('nome da compra'); marca('cNome', true); }
+  if (r.valor != null) {
+    $('cValor').value = formatarMoeda(r.valor); $('cValor').dispatchEvent(new Event('input', { bubbles: true }));
+    chip('Valor: ' + formatarMoeda(r.valor) + (r.valorEraParcela ? ` (${r.parcelas}x de ${formatarMoeda(r.valor / r.parcelas)})` : ''), 'valor'); marca('cValor', inc('valor'));
+  } else { nao.push('valor'); marca('cValor', true); }
+  if (r.parcelas) {
+    const opt = [...$('cParcelas').options].map(o => +o.value);
+    const n = opt.includes(r.parcelas) ? r.parcelas : opt.reduce((a, b) => Math.abs(b - r.parcelas) < Math.abs(a - r.parcelas) ? b : a, 1);
+    $('cParcelas').value = String(n); $('cParcelas').dispatchEvent(new Event('change', { bubbles: true }));
+    chip(n === 1 ? 'À vista' : n + 'x');
+  }
+  if (r.responsavel === '__dividir__') {
+    $('cResponsavel').value = DIV_LABEL; ajustarCapCombo($('cResponsavel'));
+    // gênero: o que o app já sabe da pessoa; senão um palpite pelo nome (terminado em "a" = feminino), marcado para conferir
+    const palpite = n => /a$/i.test(String(n).trim()) ? 'feminino' : 'masculino';
+    const chutados = [];
+    divIniciar(null, r.externos.map(e => { const g = generoConhecido(e.pessoa); if (!g) chutados.push(e.pessoa); return { pessoa: e.pessoa, percentual: 0, genero: g || palpite(e.pessoa) }; }));
+    divRecalcular(); divVisibilidade();
+    chip('Dividida com ' + r.externos.map(e => e.pessoa).join(' e ') + ' (partes iguais)');
+    if (chutados.length) chips.push(`<span class="vz inc">Confira o gênero de ${esc(chutados.join(' e '))}</span>`);
+  } else if (r.responsavel) {
+    const v = r.responsavel === 'Ambos' && membrosGrupo.length < 2 ? currentUser.nome : r.responsavel;
+    $('cResponsavel').value = v; ajustarCapCombo($('cResponsavel')); divIniciar(null, []); divVisibilidade();
+    chip(v === 'Ambos' ? 'Dos dois' : 'De ' + capNome(v).split(' ')[0]);
+  }
+  if (r.categoria) { $('cCategoriaOrcamento').value = capIni(r.categoria); if (r.categoriaNova) r.incertos.push('categoria'); chip('Categoria: ' + capIni(r.categoria) + (r.categoriaNova ? ' (nova)' : ''), 'categoria'); marca('cCategoriaOrcamento', inc('categoria') || r.categoriaNova); }
+  if (r.tipo) { $('cTipoPagamento').value = r.tipo; chip(r.tipo + (r.nomePagamento ? ' · ' + r.nomePagamento : ''), 'tipo'); marca('cTipoPagamento', inc('tipo')); }
+  if (r.nomePagamento) $('cNomePagamento').value = r.nomePagamento;
+  atualizarLblNomePagto();
+  if (r.dataCompra) { $('cDataCompra').value = r.dataCompra; chip('Compra em ' + r.dataCompra.split('-').reverse().join('/')); }
+  if (r.dia) { $('cDia').value = String(r.dia); chip('Vence dia ' + r.dia); }
+  if (r.mes) { $('cMes').value = r.mes; $('cMes').dispatchEvent(new Event('change', { bubbles: true })); chip('1ª parcela: ' + formatarMes(r.mes), 'mes'); marca('cMes', inc('mes')); }
+  atualizarBotaoCompra();
+  ['cNome', 'cValor', 'cCategoriaOrcamento', 'cTipoPagamento', 'cMes'].forEach(id => {
+    const el = $(id), g = el.closest('.input-group'); if (!g || !g.classList.contains('voz-incerto')) return;
+    const tira = () => { g.classList.remove('voz-incerto'); el.removeEventListener('input', tira); el.removeEventListener('change', tira); };
+    el.addEventListener('input', tira); el.addEventListener('change', tira);
+  });
+  vozUltimo = { texto, r };
+  const box = $('vozEntendi'); box.hidden = false;
+  box.innerHTML = `<div class="vz-tit">Entendi isto — confira antes de salvar${r.incertos.length ? ' (em amarelo: vale conferir)' : ''}:</div>` + chips.join('') + (nao.length ? nao.map(x => `<span class="vz nao">Faltou: ${esc(x)}</span>`).join('') : '');
+  $('vozStatus').hidden = true;
+}
+// aprende com as correções: se a pessoa trocou a categoria, da próxima vez a mesma compra (ou a mesma palavra) já vem certa
+function vozAprender(nome, catFinal) {
+  if (!vozUltimo) return;
+  try {
+    const a = vozAprendido(); a.categorias = a.categorias || {};
+    const r = vozUltimo.r;
+    if (catFinal && normalizarNome(catFinal) !== normalizarNome(r.categoria || '')) {
+      a.categorias[VOZ.normalizar(nome).trim()] = catFinal;
+      if (r.palavraCategoria) a.categorias[VOZ.normalizar(r.palavraCategoria).trim()] = catFinal;
+      lsSet(vozChaveAprend(), JSON.stringify(a));
+    }
+  } catch (e) {}
+  vozUltimo = null;
+}
+function vozLigar() {
+  $('btnVozCompra').addEventListener('click', vozOuvir);
+  $('btnVozEscrever').addEventListener('click', () => vozMostrarTexto('Escreva (ou dite pelo 🎤 do teclado) e toque em <b>Preencher</b>.'));
+  $('btnVozEntender').addEventListener('click', () => { const t = $('vozTexto').value.trim(); if (!t) return notificar('Escreva ou fale a compra primeiro.', 'aviso'); vozAplicar(t); });
+  $('vozTexto').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('btnVozEntender').click(); } });
 }
 
 function novoIdCompra() {
@@ -5461,6 +5975,7 @@ async function salvarCompra() {
     await db.from('historico_compras').insert([{ grupo_id: grupoId(), id_compra: idCompra, nome_compra: nome, acao: editId ? 'Editada' : 'Criada', detalhes: `${n} ${plw(n, 'parcela', 'parcelas')} · ${formatarMoeda(valor)}`, alterado_por: currentUser.nome }]);
 
     await sincronizarDevedores(idCompra, capIni(nome), valor, divInfo.externos);
+    if (!editId) vozAprender(nome, catNome);
     fecharModal('modalCompra');
     state.mesesSelecionados = state.mesesSelecionados.length === 1 ? [mes] : state.mesesSelecionados;
     await carregarDados();
@@ -5558,6 +6073,7 @@ async function carregarHistoricoCompras() {
 }
 
 async function abrirEditarCompra(idCompra) {
+  vozResetar(false);
   const { data, error } = await db.from('compras').select('*').eq('id_compra', idCompra).in('criado_por', emailsGrupo()).order('mes_referencia', { ascending: true });
   if (error || !data || !data.length) return alert('Compra não encontrada.');
   const c = data[0];
@@ -8841,6 +9357,7 @@ function ligarEventos() {
   $('btnConfiguracoes').addEventListener('click', abrirConfiguracoes);
   impLigarEventos();
   exLigarEventos();
+  vozLigar();
   nvLigarEventos();
   $('cNome').addEventListener('blur', () => {
     if ($('cCategoriaOrcamento').value || !$('cNome').value.trim()) return;
