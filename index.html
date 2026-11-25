@@ -7873,12 +7873,17 @@ async function impSalvar() {
         categoria_orcamento: x.cat || null,
         tipo_pagamento: tipoPag, nome_pagamento: capNome(cartao), nome_original: x.nomeBase,
         data_compra: x.dataCompra || null, mes_referencia: ym, data_parcela: `${ym}-${pad2(Math.min(dia, new Date(y, mo, 0).getDate()))}`,
-        parcela_referencia: `${k}/${x.total}`, status: 'Ativo', pagamento: passada, data_pagamento: passada ? new Date(`${ym}-${pad2(Math.min(dia, new Date(y, mo, 0).getDate()))}T12:00:00`).toISOString() : null, ...(passada && temColValorPago() ? { valor_pago: x.valor } : {}), criado_por: currentUser.email
+        parcela_referencia: `${k}/${x.total}`, status: 'Ativo', pagamento: passada, data_pagamento: passada ? new Date(`${ym}-${pad2(Math.min(dia, new Date(y, mo, 0).getDate()))}T12:00:00`).toISOString() : null, ...(temColValorPago() ? { valor_pago: passada ? x.valor : 0 } : {}), criado_por: currentUser.email
       });
     }
     hist.push({ grupo_id: grupoId(), id_compra: id, nome_compra: x.nome.trim(), acao: 'Importada', detalhes: `${x.total} ${plw(x.total, 'parcela', 'parcelas')}${x.cur > 1 ? ` (${x.cur - 1} ${plw(x.cur - 1, 'anterior projetada', 'anteriores projetadas')} para trás)` : ''} · ${formatarMoeda(x.valor)} (fatura CSV)${x._div ? ' · dividida' + (x._div.externos.length ? ' com ' + x._div.externos.map(e => e.nome).join(', ') : '') : ''}`, alterado_por: currentUser.nome });
   });
   let feitos = 0, semOriginal = false;
+  // todas as linhas com as mesmas colunas: numa gravação em lote o banco põe vazio (null) na coluna que falta numa linha,
+  // e valor_pago não aceita vazio (era o erro "null value in column valor_pago")
+  const PADRAO_COL = { valor_pago: 0, pagamento: false };
+  const colunasImp = new Set(rows.flatMap(r => Object.keys(r)));
+  rows.forEach(r => colunasImp.forEach(k => { if (!(k in r)) r[k] = k in PADRAO_COL ? PADRAO_COL[k] : null; }));
   try {
     for (let i = 0; i < rows.length; i += 200) {
       let lote = rows.slice(i, i + 200);
